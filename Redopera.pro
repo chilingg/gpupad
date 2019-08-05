@@ -16,12 +16,15 @@ DEPENDPATH += $$R_DEPENDENT_PATH/include
 unix{
 unix:!macx:
 LIBS += -lglfw \
+    -ldl \
 }
 
 SOURCES += \
         glad.c \
         main.cpp \
+        rdebug.cpp \
         rmaincontrol.cpp
 
 HEADERS += \
+    rdebug.h \
     rmaincontrol.h

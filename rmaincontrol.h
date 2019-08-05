@@ -7,10 +7,12 @@
 
 class RMainControl
 {
+    enum Status{ uninit, normally };
 public:
     RMainControl();
     virtual ~RMainControl();
     virtual void initialize();
+    int exec();
 
     void setVersionMajor(int value);
     void setVersionMinor(int value);
@@ -18,6 +20,7 @@ public:
     void setWindowSize(int width, int height);
 
 private:
+    Status status;
     int versionMajor;//主版本号
     int versionMinor;//副版本号
     int profile;//OpenGL模式
@@ -25,10 +28,18 @@ private:
     int height;//窗口高度
     const char *title;//窗口标题
     GLFWwindow *window;
-    
-    void printErro(const char *erro);
-    static void framebufferSizeCallback(GLFWwindow *, int width, int height);
-    static void mouseCallback(GLFWwindow *, double xpos, double ypos);
+
+    static GLenum _glCheckError_(const char *file, const int line);
+#ifndef NO_DEBUGE
+#define glCheckError() _glCheckError_(__FILE__, __LINE__)
+#endif
+    static void printErro(const std::string &error);
+    static void errorCallback(int error, const char* description);
+    static void framebufferSizeCallback(GLFWwindow *, int width, int height);//窗口resize回调
+    static void mouseMoveCallback(GLFWwindow *, double xpos, double ypos);//鼠标回调
+    static void keyCallback(GLFWwindow *, int key, int scancode, int action, int mods);
+    static void mouseButtonCallback(GLFWwindow *, int button, int action, int mods);
+    static void mouseScrollCallback(GLFWwindow *, double x, double y);
 };
 
 inline void RMainControl::setVersionMajor(int value)
@@ -48,13 +59,15 @@ inline void RMainControl::setProfile(int value)
 
 inline void RMainControl::setWindowSize(int width, int height)
 {
+    if(status == normally)
+        glViewport(0, 0, width, height);
     this->width = width;
     this->height = height;
 }
 
-inline void RMainControl::printErro(const char *erro)
+inline void RMainControl::printErro(const std::string &error)
 {
-    std::cerr << erro << std::endl;
+    std::cerr << error << std::endl;
 }
 
 #endif // RMAINCONTROL_H
