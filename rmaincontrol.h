@@ -10,8 +10,8 @@ class RMainControl
     enum Status{ uninit, normally };
 public:
     RMainControl();
-    virtual ~RMainControl();
-    virtual void initialize();
+    ~RMainControl();
+    void initialize();
     int exec();
 
     void setVersionMajor(int value);
@@ -33,7 +33,6 @@ private:
 #ifndef NO_DEBUGE
 #define glCheckError() _glCheckError_(__FILE__, __LINE__)
 #endif
-    static void printErro(const std::string &error);
     static void errorCallback(int error, const char* description);
     static void framebufferSizeCallback(GLFWwindow *, int width, int height);//窗口resize回调
     static void mouseMoveCallback(GLFWwindow *, double xpos, double ypos);//鼠标回调
@@ -55,19 +54,6 @@ inline void RMainControl::setVersionMinor(int value)
 inline void RMainControl::setProfile(int value)
 {
     profile = value;
-}
-
-inline void RMainControl::setWindowSize(int width, int height)
-{
-    if(status == normally)
-        glViewport(0, 0, width, height);
-    this->width = width;
-    this->height = height;
-}
-
-inline void RMainControl::printErro(const std::string &error)
-{
-    std::cerr << error << std::endl;
 }
 
 #endif // RMAINCONTROL_H

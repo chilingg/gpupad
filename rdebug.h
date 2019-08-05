@@ -26,7 +26,7 @@ private:
 
 inline void printErro(const char *error)
 {
-    fprintf(stderr, "%s", error);
+    fprintf(stderr, "%s\n", error);
 }
 
 inline void printErro(const std::string &str)

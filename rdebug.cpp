@@ -3,13 +3,21 @@
 RDebug::RDebug()
 {
     if(++count != 1)
-        printf("%c", 'n');
+    {
+        printf("%c", '\n');
+        fflush(stdout);
+        --count;
+    }
 }
 
 RDebug::~RDebug()
 {
-    if(--count == 0)
+    if(count == 1)
+    {
         printf("%c", '\n');
+        fflush(stdout);
+        --count;
+    }
 }
 
 const RDebug &RDebug::operator<<(int value) const
