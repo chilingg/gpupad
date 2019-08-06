@@ -27,9 +27,37 @@ const RDebug &RDebug::operator<<(int value) const
     return *this;
 }
 
+const RDebug &RDebug::operator<<(long value) const
+{
+    printf("%ld ", value);
+    fflush(stdout);
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(long long value) const
+{
+    printf("%lld ", value);
+    fflush(stdout);
+    return *this;
+}
+
 const RDebug &RDebug::operator<<(unsigned value) const
 {
     printf("%u ", value);
+    fflush(stdout);
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(unsigned long value) const
+{
+    printf("%lu ", value);
+    fflush(stdout);
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(unsigned long long value) const
+{
+    printf("%llu ", value);
     fflush(stdout);
     return *this;
 }
@@ -43,14 +71,14 @@ const RDebug &RDebug::operator<<(double value) const
 
 const RDebug &RDebug::operator<<(const char *str) const
 {
-    printf("%s ", str);
+    printf("%s", str);
     fflush(stdout);
     return *this;
 }
 
 const RDebug &RDebug::operator<<(char s) const
 {
-    printf("%c ", s);
+    printf("%c", s);
     fflush(stdout);
     return *this;
 }

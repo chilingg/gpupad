@@ -13,7 +13,11 @@ public:
     RDebug& operator=(const RDebug&) = delete;
 
     const RDebug& operator<<(int value) const;
+    const RDebug& operator<<(long value) const;
+    const RDebug& operator<<(long long value) const;
     const RDebug& operator<<(unsigned value) const;
+    const RDebug& operator<<(unsigned long value) const;
+    const RDebug& operator<<(unsigned long long value) const;
     const RDebug& operator<<(double value) const;
     const RDebug& operator<<(const char *str) const;
     const RDebug& operator<<(char s) const;

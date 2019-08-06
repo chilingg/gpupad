@@ -1,5 +1,9 @@
 #include "rmaincontrol.h"
 #include "rdebug.h"
+#include <fstream>
+#include <sstream>
+
+RMainControl::Joysticks RMainControl::joysticks{};
 
 RMainControl::RMainControl():
     status(uninit),
@@ -21,14 +25,15 @@ void RMainControl::initialize()
 {
     if(status == uninit)
     {
-        //设置GLFW
+        //初始化GLFW
         if(!glfwInit())
             exit(EXIT_FAILURE);
+        //设置上下文
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, versionMajor);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, versionMinor);
         glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
 
-        //初始化窗口对象
+        //初始化窗口对象并创建上下文
         window = glfwCreateWindow(width, height, title, nullptr, nullptr);
         if(window == nullptr)
         {
@@ -51,6 +56,19 @@ void RMainControl::initialize()
         glfwSetMouseButtonCallback(window, mouseButtonCallback);
         //鼠标滚轮
         glfwSetScrollCallback(window, mouseScrollCallback);
+        //joystick连接回调
+        glfwSetJoystickCallback(joystickPresentCallback);
+
+        //加载手柄映射
+        std::ifstream file;
+        // 保证ifstream对象可以抛出异常：
+        file.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+        file.open("../redopera/data/gamecontrollerdb.txt");
+        std::stringstream ss;
+        ss << file.rdbuf();
+        file.close();
+        const char* mapping = ss.str().c_str();
+        glfwUpdateGamepadMappings(mapping);
 
         //初始化GLAD
         if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
@@ -64,6 +82,9 @@ void RMainControl::initialize()
         glEnable(GL_DEPTH_TEST);//开启深度测试
         glEnable(GL_BLEND);//启用半透明
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//设置源与目标的混个因子
+
+        //手柄连接检测
+        checkJoysticksPresent();
 
         glCheckError();
         status = normally;
@@ -85,6 +106,8 @@ int RMainControl::exec()
         glfwSwapBuffers(window);
         //检查GLFW事件触发
         glfwPollEvents();
+        //检查手柄输入
+        joystickCheckInput();
 
         glCheckError();
     }
@@ -130,6 +153,18 @@ GLenum RMainControl::_glCheckError_(const char *file, const int line)
     return errorCode;
 }
 
+void RMainControl::checkJoysticksPresent()
+{
+    for(int i = GLFW_JOYSTICK_1; i <= GLFW_MOUSE_BUTTON_LAST; ++i)
+    {
+        if(glfwJoystickIsGamepad(i))
+        {
+            joysticks[i] = true;
+        }
+    }
+    RDebug() << "In " << __LINE__ << joysticks.size() << "number";
+}
+
 void RMainControl::setWindowSize(int width, int height)
 {
     if(status == normally)
@@ -146,25 +181,58 @@ void RMainControl::errorCallback(int error, const char *description)
 
 void RMainControl::framebufferSizeCallback(GLFWwindow *, int width, int height)
 {
+    RDebug() << 'f';
     glViewport(0, 0, width, height);
 }
 
 void RMainControl::mouseMoveCallback(GLFWwindow *, double xpos, double ypos)
 {
-    RDebug() << 'x';
+    //RDebug() << xpos << ypos;
 }
 
 void RMainControl::keyCallback(GLFWwindow *, int key, int scancode, int action, int mods)
 {
-
+    //const char *str_ch = glfwGetKeyName(GLFW_KEY_UNKNOWN, scancode);
+    //printf("glfwGetKeyName:%s\n", str_ch);
+    //RDebug() << key;
 }
 
 void RMainControl::mouseButtonCallback(GLFWwindow *, int button, int action, int mods)
 {
-
+    RDebug() << 'b';
 }
 
 void RMainControl::mouseScrollCallback(GLFWwindow *, double x, double y)
 {
+    RDebug() << x << y;
+}
 
+void RMainControl::joystickPresentCallback(int jid, int event)
+{
+    if (event == GLFW_CONNECTED)
+    {
+        joysticks[jid] = true;
+    }
+    else if (event == GLFW_DISCONNECTED)
+    {
+        joysticks.erase(jid);
+    }
+}
+
+void RMainControl::joystickCheckInput()
+{
+    GLFWgamepadstate status;
+    for(auto jid : joysticks)
+    {
+        if(glfwGetGamepadState(jid.first, &status))
+        {
+            //GLFW_GAMEPAD_BUTTON_A
+            unsigned size = sizeof(status.buttons)/sizeof(status.buttons[0]);
+            for(unsigned i = 0; i < size; ++i)
+            {
+                if(status.buttons[i])
+                    RDebug() << i;
+            }
+        }
+    }
 }
