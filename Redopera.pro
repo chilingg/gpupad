@@ -23,8 +23,14 @@ SOURCES += \
         glad.c \
         main.cpp \
         rdebug.cpp \
-        rmaincontrol.cpp
+        rmaincontrol.cpp \
+        rresource.cpp \
+        rshader.cpp \
+        rshaderprogram.cpp
 
 HEADERS += \
     rdebug.h \
-    rmaincontrol.h
+    rmaincontrol.h \
+    rresource.h \
+    rshader.h \
+    rshaderprogram.h

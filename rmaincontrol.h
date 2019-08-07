@@ -20,6 +20,8 @@ public:
     void setVersionMinor(int value);
     void setProfile(int value);
     void setWindowSize(int width, int height);
+    void enableGLCapabilities(GLenum cap);
+    void disableGLCapabilities(GLenum cap);
 
 private:
     static Joysticks joysticks;
@@ -36,9 +38,7 @@ private:
     void checkJoysticksPresent();
 
     static GLenum _glCheckError_(const char *file, const int line);
-#ifndef NO_DEBUGE
-#define glCheckError() _glCheckError_(__FILE__, __LINE__)
-#endif
+    #define glCheckError() _glCheckError_(__FILE__, __LINE__)
 
     //回调与事件相关函数
     static void errorCallback(int error, const char* description);
@@ -65,6 +65,21 @@ inline void RMainControl::setVersionMinor(int value)
 inline void RMainControl::setProfile(int value)
 {
     profile = value;
+}
+
+inline void RMainControl::enableGLCapabilities(GLenum cap)
+{
+    /*
+    glEnable(GL_DEPTH_TEST);//开启深度测试
+    glEnable(GL_BLEND);//启用半透明
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//设置源与目标的混个因子
+    */
+    glEnable(cap);
+}
+
+inline void RMainControl::disableGLCapabilities(GLenum cap)
+{
+    glDisable(cap);
 }
 
 #endif // RMAINCONTROL_H

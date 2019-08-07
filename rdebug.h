@@ -21,6 +21,7 @@ public:
     const RDebug& operator<<(double value) const;
     const RDebug& operator<<(const char *str) const;
     const RDebug& operator<<(char s) const;
+    const RDebug& operator<<(std::string s) const;
     const RDebug& operator<<(void* p) const;
     const RDebug& operator<<(bool b) const;
 
@@ -30,12 +31,16 @@ private:
 
 inline void printErro(const char *error)
 {
+#ifndef RO_NO_DEBUGE
     fprintf(stderr, "%s\n", error);
+#endif
 }
 
 inline void printErro(const std::string &str)
 {
+#ifndef RO_NO_DEBUGE
     printErro(str.c_str());
+#endif
 }
 
 #endif // RDEBUG_H

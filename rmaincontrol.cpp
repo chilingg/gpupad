@@ -1,5 +1,6 @@
 #include "rmaincontrol.h"
 #include "rdebug.h"
+#include "rresource.h"
 #include <fstream>
 #include <sstream>
 
@@ -60,15 +61,8 @@ void RMainControl::initialize()
         glfwSetJoystickCallback(joystickPresentCallback);
 
         //加载手柄映射
-        std::ifstream file;
-        // 保证ifstream对象可以抛出异常：
-        file.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-        file.open("../redopera/data/gamecontrollerdb.txt");
-        std::stringstream ss;
-        ss << file.rdbuf();
-        file.close();
-        const char* mapping = ss.str().c_str();
-        glfwUpdateGamepadMappings(mapping);
+        std::string mapping = RResource::openTextFile("../redopera/data/gamecontrollerdb.txt");
+        glfwUpdateGamepadMappings(mapping.c_str());
 
         //初始化GLAD
         if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
@@ -79,9 +73,6 @@ void RMainControl::initialize()
 
         glViewport(0, 0, width, height);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glEnable(GL_DEPTH_TEST);//开启深度测试
-        glEnable(GL_BLEND);//启用半透明
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//设置源与目标的混个因子
 
         //手柄连接检测
         checkJoysticksPresent();
@@ -118,7 +109,9 @@ int RMainControl::exec()
 
 GLenum RMainControl::_glCheckError_(const char *file, const int line)
 {
-    GLenum errorCode;
+    GLenum errorCode = 0;
+
+#ifndef RO_NO_DEBUGE
     while((errorCode = glGetError()) != GL_NO_ERROR)
     {
         std::string error;
@@ -150,6 +143,7 @@ GLenum RMainControl::_glCheckError_(const char *file, const int line)
         printErro(error);
     }
 
+#endif
     return errorCode;
 }
 
@@ -162,7 +156,7 @@ void RMainControl::checkJoysticksPresent()
             joysticks[i] = true;
         }
     }
-    RDebug() << "In " << __LINE__ << joysticks.size() << "number";
+    RDebug() << __LINE__ << "Line: " << joysticks.size() << "joystick";
 }
 
 void RMainControl::setWindowSize(int width, int height)
