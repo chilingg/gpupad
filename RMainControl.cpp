@@ -1,6 +1,6 @@
-#include "rmaincontrol.h"
-#include "rdebug.h"
-#include "rresource.h"
+#include "RMainControl.h"
+#include "RDebug.h"
+#include "RResource.h"
 #include <fstream>
 #include <sstream>
 
@@ -80,6 +80,7 @@ void RMainControl::initialize()
         glCheckError();
         status = normally;
     }
+    RDebug() << glGetString(GL_VERSION);
 }
 
 int RMainControl::exec()

@@ -20,17 +20,23 @@ LIBS += -lglfw \
 }
 
 SOURCES += \
+        RDebug.cpp \
+        RImage.cpp \
+        RMainControl.cpp \
+        RResource.cpp \
+        RShader.cpp \
+        RShaderProgram.cpp \
+        RTexture.cpp \
         glad.c \
         main.cpp \
-        rdebug.cpp \
-        rmaincontrol.cpp \
-        rresource.cpp \
-        rshader.cpp \
-        rshaderprogram.cpp
+        stb_image.cpp
 
 HEADERS += \
-    rdebug.h \
-    rmaincontrol.h \
-    rresource.h \
-    rshader.h \
-    rshaderprogram.h
+    RDebug.h \
+    RImage.h \
+    RMainControl.h \
+    RResource.h \
+    RShader.h \
+    RShaderProgram.h \
+    RTexture.h \
+    stb_image.h

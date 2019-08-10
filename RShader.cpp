@@ -1,5 +1,5 @@
-#include "rshader.h"
-#include "rdebug.h"
+#include "RShader.h"
+#include "RDebug.h"
 
 RShader::RShader()
 {
@@ -9,6 +9,11 @@ RShader::RShader()
 RShader::RShader(const GLchar *shaderPath, GLenum type)
 {
     compileShader(shaderPath, type);
+}
+
+RShader::~RShader()
+{
+    deleteResource();
 }
 
 bool RShader::compileShader(const GLchar *path, GLenum type)
@@ -22,12 +27,13 @@ bool RShader::compileShader(const GLchar *path, GLenum type)
     shaderID = glCreateShader(type);
     glShaderSource(shaderID, 1, &shaderCode, nullptr);
     glCompileShader(shaderID);
-    valid = true;
+    state = true;
     //若有错误，则打印
     glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
     if(!success)
     {
-        valid = false;
+        deleteResource();
+        state = false;
         glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
         std::string shaderType;
         if(type == GL_VERTEX_SHADER)
@@ -43,5 +49,5 @@ bool RShader::compileShader(const GLchar *path, GLenum type)
         exit(EXIT_FAILURE);
     }
 
-    return valid;
+    return state;
 }

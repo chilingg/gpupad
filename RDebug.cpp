@@ -1,4 +1,4 @@
-#include "rdebug.h"
+#include "RDebug.h"
 
 RDebug::RDebug()
 {
@@ -88,6 +88,15 @@ const RDebug &RDebug::operator<<(double value) const
 }
 
 const RDebug &RDebug::operator<<(const char *str) const
+{
+#ifndef RO_NO_DEBUGE
+    printf("%s", str);
+    fflush(stdout);
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const unsigned char *str) const
 {
 #ifndef RO_NO_DEBUGE
     printf("%s", str);

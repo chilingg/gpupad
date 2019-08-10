@@ -20,6 +20,7 @@ public:
     const RDebug& operator<<(unsigned long long value) const;
     const RDebug& operator<<(double value) const;
     const RDebug& operator<<(const char *str) const;
+    const RDebug& operator<<(const unsigned char *str) const;
     const RDebug& operator<<(char s) const;
     const RDebug& operator<<(std::string s) const;
     const RDebug& operator<<(void* p) const;

@@ -1,7 +1,7 @@
 #ifndef RSHADER_H
 #define RSHADER_H
 
-#include "rresource.h"
+#include "RResource.h"
 #include <glad/glad.h>
 
 class RShader : protected RResource
@@ -9,19 +9,23 @@ class RShader : protected RResource
 public:
     RShader();
     RShader(const GLchar* shaderPath, GLenum type);
+    ~RShader();
 
+    void deleteResource();
     bool compileShader(const GLchar *path, GLenum type);
-    void deleteShader();
     GLuint getShaderID() const;
 
-protected:
+private:
     GLuint shaderID;
 };
 
-inline void RShader::deleteShader()
+inline void RShader::deleteResource()
 {
-    valid = false;
-    glDeleteShader(shaderID);
+    if(state)
+    {
+        glDeleteShader(shaderID);
+        state = false;
+    }
 }
 
 inline GLuint RShader::getShaderID() const

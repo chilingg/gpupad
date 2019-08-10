@@ -1,10 +1,20 @@
-#include "rresource.h"
-#include "rdebug.h"
+#include "RResource.h"
+#include "RDebug.h"
 #include <fstream>
 #include <sstream>
 
 RResource::RResource():
-    valid(false)
+    state(false)
+{
+
+}
+
+RResource::~RResource()
+{
+
+}
+
+void RResource::deleteResource()
 {
 
 }

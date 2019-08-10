@@ -1,4 +1,4 @@
-#include <rmaincontrol.h>
+#include <RMainControl.h>
 
 int main()
 {

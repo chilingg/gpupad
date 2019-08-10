@@ -1,24 +1,31 @@
-#include "rshaderprogram.h"
-#include "rdebug.h"
+#include "RShaderProgram.h"
+#include "RDebug.h"
 
 RShaderProgram::RShaderProgram()
 {
-
+    ID = glCreateProgram();
 }
 
-RShaderProgram::RShaderProgram(const RShader &vertex, const RShader &fragment)
+RShaderProgram::RShaderProgram(const RShader &vertex, const RShader &fragment):
+    RShaderProgram()
 {
     attachShader(vertex);
     attachShader(fragment);
     linkProgram();
 }
 
-RShaderProgram::RShaderProgram(const RShader &vertex, const RShader &fragment, const RShader &geometry)
+RShaderProgram::RShaderProgram(const RShader &vertex, const RShader &fragment, const RShader &geometry):
+    RShaderProgram()
 {
     attachShader(vertex);
     attachShader(fragment);
     attachShader(geometry);
     linkProgram();
+}
+
+RShaderProgram::~RShaderProgram()
+{
+    deleteResource();
 }
 
 bool RShaderProgram::linkProgram()
@@ -27,16 +34,16 @@ bool RShaderProgram::linkProgram()
     char infoLog[512];
 
     glLinkProgram(ID);
-    valid = true;
+    state = true;
     // 打印编译错误（如果有的话）
     glGetProgramiv(ID, GL_LINK_STATUS, &success);
     if(!success)
     {
-        valid = false;
+        state = false;
         glGetProgramInfoLog(ID, 512, nullptr, infoLog);
         RDebug() << "Eroor: program shader linking failed!";
         exit(EXIT_FAILURE);
     }
 
-    return valid;
+    return state;
 }
