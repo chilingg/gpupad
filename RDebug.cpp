@@ -87,6 +87,15 @@ const RDebug &RDebug::operator<<(double value) const
     return *this;
 }
 
+const RDebug &RDebug::operator<<(float value) const
+{
+#ifndef RO_NO_DEBUGE
+    printf("%f ", value);
+    fflush(stdout);
+#endif
+    return *this;
+}
+
 const RDebug &RDebug::operator<<(const char *str) const
 {
 #ifndef RO_NO_DEBUGE

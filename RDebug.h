@@ -19,6 +19,7 @@ public:
     const RDebug& operator<<(unsigned long value) const;
     const RDebug& operator<<(unsigned long long value) const;
     const RDebug& operator<<(double value) const;
+    const RDebug& operator<<(float value) const;
     const RDebug& operator<<(const char *str) const;
     const RDebug& operator<<(const unsigned char *str) const;
     const RDebug& operator<<(char s) const;

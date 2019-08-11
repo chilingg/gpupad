@@ -34,6 +34,8 @@ SOURCES += \
 HEADERS += \
     RDebug.h \
     RImage.h \
+    RJoystickEvent.h \
+    RKeyEvent.h \
     RMainControl.h \
     RMouseEvent.h \
     RResource.h \

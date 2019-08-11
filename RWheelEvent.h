@@ -1,11 +1,10 @@
 #ifndef RWHEELEVENT_H
 #define RWHEELEVENT_H
 
-
-class RwheelEvent
+class RWheelEvent
 {
 public:
-    RwheelEvent(int x, int y, int delta);
+    RWheelEvent(int x, int y, int delta);
     int x() const;
     int y() const;
     int delta() const;
@@ -16,7 +15,7 @@ private:
     const int DELTA;
 };
 
-inline RwheelEvent::RwheelEvent(int x, int y, int delta):
+inline RWheelEvent::RWheelEvent(int x, int y, int delta):
     X(x),
     Y(y),
     DELTA(delta)
@@ -24,17 +23,17 @@ inline RwheelEvent::RwheelEvent(int x, int y, int delta):
 
 }
 
-inline int RwheelEvent::x() const
+inline int RWheelEvent::x() const
 {
     return X;
 }
 
-inline int RwheelEvent::y() const
+inline int RWheelEvent::y() const
 {
     return Y;
 }
 
-inline int RwheelEvent::delta() const
+inline int RWheelEvent::delta() const
 {
     return DELTA;
 }

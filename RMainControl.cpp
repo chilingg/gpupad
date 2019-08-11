@@ -19,7 +19,7 @@ RMainControl::RMainControl():
 
 RMainControl::~RMainControl()
 {
-
+    glfwTerminate();
 }
 
 void RMainControl::initialize()
@@ -99,12 +99,12 @@ int RMainControl::exec()
         //检查GLFW事件触发
         glfwPollEvents();
         //检查手柄输入
-        joystickCheckInput();
+        if(!joysticks.empty())
+            joystickCheckInput();
 
         glCheckError();
     }
 
-    glfwTerminate();
     return flag;
 }
 
@@ -154,7 +154,7 @@ void RMainControl::checkJoysticksPresent()
     {
         if(glfwJoystickIsGamepad(i))
         {
-            joysticks[i] = true;
+            joysticks.insert(i);
         }
     }
     RDebug() << __LINE__ << "Line: " << joysticks.size() << "joystick";
@@ -185,11 +185,13 @@ void RMainControl::mouseMoveCallback(GLFWwindow *, double xpos, double ypos)
     //RDebug() << xpos << ypos;
 }
 
-void RMainControl::keyCallback(GLFWwindow *, int key, int scancode, int action, int mods)
+void RMainControl::keyCallback(GLFWwindow *window, int key, int, int action, int mods)
 {
     //const char *str_ch = glfwGetKeyName(GLFW_KEY_UNKNOWN, scancode);
     //printf("glfwGetKeyName:%s\n", str_ch);
     //RDebug() << key;
+    if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
 
 void RMainControl::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
@@ -210,7 +212,7 @@ void RMainControl::joystickPresentCallback(int jid, int event)
 {
     if (event == GLFW_CONNECTED)
     {
-        joysticks[jid] = true;
+        joysticks.insert(jid);
     }
     else if (event == GLFW_DISCONNECTED)
     {
@@ -223,7 +225,7 @@ void RMainControl::joystickCheckInput()
     GLFWgamepadstate status;
     for(auto jid : joysticks)
     {
-        if(glfwGetGamepadState(jid.first, &status))
+        if(glfwGetGamepadState(jid, &status))
         {
             //GLFW_GAMEPAD_BUTTON_A
             unsigned size = sizeof(status.buttons)/sizeof(status.buttons[0]);
@@ -232,7 +234,35 @@ void RMainControl::joystickCheckInput()
                 if(status.buttons[i])
                     RDebug() << i;
             }
+
+            static const float lStart = -1;
+            static const float rStart = -1;
+            static const float inaccaracy = 0.1f;
+
+            if(status.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > inaccaracy || status.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -inaccaracy)
+            {
+                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_LEFT_X] << "LX";
+            }
+            if(status.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > inaccaracy || status.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -inaccaracy)
+            {
+                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] << "LY";
+            }
+            if(status.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] > inaccaracy || status.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] < -inaccaracy)
+            {
+                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] << "RX";
+            }
+            if(status.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > inaccaracy || status.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] < -inaccaracy)
+            {
+                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] << "RY";
+            }
+            if(status.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] > lStart)
+            {
+                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] << "L";
+            }
+            if(status.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > rStart)
+            {
+                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] << "R";
+            }
         }
-        //status.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
     }
 }

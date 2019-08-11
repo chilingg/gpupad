@@ -4,11 +4,11 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <map>
+#include <set>
 
 class RMainControl
 {
-    using Joysticks = std::map<int, bool>;
+    using Joysticks = std::set<int>;
     enum Status{ uninit, normally };
 public:
     RMainControl();

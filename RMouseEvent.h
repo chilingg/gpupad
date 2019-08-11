@@ -1,7 +1,6 @@
 #ifndef RMOUSEEVENT_H
 #define RMOUSEEVENT_H
 
-
 class RMouseEvent
 {
 public:
