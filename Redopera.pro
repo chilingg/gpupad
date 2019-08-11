@@ -35,8 +35,10 @@ HEADERS += \
     RDebug.h \
     RImage.h \
     RMainControl.h \
+    RMouseEvent.h \
     RResource.h \
     RShader.h \
     RShaderProgram.h \
     RTexture.h \
+    RWheelEvent.h \
     stb_image.h

@@ -192,14 +192,18 @@ void RMainControl::keyCallback(GLFWwindow *, int key, int scancode, int action, 
     //RDebug() << key;
 }
 
-void RMainControl::mouseButtonCallback(GLFWwindow *, int button, int action, int mods)
+void RMainControl::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
-    RDebug() << 'b';
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    RDebug() << xpos << ypos;
 }
 
-void RMainControl::mouseScrollCallback(GLFWwindow *, double x, double y)
+void RMainControl::mouseScrollCallback(GLFWwindow *window, double x, double y)
 {
-    RDebug() << x << y;
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    RDebug() << xpos << ypos;
 }
 
 void RMainControl::joystickPresentCallback(int jid, int event)
@@ -229,5 +233,6 @@ void RMainControl::joystickCheckInput()
                     RDebug() << i;
             }
         }
+        //status.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
     }
 }

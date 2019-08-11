@@ -42,12 +42,12 @@ private:
 
     //回调与事件相关函数
     static void errorCallback(int error, const char* description);
-    static void framebufferSizeCallback(GLFWwindow *, int width, int height);//窗口resize回调
-    static void mouseMoveCallback(GLFWwindow *, double xpos, double ypos);//鼠标回调
+    static void framebufferSizeCallback(GLFWwindow *window, int width, int height);//窗口resize回调
+    static void mouseMoveCallback(GLFWwindow *window, double xpos, double ypos);//鼠标回调
     //key：激发的键值，scancode：键值的系统扫描码，action：GLFW_PRESS, GLFW_RELEASE or GLFW_REPEAT，modes：ALT，CTRL，SHIFT，META等
-    static void keyCallback(GLFWwindow *, int key, int scancode, int action, int mods);
-    static void mouseButtonCallback(GLFWwindow *, int button, int action, int mods);
-    static void mouseScrollCallback(GLFWwindow *, double x, double y);
+    static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+    static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
+    static void mouseScrollCallback(GLFWwindow *window, double x, double y);
     static void joystickPresentCallback(int jid, int event);
     static void joystickCheckInput();
 };
