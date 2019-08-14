@@ -1,6 +1,12 @@
 #include "RMainControl.h"
 #include "RDebug.h"
 #include "RResource.h"
+
+#include "RKeyEvent.h"
+#include "RMouseEvent.h"
+#include "RWheelEvent.h"
+#include "RJoystickEvent.h"
+
 #include <fstream>
 #include <sstream>
 
@@ -154,7 +160,7 @@ void RMainControl::checkJoysticksPresent()
     {
         if(glfwJoystickIsGamepad(i))
         {
-            joysticks.insert(i);
+            joystickPresentCallback(i, GLFW_CONNECTED);
         }
     }
     RDebug() << __LINE__ << "Line: " << joysticks.size() << "joystick";
@@ -210,11 +216,11 @@ void RMainControl::mouseScrollCallback(GLFWwindow *window, double x, double y)
 
 void RMainControl::joystickPresentCallback(int jid, int event)
 {
-    if (event == GLFW_CONNECTED)
+    if(event == GLFW_CONNECTED)
     {
         joysticks.insert(jid);
     }
-    else if (event == GLFW_DISCONNECTED)
+    else if(event == GLFW_DISCONNECTED)
     {
         joysticks.erase(jid);
     }
@@ -222,6 +228,7 @@ void RMainControl::joystickPresentCallback(int jid, int event)
 
 void RMainControl::joystickCheckInput()
 {
+    /*
     GLFWgamepadstate status;
     for(auto jid : joysticks)
     {
@@ -265,4 +272,5 @@ void RMainControl::joystickCheckInput()
             }
         }
     }
+    */
 }
