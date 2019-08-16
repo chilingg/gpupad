@@ -6,13 +6,13 @@
 #include <iostream>
 #include <set>
 
-class RMainControl
+class RWindow
 {
     using Joysticks = std::set<int>;
     enum Status{ uninit, normally };
 public:
-    RMainControl();
-    ~RMainControl();
+    RWindow();
+    ~RWindow();
     void initialize();
     int exec();
 
@@ -49,25 +49,25 @@ private:
     static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
     static void mouseScrollCallback(GLFWwindow *window, double x, double y);
     static void joystickPresentCallback(int jid, int event);
-    static void joystickCheckInput();
+    static void StartJoystickEvent();
 };
 
-inline void RMainControl::setVersionMajor(int value)
+inline void RWindow::setVersionMajor(int value)
 {
     versionMajor = value;
 }
 
-inline void RMainControl::setVersionMinor(int value)
+inline void RWindow::setVersionMinor(int value)
 {
     versionMinor = value;
 }
 
-inline void RMainControl::setProfile(int value)
+inline void RWindow::setProfile(int value)
 {
     profile = value;
 }
 
-inline void RMainControl::enableGLCapabilities(GLenum cap)
+inline void RWindow::enableGLCapabilities(GLenum cap)
 {
     /*
     glEnable(GL_DEPTH_TEST);//开启深度测试
@@ -77,7 +77,7 @@ inline void RMainControl::enableGLCapabilities(GLenum cap)
     glEnable(cap);
 }
 
-inline void RMainControl::disableGLCapabilities(GLenum cap)
+inline void RWindow::disableGLCapabilities(GLenum cap)
 {
     glDisable(cap);
 }

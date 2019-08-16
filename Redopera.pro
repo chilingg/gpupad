@@ -20,27 +20,29 @@ LIBS += -lglfw \
 }
 
 SOURCES += \
+        RController.cpp \
         RDebug.cpp \
         RImage.cpp \
-        RMainControl.cpp \
         RResource.cpp \
         RShader.cpp \
         RShaderProgram.cpp \
         RTexture.cpp \
+        RWindow.cpp \
         glad.c \
         main.cpp \
         stb_image.cpp
 
 HEADERS += \
+    RController.h \
     RDebug.h \
     RImage.h \
     RJoystickEvent.h \
     RKeyEvent.h \
-    RMainControl.h \
     RMouseEvent.h \
     RResource.h \
     RShader.h \
     RShaderProgram.h \
     RTexture.h \
     RWheelEvent.h \
+    RWindow.h \
     stb_image.h

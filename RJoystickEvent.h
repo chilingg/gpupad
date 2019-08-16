@@ -46,36 +46,37 @@ private:
     const Joysticks *joys;
     GLFWgamepadstate status;
 };
-#endif // RJOYSTICKEVENT_H
 
-RJoystickEvent::RJoystickEvent(const RJoystickEvent::Joysticks &joys)
+inline RJoystickEvent::RJoystickEvent(const RJoystickEvent::Joysticks &joys)
 {
     this->joys = &joys;
     setJoystick(*joys.begin());
 }
 
-bool RJoystickEvent::button(RJoystickEvent::Buttons btn) const
+inline bool RJoystickEvent::button(RJoystickEvent::Buttons btn) const
 {
     return status.buttons[btn];
 }
 
-float RJoystickEvent::axes(RJoystickEvent::Axes axis) const
+inline float RJoystickEvent::axes(RJoystickEvent::Axes axis) const
 {
     return status.axes[axis];
 }
 
-bool RJoystickEvent::setJoystick(int jid)
+inline bool RJoystickEvent::setJoystick(int jid)
 {
     return glfwGetGamepadState(jid, &status);
 }
 
-unsigned RJoystickEvent::number() const
+inline unsigned RJoystickEvent::number() const
 {
     return static_cast<unsigned>(joys->size());
 }
 
-void RJoystickEvent::synchronizationJoys(RJoystickEvent::Joysticks &joys)
+inline void RJoystickEvent::synchronizationJoys(RJoystickEvent::Joysticks &joys)
 {
     Joysticks temp = *this->joys;
     joys.swap(temp);
 }
+
+#endif // RJOYSTICKEVENT_H

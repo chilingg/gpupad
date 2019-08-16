@@ -1,8 +1,8 @@
-#include <RMainControl.h>
+#include <RWindow.h>
 
 int main()
 {
-    RMainControl controler;
+    RWindow controler;
     controler.initialize();
     controler.exec();
 

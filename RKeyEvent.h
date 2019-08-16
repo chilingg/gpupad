@@ -25,7 +25,7 @@ inline int RKeyEvent::key() const
     return KEY;
 }
 
-int RKeyEvent::modifiers() const
+inline int RKeyEvent::modifiers() const
 {
     return MODIFIERS;
 }

@@ -1,4 +1,4 @@
-#include "RMainControl.h"
+#include "RWindow.h"
 #include "RDebug.h"
 #include "RResource.h"
 
@@ -10,9 +10,9 @@
 #include <fstream>
 #include <sstream>
 
-RMainControl::Joysticks RMainControl::joysticks{};
+RWindow::Joysticks RWindow::joysticks{};
 
-RMainControl::RMainControl():
+RWindow::RWindow():
     status(uninit),
     versionMajor(3),
     versionMinor(3),
@@ -23,12 +23,12 @@ RMainControl::RMainControl():
 {
 }
 
-RMainControl::~RMainControl()
+RWindow::~RWindow()
 {
     glfwTerminate();
 }
 
-void RMainControl::initialize()
+void RWindow::initialize()
 {
     if(status == uninit)
     {
@@ -89,7 +89,7 @@ void RMainControl::initialize()
     RDebug() << glGetString(GL_VERSION);
 }
 
-int RMainControl::exec()
+int RWindow::exec()
 {
     int flag = 0;
 
@@ -106,7 +106,7 @@ int RMainControl::exec()
         glfwPollEvents();
         //检查手柄输入
         if(!joysticks.empty())
-            joystickCheckInput();
+            StartJoystickEvent();
 
         glCheckError();
     }
@@ -114,7 +114,7 @@ int RMainControl::exec()
     return flag;
 }
 
-GLenum RMainControl::_glCheckError_(const char *file, const int line)
+GLenum RWindow::_glCheckError_(const char *file, const int line)
 {
     GLenum errorCode = 0;
 
@@ -154,7 +154,7 @@ GLenum RMainControl::_glCheckError_(const char *file, const int line)
     return errorCode;
 }
 
-void RMainControl::checkJoysticksPresent()
+void RWindow::checkJoysticksPresent()
 {
     for(int i = GLFW_JOYSTICK_1; i <= GLFW_MOUSE_BUTTON_LAST; ++i)
     {
@@ -166,7 +166,7 @@ void RMainControl::checkJoysticksPresent()
     RDebug() << __LINE__ << "Line: " << joysticks.size() << "joystick";
 }
 
-void RMainControl::setWindowSize(int width, int height)
+void RWindow::setWindowSize(int width, int height)
 {
     if(status == normally)
         glViewport(0, 0, width, height);
@@ -174,24 +174,24 @@ void RMainControl::setWindowSize(int width, int height)
     this->height = height;
 }
 
-void RMainControl::errorCallback(int error, const char *description)
+void RWindow::errorCallback(int error, const char *description)
 {
     printErro("In errorCallback!");
     printErro(description);
 }
 
-void RMainControl::framebufferSizeCallback(GLFWwindow *, int width, int height)
+void RWindow::framebufferSizeCallback(GLFWwindow *, int width, int height)
 {
     RDebug() << 'f';
     glViewport(0, 0, width, height);
 }
 
-void RMainControl::mouseMoveCallback(GLFWwindow *, double xpos, double ypos)
+void RWindow::mouseMoveCallback(GLFWwindow *, double xpos, double ypos)
 {
     //RDebug() << xpos << ypos;
 }
 
-void RMainControl::keyCallback(GLFWwindow *window, int key, int, int action, int mods)
+void RWindow::keyCallback(GLFWwindow *window, int key, int, int action, int mods)
 {
     //const char *str_ch = glfwGetKeyName(GLFW_KEY_UNKNOWN, scancode);
     //printf("glfwGetKeyName:%s\n", str_ch);
@@ -200,21 +200,21 @@ void RMainControl::keyCallback(GLFWwindow *window, int key, int, int action, int
         glfwSetWindowShouldClose(window, true);
 }
 
-void RMainControl::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
+void RWindow::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
     RDebug() << xpos << ypos;
 }
 
-void RMainControl::mouseScrollCallback(GLFWwindow *window, double x, double y)
+void RWindow::mouseScrollCallback(GLFWwindow *window, double x, double y)
 {
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
     RDebug() << xpos << ypos;
 }
 
-void RMainControl::joystickPresentCallback(int jid, int event)
+void RWindow::joystickPresentCallback(int jid, int event)
 {
     if(event == GLFW_CONNECTED)
     {
@@ -226,7 +226,7 @@ void RMainControl::joystickPresentCallback(int jid, int event)
     }
 }
 
-void RMainControl::joystickCheckInput()
+void RWindow::StartJoystickEvent()
 {
     /*
     GLFWgamepadstate status;

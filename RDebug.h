@@ -35,6 +35,7 @@ inline void printErro(const char *error)
 {
 #ifndef RO_NO_DEBUGE
     fprintf(stderr, "%s\n", error);
+    fflush(stderr);
 #endif
 }
 
