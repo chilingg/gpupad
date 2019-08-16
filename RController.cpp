@@ -48,7 +48,7 @@ void RController::deleteChildren(RController *child)
             return;
         }
     }
-    printErro("Delete child do not exit!");
+    printErro("Delete child do not exist!");
 }
 
 void RController::JoystickPresentEvent(RJoystickEvent *)
