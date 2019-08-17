@@ -3,7 +3,9 @@
 int main()
 {
     RWindow controler;
-    controler.initialize();
+
+    if(!controler.initialize())
+        return -1;
     controler.exec();
 
     return 0;

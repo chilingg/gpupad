@@ -10,7 +10,20 @@
 class RController
 {
     using RControllers = std::list<RController*>;
+
 public:
+    enum Event {
+        PaintEvent,
+        JoystickEvent,
+        JoystickPresentEvent,
+        KeyPressEvent,
+        KeyReleaseEvent,
+        MouseMoveEvent,
+        MousePressEvent,
+        MouseReleaseEvent,
+        WheelEvent
+    };
+
     RController(RController *parent = nullptr);
     virtual ~RController();
 
@@ -18,15 +31,27 @@ public:
     void addChildren(RController *child);
     void deleteChildren(RController *child);
 
+    void close();
+    void update();
+    void resize(int width, int height);
+
+    void dispatcherInputEvent(RJoystickEvent *event, Event name);
+    void dispatcherInputEvent(RKeyEvent *event, Event name);
+    void dispatcherInputEvent(RMouseEvent *event, Event name);
+    void dispatcherInputEvent(RWheelEvent *event, Event name);
+
 protected:
-    virtual void JoystickPresentEvent(RJoystickEvent *event);
-    virtual void JoystickEvent(RJoystickEvent *event);
+    virtual void paintEvent();
+    virtual void resizeEvent(int width, int height);
+    virtual void joystickPresentEvent(RJoystickEvent *event);
+    virtual void joystickEvent(RJoystickEvent *event);
     virtual void keyPressEvent(RKeyEvent *event);
     virtual void keyReleaseEvent(RKeyEvent *event);
     virtual void mouseMoveEvent(RMouseEvent *event);
     virtual void mousePressEvent(RMouseEvent *event);
     virtual void mouseReleaseEvent(RMouseEvent *event);
     virtual void wheelEvent(RWheelEvent *event);
+    virtual void closeEvent();
 
     RController *parent;
     RControllers children;

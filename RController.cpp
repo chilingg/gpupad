@@ -11,7 +11,7 @@ RController::RController(RController *parent):
 RController::~RController()
 {
     setPatent(nullptr);
-    pass;
+    close();
 }
 
 void RController::setPatent(RController *parent)
@@ -51,12 +51,126 @@ void RController::deleteChildren(RController *child)
     printErro("Delete child do not exist!");
 }
 
-void RController::JoystickPresentEvent(RJoystickEvent *)
+void RController::close()
+{
+    for(auto child : children)
+    {
+        child->close();
+    }
+    RControllers().swap(children);
+    closeEvent();
+}
+
+void RController::update()
+{
+    for(auto child : children)
+    {
+        child->update();
+    }
+    paintEvent();
+}
+
+void RController::resize(int width, int height)
+{
+    for(auto child : children)
+    {
+        child->resize(width, height);
+    }
+    resizeEvent(width, height);
+}
+
+void RController::dispatcherInputEvent(RJoystickEvent *event, RController::Event name)
+{
+    for(auto child : children)
+    {
+        child->dispatcherInputEvent(event, name);
+    }
+
+    switch(name)
+    {
+    case JoystickEvent:
+        joystickEvent(event);
+        break;
+    case JoystickPresentEvent:
+        joystickPresentEvent(event);
+        break;
+    default:
+        printErro("Error joystick event call");
+    }
+}
+
+void RController::dispatcherInputEvent(RKeyEvent *event, RController::Event name)
+{
+    for(auto child : children)
+    {
+        child->dispatcherInputEvent(event, name);
+    }
+
+    switch(name)
+    {
+    case KeyPressEvent:
+        keyPressEvent(event);
+        break;
+    case KeyReleaseEvent:
+        keyReleaseEvent(event);
+        break;
+    default:
+        printErro("Error key event call");
+    }
+}
+
+void RController::dispatcherInputEvent(RMouseEvent *event, RController::Event name)
+{
+    for(auto child : children)
+    {
+        child->dispatcherInputEvent(event, name);
+    }
+
+    switch(name)
+    {
+    case MouseMoveEvent:
+        mouseMoveEvent(event);
+        break;
+    case MousePressEvent:
+        mousePressEvent(event);
+        break;
+    case MouseReleaseEvent:
+        mouseReleaseEvent(event);
+        break;
+    default:
+        printErro("Error mouse event call");
+    }
+}
+
+void RController::dispatcherInputEvent(RWheelEvent *event, RController::Event name)
+{
+    for(auto child : children)
+    {
+        child->dispatcherInputEvent(event, name);
+    }
+
+    if(name == WheelEvent)
+        wheelEvent(event);
+    else
+        printf("Error wheel event call");
+}
+
+void RController::paintEvent()
 {
 
 }
 
-void RController::JoystickEvent(RJoystickEvent *)
+void RController::resizeEvent(int width, int height)
+{
+
+}
+
+void RController::joystickPresentEvent(RJoystickEvent *)
+{
+
+}
+
+void RController::joystickEvent(RJoystickEvent *)
 {
 
 }
@@ -87,6 +201,11 @@ void RController::mouseReleaseEvent(RMouseEvent *)
 }
 
 void RController::wheelEvent(RWheelEvent *)
+{
+
+}
+
+void RController::closeEvent()
 {
 
 }

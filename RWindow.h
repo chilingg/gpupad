@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <set>
+#include "RController.h"
 
 class RWindow
 {
@@ -13,20 +14,21 @@ class RWindow
 public:
     RWindow();
     ~RWindow();
-    void initialize();
+    bool initialize();
     int exec();
 
     void setVersionMajor(int value);
     void setVersionMinor(int value);
     void setProfile(int value);
     void setWindowSize(int width, int height);
+    void setRootController(RController *root);
     void enableGLCapabilities(GLenum cap);
     void disableGLCapabilities(GLenum cap);
 
 private:
     static Joysticks joysticks;
+    static RController *root;
 
-    Status status;
     int versionMajor;//主版本号
     int versionMinor;//副版本号
     int profile;//OpenGL模式
@@ -49,7 +51,7 @@ private:
     static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
     static void mouseScrollCallback(GLFWwindow *window, double x, double y);
     static void joystickPresentCallback(int jid, int event);
-    static void StartJoystickEvent();
+    static void startJoystickEvent();
 };
 
 inline void RWindow::setVersionMajor(int value)
