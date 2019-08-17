@@ -20,7 +20,8 @@ RWindow::RWindow():
     width(800),
     height(450),
     title("Redopera"),
-    window(nullptr)
+    window(nullptr),
+    cursorTrack(false)
 {
 }
 
@@ -31,9 +32,15 @@ RWindow::~RWindow()
 
 bool RWindow::initialize()
 {
-    if(window != nullptr)
+    if(window)
     {
         printErro("The window already exists!");
+        return false;
+    }
+
+    if(!root)
+    {
+        printErro("Lack of controller!");
         return false;
     }
 
@@ -64,7 +71,8 @@ bool RWindow::initialize()
     //对窗口注册一个resize回调函数
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     //注册一个鼠标移动回调函数
-    glfwSetCursorPosCallback(window, mouseMoveCallback);
+    if(cursorTrack)
+        glfwSetCursorPosCallback(window, mouseMoveCallback);
     //键盘回调
     glfwSetKeyCallback(window, keyCallback);
     //鼠标点击
@@ -187,7 +195,10 @@ void RWindow::checkJoysticksPresent()
 void RWindow::setWindowSize(int width, int height)
 {
     if(window)
+    {
         glViewport(0, 0, width, height);
+        root->resize(width, height);
+    }
     this->width = width;
     this->height = height;
 }
@@ -205,36 +216,55 @@ void RWindow::errorCallback(int error, const char *description)
 
 void RWindow::framebufferSizeCallback(GLFWwindow *, int width, int height)
 {
-    RDebug() << 'f';
     glViewport(0, 0, width, height);
+    root->resize(width, height);
 }
 
 void RWindow::mouseMoveCallback(GLFWwindow *, double xpos, double ypos)
 {
-    //RDebug() << xpos << ypos;
+    int x = static_cast<int>(xpos);
+    int y = static_cast<int>(ypos);
+
+    RMouseEvent event(x, y);
+    root->dispatcherInputEvent(&event, RController::MouseMoveEvent);
 }
 
 void RWindow::keyCallback(GLFWwindow *window, int key, int, int action, int mods)
 {
-    //const char *str_ch = glfwGetKeyName(GLFW_KEY_UNKNOWN, scancode);
-    //printf("glfwGetKeyName:%s\n", str_ch);
-    //RDebug() << key;
     if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    RKeyEvent event(key, mods);
+    if(action == GLFW_PRESS)
+        root->dispatcherInputEvent(&event, RController::KeyPressEvent);
+    else if(action == GLFW_RELEASE)
+        root->dispatcherInputEvent(&event, RController::KeyReleaseEvent);
 }
 
 void RWindow::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
-    RDebug() << xpos << ypos;
+    int x = static_cast<int>(xpos);
+    int y = static_cast<int>(ypos);
+
+    RMouseEvent event(x, y, button, mods);
+    if(action == GLFW_PRESS)
+        root->dispatcherInputEvent(&event, RController::MousePressEvent);
+    else if(action == GLFW_RELEASE)
+        root->dispatcherInputEvent(&event, RController::MouseReleaseEvent);
 }
 
-void RWindow::mouseScrollCallback(GLFWwindow *window, double x, double y)
+void RWindow::mouseScrollCallback(GLFWwindow *window, double xOffset, double yOffset)
 {
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
-    RDebug() << xpos << ypos;
+    int x = static_cast<int>(xpos);
+    int y = static_cast<int>(ypos);
+    int offset = yOffset > 0 ? 1 : -1;
+
+    RWheelEvent event(x, y, offset);
+    root->dispatcherInputEvent(&event, RController::WheelEvent);
 }
 
 void RWindow::joystickPresentCallback(int jid, int event)

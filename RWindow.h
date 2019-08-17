@@ -21,6 +21,7 @@ public:
     void setVersionMinor(int value);
     void setProfile(int value);
     void setWindowSize(int width, int height);
+    void setCursorTrak(bool b);
     void setRootController(RController *root);
     void enableGLCapabilities(GLenum cap);
     void disableGLCapabilities(GLenum cap);
@@ -36,6 +37,8 @@ private:
     int height;//窗口高度
     const char *title;//窗口标题
     GLFWwindow *window;
+
+    bool cursorTrack;
 
     void checkJoysticksPresent();
 
@@ -67,6 +70,11 @@ inline void RWindow::setVersionMinor(int value)
 inline void RWindow::setProfile(int value)
 {
     profile = value;
+}
+
+inline void RWindow::setCursorTrak(bool b)
+{
+    cursorTrack = b;
 }
 
 inline void RWindow::enableGLCapabilities(GLenum cap)

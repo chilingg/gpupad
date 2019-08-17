@@ -1,12 +1,15 @@
-#include <RWindow.h>
+#include "RWindow.h"
+#include "RController.h"
 
 int main()
 {
-    RWindow controler;
+    RWindow window;
+    RController ctrl;
 
-    if(!controler.initialize())
+    window.setRootController(&ctrl);
+    if(!window.initialize())
         return -1;
-    controler.exec();
+    window.exec();
 
     return 0;
 }
