@@ -45,6 +45,7 @@ HEADERS += \
     Redlib/RJoystickEvent.h \
     Redlib/RKeyEvent.h \
     Redlib/RMouseEvent.h \
+    Redlib/RResizeEvent.h \
     Redlib/RResource.h \
     Redlib/RShader.h \
     Redlib/RShaderProgram.h \

@@ -70,13 +70,13 @@ void RController::update()
     paintEvent();
 }
 
-void RController::resize(int width, int height)
+void RController::dispatcherResizeEvent(RResizeEvent *event)
 {
     for(auto child : children)
     {
-        child->resize(width, height);
+        child->dispatcherResizeEvent(event);
     }
-    resizeEvent(width, height);
+    resizeEvent(event);
 }
 
 void RController::dispatcherInputEvent(RJoystickEvent *event, RController::Event name)
@@ -163,7 +163,7 @@ void RController::paintEvent()
 
 }
 
-void RController::resizeEvent(int width, int height)
+void RController::resizeEvent(RResizeEvent *event)
 {
 
 }

@@ -4,6 +4,7 @@
 #include <RShaderProgram.h>
 #include <RController.h>
 #include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 
 class TestCtrl : public RController
 {
@@ -21,6 +22,9 @@ protected:
 private:
     const float VIEW_PROT_WIDTH;
     const float VIEW_PROT_HEIGHT;
+    glm::vec2 pos;
+    glm::vec2 move;
+
     RShaderProgram program;
     unsigned VAO, VBO;
     glm::mat4 model;

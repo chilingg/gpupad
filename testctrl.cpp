@@ -6,8 +6,10 @@
 
 TestCtrl::TestCtrl(RController *parent):
     RController(parent),
-    VIEW_PROT_WIDTH(1920.0f),
-    VIEW_PROT_HEIGHT(1080.0f)
+    VIEW_PROT_WIDTH(16.0f),
+    VIEW_PROT_HEIGHT(9.0f),
+    pos(0.0f, 0.0f),
+    move(0.0f, 0.0f)
 {
     RShader vertex(RE_PATH + "shaders/vertex.vert", RShader::VERTEX_SHADER);
     RShader fragment((RE_PATH + "shaders/fragment.frag"), RShader::FRAGMENT_SHADER);
@@ -36,12 +38,12 @@ TestCtrl::TestCtrl(RController *parent):
     glBindVertexArray(0);
 
     projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
-    projection = glm::mat4(1);
+    //projection = glm::mat4(1);
 
     view = glm::mat4(1);
 
-    model = glm::mat4(1);
-    //model = glm::scale(model, {0.4f, 0.4f, 0.0f});
+    //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
+    //model = glm::scale(model, {0.9f, 0.9f, 0.0f});
 }
 
 TestCtrl::~TestCtrl()
@@ -56,6 +58,9 @@ void TestCtrl::paintEvent()
     glBindVertexArray(VAO);
     program.use();
     program.setUniform3F("color", 1.0f, 1.0f, 1.0f);
+
+    model = glm::mat4(1);
+    model = glm::translate(model, {pos+=move, 0.0f});
     program.setUniformMatrix4fv("model", glm::value_ptr(model));
     program.setUniformMatrix4fv("view", glm::value_ptr(view));
     program.setUniformMatrix4fv("projection", glm::value_ptr(projection));
@@ -65,12 +70,16 @@ void TestCtrl::paintEvent()
 
 void TestCtrl::keyPressEvent(RKeyEvent *event)
 {
-    //RDebug() << event->key();
+    //RDebug() << 'P';
+    if(event->key() == RKeyEvent::KEY_RIGHT)
+        move.x = 0.1f;
 }
 
 void TestCtrl::keyReleaseEvent(RKeyEvent *event)
 {
-    //RDebug() << event->key();
+    //RDebug() << 'R';
+    if(event->key() == RKeyEvent::KEY_RIGHT)
+        move.x = 0.0f;
 }
 
 void TestCtrl::mousePressEvent(RMouseEvent *event)

@@ -115,7 +115,8 @@ int RWindow::exec()
         printErro("Lack of controller!");
         return false;
     }
-    root->resize(width, height);
+    RResizeEvent e(width, height);
+    root->dispatcherResizeEvent(&e);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -200,8 +201,7 @@ void RWindow::setWindowSize(int width, int height)
 {
     if(window)
     {
-        glViewport(0, 0, width, height);
-        root->resize(width, height);
+        framebufferSizeCallback(window, width, height);
     }
     this->width = width;
     this->height = height;
@@ -220,8 +220,25 @@ void RWindow::errorCallback(int error, const char *description)
 
 void RWindow::framebufferSizeCallback(GLFWwindow *, int width, int height)
 {
-    glViewport(0, 0, width, height);
-    root->resize(width, height);
+    RResizeEvent e(width, height);
+    root->dispatcherResizeEvent(&e);
+
+    if(e.pattern() == RResizeEvent::Keep)
+    {
+        bool wh = width/16.0 < height/9.0;
+        double base = wh ? width/16.0 : height/9.0;
+        int newW = static_cast<int>(base*16);
+        int newH = static_cast<int>(base*9);
+
+        if(wh)
+            glViewport(0, (height-newH)/2.0, newW, newH);
+        else
+            glViewport((width-newW)/2.0, 0, newW, newH);
+    }
+    else
+    {
+        glViewport(0, 0, width, height);
+    }
 }
 
 void RWindow::mouseMoveCallback(GLFWwindow *, double xpos, double ypos)

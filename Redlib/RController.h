@@ -5,6 +5,7 @@
 #include "RKeyEvent.h"
 #include "RMouseEvent.h"
 #include "RWheelEvent.h"
+#include "RResizeEvent.h"
 #include <list>
 
 class RController
@@ -34,7 +35,7 @@ public:
 
     void close();
     void update();
-    void resize(int width, int height);
+    void dispatcherResizeEvent(RResizeEvent *event);
 
     void dispatcherInputEvent(RJoystickEvent *event, Event name);
     void dispatcherInputEvent(RKeyEvent *event, Event name);
@@ -43,7 +44,7 @@ public:
 
 protected:
     virtual void paintEvent();
-    virtual void resizeEvent(int width, int height);
+    virtual void resizeEvent(RResizeEvent *event);
     virtual void joystickConnectEvent(RJoystickEvent *event);
     virtual void joystickDisconnectEvent(RJoystickEvent *event);
     virtual void joystickEvent(RJoystickEvent *event);
