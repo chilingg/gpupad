@@ -35,7 +35,7 @@ TestCtrl::TestCtrl(RController *parent):
     glEnableVertexAttribArray(2);
     glBindVertexArray(0);
 
-    project = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
+    projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
 
     view = glm::mat4(1);
 
@@ -50,12 +50,14 @@ TestCtrl::~TestCtrl()
 
 void TestCtrl::paintEvent()
 {
+    glDisable(GL_CULL_FACE);
+
     glBindVertexArray(VAO);
     program.use();
     program.setUniform3F("color", 1.0f, 1.0f, 1.0f);
     program.setUniformMatrix4fv("model", glm::value_ptr(model));
     program.setUniformMatrix4fv("view", glm::value_ptr(view));
-    program.setUniformMatrix4fv("project", glm::value_ptr(project));
+    program.setUniformMatrix4fv("projection", glm::value_ptr(projection));
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }

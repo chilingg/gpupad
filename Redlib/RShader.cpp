@@ -37,7 +37,6 @@ bool RShader::compileShader(const GLchar *path, GLenum type)
     glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
     if(!success)
     {
-        deleteResource();
         state = false;
         glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
         std::string shaderType;
@@ -50,7 +49,10 @@ bool RShader::compileShader(const GLchar *path, GLenum type)
         else
             shaderType = "Uknow";
 
-        RDebug() << "Eroor: " << shaderType << "shader compilation failed:\n" << infoLog;
+        std::string err = "Eroor: ";
+        err += shaderType + "shader compilation failed:\n" + infoLog;
+        printErro(err);
+        deleteResource();
         exit(EXIT_FAILURE);
     }
 

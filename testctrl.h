@@ -25,7 +25,7 @@ private:
     unsigned VAO, VBO;
     glm::mat4 model;
     glm::mat4 view;
-    glm::mat4 project;
+    glm::mat4 projection;
 };
 
 #endif // TESTCTRL_H

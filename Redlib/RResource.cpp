@@ -39,7 +39,9 @@ std::string RResource::openTextFile(const char *path)
     }
     catch(const std::ifstream::failure &)
     {
-        printErro("Text reading failure!");
+        std::string err = "Text reading failure: ";
+        err += path;
+        printErro(err);
         exit(EXIT_FAILURE);
     }
 

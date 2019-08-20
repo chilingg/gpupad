@@ -77,7 +77,7 @@ bool RWindow::initialize()
     glfwSetJoystickCallback(joystickPresentCallback);
 
     //加载手柄映射
-    std::string mapping = RResource::openTextFile("../redopera/data/gamecontrollerdb.txt");
+    std::string mapping = RResource::openTextFile("../Redopera/data/gamecontrollerdb.txt");
     glfwUpdateGamepadMappings(mapping.c_str());
 
     //初始化GLAD
