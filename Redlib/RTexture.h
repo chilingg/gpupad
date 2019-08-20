@@ -15,7 +15,7 @@ public:
     void deleteResource();
     bool generate(const RImage &image);
     void bind() const;
-    void setParameteri(GLenum pname, GLenum param);
+    void setParameteri(GLenum pname, GLint param);
 
     static void unBind();
 
@@ -42,7 +42,7 @@ inline void RTexture::bind() const
     glBindTexture(GL_TEXTURE_2D, ID);
 }
 
-inline void RTexture::setParameteri(GLenum pname, GLenum param)
+inline void RTexture::setParameteri(GLenum pname, GLint param)
 {
     glTexParameteri(GL_TEXTURE_2D, pname, param);
 }

@@ -4,14 +4,18 @@ CONFIG -= console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-R_DEPENDENT_PATH = $$PWD/../bin
+DEPENDENT_PATH = $$PWD/../bin
+R_DEPENDENT_PATH = $$PWD/../Redopera/Redlib
 
 win32{
-LIBS += -L$$R_DEPENDENT_PATH/libs/ -lglfw3 \
+LIBS += -L$$DEPENDENT_PATH/libs/ -lglfw3 \
 
-INCLUDEPATH += $$R_DEPENDENT_PATH/include
-DEPENDPATH += $$R_DEPENDENT_PATH/include
+INCLUDEPATH += $$DEPENDENT_PATH/include
+DEPENDPATH += $$DEPENDENT_PATH/include
 }
+
+INCLUDEPATH += $$R_DEPENDENT_PATH
+DEPENDPATH += $$R_DEPENDENT_PATH
 
 unix{
 unix:!macx:
@@ -20,29 +24,38 @@ LIBS += -lglfw \
 }
 
 SOURCES += \
-        RController.cpp \
-        RDebug.cpp \
-        RImage.cpp \
-        RResource.cpp \
-        RShader.cpp \
-        RShaderProgram.cpp \
-        RTexture.cpp \
-        RWindow.cpp \
-        glad.c \
+        Redlib/RController.cpp \
+        Redlib/RDebug.cpp \
+        Redlib/RImage.cpp \
+        Redlib/RResource.cpp \
+        Redlib/RShader.cpp \
+        Redlib/RShaderProgram.cpp \
+        Redlib/RTexture.cpp \
+        Redlib/RWindow.cpp \
+        Redlib/glad.c \
+        Redlib/stb_image.cpp \
         main.cpp \
-        stb_image.cpp
+    testclass.cpp \
+    testctrl.cpp
 
 HEADERS += \
-    RController.h \
-    RDebug.h \
-    RImage.h \
-    RJoystickEvent.h \
-    RKeyEvent.h \
-    RMouseEvent.h \
-    RResource.h \
-    RShader.h \
-    RShaderProgram.h \
-    RTexture.h \
-    RWheelEvent.h \
-    RWindow.h \
-    stb_image.h
+    Redlib/RController.h \
+    Redlib/RDebug.h \
+    Redlib/RImage.h \
+    Redlib/RJoystickEvent.h \
+    Redlib/RKeyEvent.h \
+    Redlib/RMouseEvent.h \
+    Redlib/RResource.h \
+    Redlib/RShader.h \
+    Redlib/RShaderProgram.h \
+    Redlib/RTexture.h \
+    Redlib/RWheelEvent.h \
+    Redlib/RWindow.h \
+    Redlib/stb_image.h \
+    constant.h \
+    testclass.h \
+    testctrl.h
+
+DISTFILES += \
+    shader/fragment.frag \
+    shader/vertex.vert

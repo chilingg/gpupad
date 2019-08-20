@@ -5,7 +5,7 @@ RController::RController(RController *parent):
     parent(nullptr),
     children()
 {
-    setPatent(parent);
+    //setPatent(parent);
 }
 
 RController::~RController()

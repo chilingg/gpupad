@@ -97,6 +97,9 @@ bool RWindow::initialize()
     root->resize(width, height);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
+    //默认开启面剔除
+    glEnable(GL_CULL_FACE);
+
     //手柄连接检测
     checkJoysticksPresent();
 

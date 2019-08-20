@@ -3,12 +3,18 @@
 
 #include "RResource.h"
 #include <glad/glad.h>
+#include <string>
 
 class RShader : protected RResource
 {
 public:
+    static const GLenum VERTEX_SHADER = GL_VERTEX_SHADER;
+    static const GLenum FRAGMENT_SHADER = GL_FRAGMENT_SHADER;
+    static const GLenum GEOMETRY_SHADER = GL_GEOMETRY_SHADER;
+
     RShader();
     RShader(const GLchar* shaderPath, GLenum type);
+    RShader(const std::string &shaderPath, GLenum type);
     ~RShader();
 
     void deleteResource();

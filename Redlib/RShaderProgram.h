@@ -22,8 +22,8 @@ public:
     void setUniform1I(const std::string &name, int value) const;
     void setUniform3F(const std::string &name, float value1, float value2, float value3) const;
     void setUniform3F(const std::string &name, glm::vec3 vec) const;
-    void setUniformMatrix4fv(float *ptr, const char *name) const;
-    void setUniformMatrix3fv(float *ptr, const char *name) const;
+    void setUniformMatrix4fv(const char *name, float *ptr) const;
+    void setUniformMatrix3fv(const char *name, float *ptr) const;
 
 private:
     GLuint ID;
@@ -44,7 +44,7 @@ inline void RShaderProgram::attachShader(const RShader &shader)
     glAttachShader(ID, shader.getShaderID());
 }
 
-void RShaderProgram::use()
+inline void RShaderProgram::use()
 {
     glUseProgram(ID);
 }
@@ -81,7 +81,7 @@ inline void RShaderProgram::setUniform3F(const std::string &name, glm::vec3 vec)
     setUniform3F(name, vec.x, vec.y, vec.z);
 }
 
-inline void RShaderProgram::setUniformMatrix4fv(float *ptr, const char *name) const
+inline void RShaderProgram::setUniformMatrix4fv(const char *name, float *ptr) const
 {
     int loc = glGetUniformLocation(ID, name);
     if(loc != -1)
@@ -90,7 +90,7 @@ inline void RShaderProgram::setUniformMatrix4fv(float *ptr, const char *name) co
         RDebug() << "No find uniform location " << name;
 }
 
-inline void RShaderProgram::setUniformMatrix3fv(float *ptr, const char *name) const
+inline void RShaderProgram::setUniformMatrix3fv(const char *name, float *ptr) const
 {
     int loc = glGetUniformLocation(ID, name);
     if(loc != -1)

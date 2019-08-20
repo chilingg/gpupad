@@ -11,6 +11,11 @@ RShader::RShader(const GLchar *shaderPath, GLenum type)
     compileShader(shaderPath, type);
 }
 
+RShader::RShader(const std::string &shaderPath, GLenum type):
+    RShader(shaderPath.c_str(), type)
+{
+}
+
 RShader::~RShader()
 {
     deleteResource();
