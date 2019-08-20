@@ -57,5 +57,5 @@ HEADERS += \
     testctrl.h
 
 DISTFILES += \
-    shader/fragment.frag \
-    shader/vertex.vert
+    shaders/fragment.frag \
+    shaders/vertex.vert

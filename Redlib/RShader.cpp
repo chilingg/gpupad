@@ -50,7 +50,7 @@ bool RShader::compileShader(const GLchar *path, GLenum type)
         else
             shaderType = "Uknow";
 
-        RDebug() << "Eroor: " << shaderType << "shader compilation failed!";
+        RDebug() << "Eroor: " << shaderType << "shader compilation failed:\n" << infoLog;
         exit(EXIT_FAILURE);
     }
 

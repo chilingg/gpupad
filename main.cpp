@@ -4,12 +4,11 @@
 int main()
 {
     RWindow window;
-    TestCtrl ctrl;
-
-    window.setRootController(&ctrl);
-
     if(!window.initialize())
         return -1;
+
+    TestCtrl ctrl;
+    window.setRootController(&ctrl);
 
     return window.exec();
 }

@@ -38,12 +38,6 @@ bool RWindow::initialize()
         return false;
     }
 
-    if(!root)
-    {
-        printErro("Lack of controller!");
-        return false;
-    }
-
     //初始化GLFW
     if(!glfwInit())
     {
@@ -94,7 +88,6 @@ bool RWindow::initialize()
     }
 
     glViewport(0, 0, width, height);
-    root->resize(width, height);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
     //默认开启面剔除
@@ -116,6 +109,13 @@ int RWindow::exec()
 
     if(!window)
         return -1;
+
+    if(!root)
+    {
+        printErro("Lack of controller!");
+        return false;
+    }
+    root->resize(width, height);
 
     while(!glfwWindowShouldClose(window))
     {

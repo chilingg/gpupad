@@ -9,9 +9,8 @@ TestCtrl::TestCtrl(RController *parent):
     VIEW_PROT_WIDTH(1920.0f),
     VIEW_PROT_HEIGHT(1080.0f)
 {
-    RDebug() << 1;
-    RShader vertex((RE_PATH + "vertex.vert"), RShader::VERTEX_SHADER);
-    RShader fragment((RE_PATH + "fragment.frag"), RShader::FRAGMENT_SHADER);
+    RShader vertex(RE_PATH + "shaders/vertex.vert", RShader::VERTEX_SHADER);
+    RShader fragment((RE_PATH + "shaders/fragment.frag"), RShader::FRAGMENT_SHADER);
     program.attachShader(vertex);
     program.attachShader(fragment);
     program.linkProgram();

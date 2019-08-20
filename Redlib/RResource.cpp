@@ -40,6 +40,7 @@ std::string RResource::openTextFile(const char *path)
     catch(const std::ifstream::failure &)
     {
         printErro("Text reading failure!");
+        exit(EXIT_FAILURE);
     }
 
     return text;

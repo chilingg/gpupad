@@ -41,7 +41,7 @@ bool RShaderProgram::linkProgram()
     {
         state = false;
         glGetProgramInfoLog(ID, 512, nullptr, infoLog);
-        RDebug() << "Eroor: program shader linking failed!";
+        RDebug() << "Eroor: program shader linking failed!" << infoLog;
         exit(EXIT_FAILURE);
     }
 
