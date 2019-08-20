@@ -15,7 +15,8 @@ public:
     enum Event {
         PaintEvent,
         JoystickEvent,
-        JoystickPresentEvent,
+        JoystickConnectEvent,
+        JoystickDisconnectEvent,
         KeyPressEvent,
         KeyReleaseEvent,
         MouseMoveEvent,
@@ -43,7 +44,8 @@ public:
 protected:
     virtual void paintEvent();
     virtual void resizeEvent(int width, int height);
-    virtual void joystickPresentEvent(RJoystickEvent *event);
+    virtual void joystickConnectEvent(RJoystickEvent *event);
+    virtual void joystickDisconnectEvent(RJoystickEvent *event);
     virtual void joystickEvent(RJoystickEvent *event);
     virtual void keyPressEvent(RKeyEvent *event);
     virtual void keyReleaseEvent(RKeyEvent *event);

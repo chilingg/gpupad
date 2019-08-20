@@ -272,17 +272,24 @@ void RWindow::joystickPresentCallback(int jid, int event)
     if(event == GLFW_CONNECTED)
     {
         joysticks.insert(jid);
+        RJoystickEvent event(jid);
+        root->dispatcherInputEvent(&event, RController::JoystickConnectEvent);
     }
     else if(event == GLFW_DISCONNECTED)
     {
         joysticks.erase(jid);
+        RJoystickEvent event(jid);
+        root->dispatcherInputEvent(&event, RController::JoystickDisconnectEvent);
     }
 }
 
 void RWindow::startJoystickEvent()
 {
-    RJoystickEvent event(joysticks);
-    root->dispatcherInputEvent(&event, RController::JoystickEvent);
+    for(auto jid : joysticks)
+    {
+        RJoystickEvent event(jid);
+        root->dispatcherInputEvent(&event, RController::JoystickEvent);
+    }
     /*
     GLFWgamepadstate status;
     for(auto jid : joysticks)

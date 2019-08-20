@@ -91,8 +91,11 @@ void RController::dispatcherInputEvent(RJoystickEvent *event, RController::Event
     case JoystickEvent:
         joystickEvent(event);
         break;
-    case JoystickPresentEvent:
-        joystickPresentEvent(event);
+    case JoystickConnectEvent:
+        joystickConnectEvent(event);
+        break;
+    case JoystickDisconnectEvent:
+        joystickDisconnectEvent(event);
         break;
     default:
         printErro("Error joystick event call");
@@ -165,7 +168,12 @@ void RController::resizeEvent(int width, int height)
 
 }
 
-void RController::joystickPresentEvent(RJoystickEvent *)
+void RController::joystickConnectEvent(RJoystickEvent *)
+{
+
+}
+
+void RController::joystickDisconnectEvent(RJoystickEvent *event)
 {
 
 }

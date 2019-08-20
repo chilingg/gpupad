@@ -1,7 +1,6 @@
 #ifndef RJOYSTICKEVENT_H
 #define RJOYSTICKEVENT_H
 
-#include <set>
 #include <GLFW/glfw3.h>
 
 class RJoystickEvent
@@ -32,25 +31,23 @@ class RJoystickEvent
         GAMEPAD_AXIS_LEFT_TRIGGER,
         GAMEPAD_AXIS_RIGHT_TRIGGER
     };
-    using Joysticks = std::set<int>;
 
 public:
-    RJoystickEvent(const Joysticks &joys);
+    RJoystickEvent(int jid);
     bool button(Buttons btn) const;
     float axes(Axes axis) const;
-    bool setJoystick(int jid);
-    unsigned number() const;
-    void synchronizationJoys(Joysticks &joys);
+    int jid() const;
 
 private:
-    const Joysticks *joys;
+    const int JID;
     GLFWgamepadstate status;
+    bool valid;
 };
 
-inline RJoystickEvent::RJoystickEvent(const RJoystickEvent::Joysticks &joys)
+inline RJoystickEvent::RJoystickEvent(int jid):
+    JID(jid)
 {
-    this->joys = &joys;
-    setJoystick(*joys.begin());
+    valid = glfwGetGamepadState(jid, &status);
 }
 
 inline bool RJoystickEvent::button(RJoystickEvent::Buttons btn) const
@@ -63,20 +60,9 @@ inline float RJoystickEvent::axes(RJoystickEvent::Axes axis) const
     return status.axes[axis];
 }
 
-inline bool RJoystickEvent::setJoystick(int jid)
+inline int RJoystickEvent::jid() const
 {
-    return glfwGetGamepadState(jid, &status);
-}
-
-inline unsigned RJoystickEvent::number() const
-{
-    return static_cast<unsigned>(joys->size());
-}
-
-inline void RJoystickEvent::synchronizationJoys(RJoystickEvent::Joysticks &joys)
-{
-    Joysticks temp = *this->joys;
-    joys.swap(temp);
+    return JID;
 }
 
 #endif // RJOYSTICKEVENT_H
