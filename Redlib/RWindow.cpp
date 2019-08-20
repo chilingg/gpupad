@@ -121,11 +121,6 @@ int RWindow::exec()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //交换颜色缓冲
-        glfwSwapBuffers(window);
-        //检查GLFW事件触发
-        glfwPollEvents();
-
         //检查手柄输入
         if(!joysticks.empty())
             startJoystickEvent();
@@ -134,6 +129,12 @@ int RWindow::exec()
         root->update();
 
         glCheckError();
+
+        //交换颜色缓冲
+        glfwSwapBuffers(window);
+        //检查GLFW事件触发
+        glfwPollEvents();
+
     }
 
     root->close();
