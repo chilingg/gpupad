@@ -5,6 +5,7 @@
 #include "RShader.h"
 #include "RDebug.h"
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 class RShaderProgram : public RResource
 {
@@ -22,6 +23,8 @@ public:
     void setUniform1I(const std::string &name, int value) const;
     void setUniform3F(const std::string &name, float value1, float value2, float value3) const;
     void setUniform3F(const std::string &name, glm::vec3 vec) const;
+    void setUniform4F(const std::string &name, float value1, float value2, float value3, float value4) const;
+    void setUniform4F(const std::string &name, glm::vec4 vec) const;
     void setUniformMatrix4fv(const char *name, float *ptr) const;
     void setUniformMatrix3fv(const char *name, float *ptr) const;
 
@@ -79,6 +82,20 @@ inline void RShaderProgram::setUniform3F(const std::string &name, float value1, 
 inline void RShaderProgram::setUniform3F(const std::string &name, glm::vec3 vec) const
 {
     setUniform3F(name, vec.x, vec.y, vec.z);
+}
+
+inline void RShaderProgram::setUniform4F(const std::string &name, float value1, float value2, float value3, float value4) const
+{
+    int loc = glGetUniformLocation(ID, name.c_str());
+    if(loc != -1)
+        glUniform4f(loc, value1, value2, value3, value4);
+    else
+        RDebug() << "No find uniform location of the " << name.c_str();
+}
+
+inline void RShaderProgram::setUniform4F(const std::string &name, glm::vec4 vec) const
+{
+    setUniform4F(name, vec.x, vec.y, vec.z, vec.w);
 }
 
 inline void RShaderProgram::setUniformMatrix4fv(const char *name, float *ptr) const

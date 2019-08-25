@@ -27,6 +27,7 @@ SOURCES += \
         Redlib/RController.cpp \
         Redlib/RDebug.cpp \
         Redlib/RImage.cpp \
+        Redlib/RObject.cpp \
         Redlib/RResource.cpp \
         Redlib/RShader.cpp \
         Redlib/RShaderProgram.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     Redlib/RJoystickEvent.h \
     Redlib/RKeyEvent.h \
     Redlib/RMouseEvent.h \
+    Redlib/RObject.h \
     Redlib/RResizeEvent.h \
     Redlib/RResource.h \
     Redlib/RShader.h \
