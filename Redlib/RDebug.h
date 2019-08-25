@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <string>
+#include <glm/vec2.hpp>
 
 class RDebug
 {
@@ -26,6 +27,7 @@ public:
     const RDebug& operator<<(std::string s) const;
     const RDebug& operator<<(void* p) const;
     const RDebug& operator<<(bool b) const;
+    const RDebug& operator<<(const glm::vec2 &v) const;
 
 private:
     static int count;
@@ -34,7 +36,7 @@ private:
 inline void printErro(const char *error)
 {
 #ifndef RO_NO_DEBUGE
-    perror(error);
+    fprintf(stderr, "%s\n", error);
     fflush(stderr);
 #endif
 }

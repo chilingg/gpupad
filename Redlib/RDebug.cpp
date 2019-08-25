@@ -151,4 +151,13 @@ const RDebug &RDebug::operator<<(bool b) const
     return *this;
 }
 
+const RDebug &RDebug::operator<<(const glm::vec2 &v) const
+{
+#ifndef RO_NO_DEBUGE
+    printf("(%f, %f) ", v.x, v.y);
+    fflush(stdout);
+#endif
+    return *this;
+}
+
 int RDebug::count = 0;

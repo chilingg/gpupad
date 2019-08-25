@@ -21,9 +21,8 @@ TestCtrl::TestCtrl(RController *parent):
     projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
     //projection = glm::mat4(1);
 
-    view = glm::mat4(1);
-
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
+    ob.setPosition(800, 450);
 }
 
 TestCtrl::~TestCtrl()
@@ -33,6 +32,11 @@ TestCtrl::~TestCtrl()
 
 void TestCtrl::paintEvent()
 {
+    glDisable(GL_CULL_FACE);
+    program.use();
+    program.setUniformMatrix4fv("projection", glm::value_ptr(projection));
+
+    ob.move(move, 1);
     ob.render(&program);
 }
 

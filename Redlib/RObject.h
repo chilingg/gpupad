@@ -36,6 +36,8 @@ inline void RObject::setPosition(int x, int y)
 
 inline void RObject::move(glm::vec2 direction, int step)
 {
+    if(direction.x == 0.0f && direction.y == 0.0f)
+        return;
     glm::vec2 velocity = glm::normalize(direction) * static_cast<float>(step);
     pos += velocity;
 }

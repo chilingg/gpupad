@@ -12,7 +12,7 @@ RObject::RObject(int widht, int height):
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     float *plant = getPlantArray(widht, height);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(plant), plant, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(*plant)*12, plant, GL_STATIC_DRAW);
     delete [] plant;
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), nullptr);
