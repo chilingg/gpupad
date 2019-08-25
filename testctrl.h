@@ -26,6 +26,7 @@ private:
     glm::vec2 move;
     float step;
     RObject ob;
+    RObject ob2;
 
     RShaderProgram program;
     glm::mat4 model;

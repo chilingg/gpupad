@@ -10,7 +10,8 @@ TestCtrl::TestCtrl(RController *parent):
     VIEW_PROT_HEIGHT(900.0f),
     move(0.0f, 0.0f),
     step(0.1f),
-    ob(32, 32)
+    ob(32, 32),
+    ob2(255, 16)
 {
     RShader vertex(RE_PATH + "shaders/vertex.vert", RShader::VERTEX_SHADER);
     RShader fragment((RE_PATH + "shaders/fragment.frag"), RShader::FRAGMENT_SHADER);
@@ -23,6 +24,7 @@ TestCtrl::TestCtrl(RController *parent):
 
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 450);
+    ob2.setPosition(100, 200);
 }
 
 TestCtrl::~TestCtrl()
@@ -36,7 +38,12 @@ void TestCtrl::paintEvent()
     program.use();
     program.setUniformMatrix4fv("projection", glm::value_ptr(projection));
 
-    ob.move(move, 1);
+    ob2.render(&program);
+
+    ob.move(move, 20);
+    if(ob.checkCollision(ob2))
+        ob.move(-move, 40);
+
     ob.render(&program);
 }
 

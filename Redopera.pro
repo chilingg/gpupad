@@ -52,6 +52,7 @@ HEADERS += \
     Redlib/RShader.h \
     Redlib/RShaderProgram.h \
     Redlib/RTexture.h \
+    Redlib/RVolume.h \
     Redlib/RWheelEvent.h \
     Redlib/RWindow.h \
     Redlib/stb_image.h \

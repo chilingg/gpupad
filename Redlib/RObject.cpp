@@ -4,7 +4,8 @@ RObject::RObject(int widht, int height):
     pos(0.0f, 0.0f),
     color(1.0f),
     widht(widht),
-    height(height)
+    height(height),
+    volume(&pos, widht, height)
 {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);

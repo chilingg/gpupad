@@ -6,6 +6,7 @@
 #include <glm/vec4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <RVolume.h>
 
 class RObject
 {
@@ -17,6 +18,7 @@ public:
     void setPosition(int x, int y);
     void move(glm::vec2 direction, int step);
     void setColor(int r, int g, int b, int a = 255);
+    bool checkCollision(const RObject &obj);
 
 protected:
     static float* getPlantArray(int widht, int height);
@@ -25,6 +27,7 @@ protected:
     glm::vec4 color;
     int widht;
     int height;
+    RVolume volume;
     unsigned VAO, VBO;
 };
 
@@ -48,6 +51,11 @@ inline void RObject::setColor(int r, int g, int b, int a)
     color.g = g/255.0f;
     color.b = b/255.0f;
     color.a = a/255.0f;
+}
+
+inline bool RObject::checkCollision(const RObject &obj)
+{
+    return volume.checkCollision(obj.volume);
 }
 
 #endif // ROBJECT_H
