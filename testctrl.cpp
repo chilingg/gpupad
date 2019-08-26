@@ -40,9 +40,18 @@ void TestCtrl::paintEvent()
 
     ob2.render(&program);
 
-    ob.move(move, 20);
+    /*static int fps = 0;
+    ++fps;
+    if(glfwGetTime() >= 1.0)
+    {
+        RDebug() << "fps:" << fps;//5000
+        fps = 0;
+        glfwSetTime(0.0);
+    }*/
+
+    ob.move(move, 2);
     if(ob.checkCollision(ob2))
-        ob.move(-move, 40);
+        ob.move(-move, 4);
 
     ob.render(&program);
 }
