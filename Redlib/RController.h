@@ -28,6 +28,7 @@ public:
 
     RController(RController *parent = nullptr);
     virtual ~RController();
+    virtual void control() = 0;
 
     void setPatent(RController *parent);
     void addChildren(RController *child);

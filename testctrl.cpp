@@ -25,6 +25,8 @@ TestCtrl::TestCtrl(RController *parent):
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 450);
     ob2.setPosition(100, 200);
+
+    //timer.start();
 }
 
 TestCtrl::~TestCtrl()
@@ -32,26 +34,26 @@ TestCtrl::~TestCtrl()
 
 }
 
+void TestCtrl::control()
+{
+    timer.elapsed(1.0/60.0);
+    update();
+    timer.start();
+}
+
 void TestCtrl::paintEvent()
 {
+    FPS();
+
     glDisable(GL_CULL_FACE);
     program.use();
     program.setUniformMatrix4fv("projection", glm::value_ptr(projection));
 
     ob2.render(&program);
 
-    /*static int fps = 0;
-    ++fps;
-    if(glfwGetTime() >= 1.0)
-    {
-        RDebug() << "fps:" << fps;//5000
-        fps = 0;
-        glfwSetTime(0.0);
-    }*/
-
-    ob.move(move, 2);
+    ob.move(move, 10);
     if(ob.checkCollision(ob2))
-        ob.move(-move, 4);
+        ob.move(-move, 20);
 
     ob.render(&program);
 }
@@ -90,4 +92,18 @@ void TestCtrl::mousePressEvent(RMouseEvent *event)
 void TestCtrl::mouseReleaseEvent(RMouseEvent *event)
 {
     //RDebug() << event->x() << event->y();
+}
+
+void TestCtrl::FPS()
+{
+    static RTimer t;
+    static int fps = 0;
+    ++fps;
+    if(t.elapsed() >= 1.0)
+    {
+        RDebug() << "fps:" << fps;//5000 1700
+        fps = 0;
+        t.start();
+    }
+
 }

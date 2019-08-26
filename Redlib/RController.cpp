@@ -14,6 +14,11 @@ RController::~RController()
     close();
 }
 
+void RController::control()
+{
+
+}
+
 void RController::setPatent(RController *parent)
 {
     if(this->parent != nullptr)

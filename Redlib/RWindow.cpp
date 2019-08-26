@@ -1,11 +1,11 @@
-#include "RWindow.h"
-#include "RDebug.h"
-#include "RResource.h"
+#include <RWindow.h>
+#include <RDebug.h>
+#include <RResource.h>
 
-#include "RKeyEvent.h"
-#include "RMouseEvent.h"
-#include "RWheelEvent.h"
-#include "RJoystickEvent.h"
+#include <RKeyEvent.h>
+#include <RMouseEvent.h>
+#include <RWheelEvent.h>
+#include <RJoystickEvent.h>
 
 #include <fstream>
 #include <sstream>
@@ -21,7 +21,8 @@ RWindow::RWindow():
     height(450),
     title("Redopera"),
     window(nullptr),
-    cursorTrack(false)
+    cursorTrack(false),
+    vSync(true)
 {
 }
 
@@ -80,6 +81,9 @@ bool RWindow::initialize()
     std::string mapping = RResource::openTextFile("../Redopera/data/gamecontrollerdb.txt");
     glfwUpdateGamepadMappings(mapping.c_str());
 
+    //垂直同步
+    glfwSwapInterval(vSync);
+
     //初始化GLAD
     if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
     {
@@ -126,8 +130,8 @@ int RWindow::exec()
         if(!joysticks.empty())
             startJoystickEvent();
 
-        //调用绘制事件
-        root->update();
+        //调用控制
+        root->control();
 
         glCheckError();
 

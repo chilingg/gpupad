@@ -3,9 +3,9 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
 #include <set>
-#include "RController.h"
+
+#include <RController.h>
 
 class RWindow
 {
@@ -17,6 +17,7 @@ public:
     bool initialize();
     int exec();
 
+    void setVSync(bool b);
     void setVersionMajor(int value);
     void setVersionMinor(int value);
     void setProfile(int value);
@@ -39,6 +40,7 @@ private:
     GLFWwindow *window;
 
     bool cursorTrack;
+    int vSync;
 
     void checkJoysticksPresent();
 
@@ -56,6 +58,11 @@ private:
     static void joystickPresentCallback(int jid, int event);
     static void startJoystickEvent();
 };
+
+inline void RWindow::setVSync(bool b)
+{
+    vSync = b ?  1 : 0;
+}
 
 inline void RWindow::setVersionMajor(int value)
 {
