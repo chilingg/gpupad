@@ -31,6 +31,7 @@ private:
     float step;
     RObject ob;
     RObject ob2;
+    int jumpPoint;
 
     RTimer timer;
     RShaderProgram program;

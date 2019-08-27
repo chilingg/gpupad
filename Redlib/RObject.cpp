@@ -2,6 +2,7 @@
 
 RObject::RObject(int widht, int height):
     pos(0.0f, 0.0f),
+    velocity(0.0f, 0.0f),
     color(1.0f),
     widht(widht),
     height(height),
@@ -35,6 +36,7 @@ void RObject::render(RShaderProgram *shader)
     shader->setUniform4F("color", color);
 
     glm::mat4 model(1.0f);
+    pos += velocity;
     model = glm::translate(model, {pos, 0.0f});
     shader->setUniformMatrix4fv("model", glm::value_ptr(model));
     glDrawArrays(GL_TRIANGLES, 0, 6);
