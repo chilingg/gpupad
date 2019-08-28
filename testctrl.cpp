@@ -11,7 +11,7 @@ TestCtrl::TestCtrl(RController *parent):
     move(0.0f, 0.0f),
     step(0.1f),
     ob(32, 32),
-    ob2(255, 16)
+    ob2(255, 60)
 {
     RShader vertex(RE_PATH + "shaders/vertex.vert", RShader::VERTEX_SHADER);
     RShader fragment((RE_PATH + "shaders/fragment.frag"), RShader::FRAGMENT_SHADER);
@@ -56,25 +56,43 @@ void TestCtrl::paintEvent()
 
     ob.motion();
     ob.move(move, 10);
+
+    //空中检测
+    static bool air;
+    air = false;
     if(ob.y() > 0)
     {
-        //if(ob2.getVolume().containsX(ob.getVolume()) )
-        RDebug() << ob.getVelocity();
-
+        if(ob.touchSide(ob2, RVolume::Top))
+            ob.setPositionY(ob2.getVolume().top());
+        else {
+            air |= true;
+        }
+    }
+    else if(ob.y() < 0){
+        ob.setPositionY(0);
+    }
+    if(air)
+    {
+        //RDebug() << ob.getVelocity();
         if(ob.getVelocity().y > gravitation)
             ob.giveVelocity(0, -1);
     }
     else {
-        ob.setPosition(ob.x(), 0);
         ob.setVelocity(ob.getVelocity().x, 0);
     }
 
-    if(ob.checkCollision(ob2))
+    //碰撞检测
+    if(ob.touchSide(ob2, RVolume::Left) || ob.touchSide(ob2, RVolume::Right))
     {
         ob.move(-move, 10);
+        ob.powerVelocity(0.5);
+    }
+    else if(ob.touchSide(ob2, RVolume::Bottom))
+    {
         ob.motion(false);
-        ob.setVelocity(-ob.getVelocity() * 0.5f);
-        //RDebug() << ob.getVelocity() << ob.y()+ob.widht() << ob2.y();
+        ob.move(-move, 10);
+        ob.setVelocity(-ob.getVelocity());
+        ob.powerVelocity(0.5);
     }
 
     ob.render(&program);
@@ -88,10 +106,7 @@ void TestCtrl::keyPressEvent(RKeyEvent *event)
     if(event->key() == RKeyEvent::KEY_LEFT)
         move.x -= 1.0f;
     if(event->key() == RKeyEvent::KEY_SPACE)
-    {
-        ob.stop();//清空下坠
-        ob.giveVelocity(0, 20);
-    }
+        ob.setVelocityY(20);
 }
 
 void TestCtrl::keyReleaseEvent(RKeyEvent *event)

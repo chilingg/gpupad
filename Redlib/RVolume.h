@@ -7,14 +7,26 @@
 class RVolume
 {
 public:
+    enum Side{
+        Top,
+        Bottom,
+        Left,
+        Right
+    };
+
     RVolume(glm::vec2 *pos, int widht = 0, int height = 0);
+
     void setSize(int widht, int height);
-    int x() const;
-    int y() const;
-    bool checkCollision(const RVolume &volume) const;
-    bool contains(const RVolume &volume) const;
-    bool containsX(const RVolume &volume) const;
-    bool containsY(const RVolume &volume) const;
+
+    int left() const;
+    int right() const;
+    int top() const;
+    int bottom() const;
+
+    bool checkCollision(const RVolume &volume, bool left = true, bool right = true) const;
+    bool contains(const RVolume &volume, bool top = true, bool bottom = true, bool left = true, bool right = true) const;
+    bool containsAxisX(float left) const;
+    bool containsAxisY(float right) const;
 
 private:
     glm::vec2 *_pos;
@@ -36,41 +48,61 @@ inline void RVolume::setSize(int widht, int height)
     _height = height;
 }
 
-inline int RVolume::x() const
+inline int RVolume::left() const
 {
     return static_cast<int>(_pos->x);
 }
 
-inline int RVolume::y() const
+inline int RVolume::right() const
+{
+    return static_cast<int>(_pos->x + _widht);
+}
+
+inline int RVolume::top() const
+{
+    return static_cast<int>(_pos->y + _height);
+}
+
+inline int RVolume::bottom() const
 {
     return static_cast<int>(_pos->y);
 }
 
-inline bool RVolume::checkCollision(const RVolume &volume) const
+inline bool RVolume::checkCollision(const RVolume &volume, bool x, bool y) const
 {
-    bool collitionX = _pos->x + _widht >= volume._pos->x && _pos->x <= volume._pos->x + volume._widht;
-    bool collitionY = _pos->y + _height >= volume._pos->y && _pos->y <= volume._pos->y + volume._height;
+    bool b = true;
+    if(x)
+        b &= _pos->x + _widht >= volume._pos->x && _pos->x <= volume._pos->x + volume._widht;
+    if(y)
+        b &= _pos->y + _height >= volume._pos->y && _pos->y <= volume._pos->y + volume._height;
 
-    return collitionX && collitionY;
+    return b;
 }
 
-inline bool RVolume::contains(const RVolume &volume) const
+inline bool RVolume::contains(const RVolume &volume, bool top, bool bottom, bool left, bool right) const
 {
-    bool collitionX = _pos->x + _widht >= volume._pos->x + volume._widht && _pos->x <= volume._pos->x;
-    bool collitionY = _pos->y + _height >= volume._pos->y + volume._height && _pos->y <= volume._pos->y;
-    //RDebug() << *_pos << *volume._pos << collitionX;
+    bool b = false;
 
-    return collitionX && collitionY;
+    if(top)
+        b |= _pos->y + _height >= volume._pos->y + volume._height;
+    if(bottom)
+        b |= _pos->y <= volume._pos->y;
+    if(left)
+        b |= _pos->x <= volume._pos->x;
+    if(right)
+        b |= _pos->x + _widht >= volume._pos->x + volume._widht;
+
+    return b;
 }
 
-inline bool RVolume::containsX(const RVolume &volume) const
+inline bool RVolume::containsAxisX(float x) const
 {
-    return _pos->x + _widht >= volume._pos->x + volume._widht && _pos->x <= volume._pos->x;
+    return _pos->x + _widht >= x && _pos->x <= x;
 }
 
-inline bool RVolume::containsY(const RVolume &volume) const
+inline bool RVolume::containsAxisY(float y) const
 {
-    return _pos->y + _height >= volume._pos->y + volume._height && _pos->y <= volume._pos->y;
+    return _pos->y + _height >= y && _pos->y <= y;
 }
 
 #endif // RVOLUME_H

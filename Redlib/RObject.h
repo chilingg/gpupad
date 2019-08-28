@@ -17,7 +17,11 @@ public:
 
     void setColor(int r, int g, int b, int a = 255);
     void setPosition(int x, int y);
+    void setPositionX(int x);
+    void setPositionY(int y);
     void setVelocity(int x, int y);
+    void setVelocityX(int x);
+    void setVelocityY(int y);
     void setVelocity(glm::vec2 velocity);
 
     const glm::vec2& getVelocity() const;
@@ -34,6 +38,7 @@ public:
     void move(glm::vec2 direction, int step);
     bool checkCollision(const RObject &obj);
     const RVolume& getVolume() const;
+    bool touchSide(const RObject & platform, RVolume::Side side);
 
 protected:
     static float* getPlantArray(int widht, int height);
@@ -52,6 +57,16 @@ inline void RObject::setPosition(int x, int y)
 {
     _pos.x = static_cast<float>(x);
     _pos.y = static_cast<float>(y);
+}
+
+inline void RObject::setPositionX(int x)
+{
+    _pos.x = x;
+}
+
+inline void RObject::setPositionY(int y)
+{
+    _pos.y = y;
 }
 
 inline void RObject::move(glm::vec2 direction, int step)
@@ -80,9 +95,42 @@ inline const RVolume &RObject::getVolume() const
     return volume;
 }
 
+inline bool RObject::touchSide(const RObject &platform, RVolume::Side side)
+{
+    bool b = false;
+    switch(side)
+    {
+    case RVolume::Top:
+        b = volume.checkCollision(platform.volume, true, false) && volume.containsAxisY(platform.volume.top());
+        break;
+    case RVolume::Bottom:
+        b = volume.checkCollision(platform.volume, true, false) && volume.containsAxisY(platform.volume.bottom());
+        break;
+    case RVolume::Left:
+        b = volume.checkCollision(platform.volume, false, true) && volume.containsAxisX(platform.volume.left());
+        break;
+    case RVolume::Right:
+        b = volume.checkCollision(platform.volume, false, true) && volume.containsAxisX(platform.volume.right());
+        break;
+    default:
+        break;
+    }
+    return b;
+}
+
 inline void RObject::setVelocity(int x, int y)
 {
     setVelocity({x, y});
+}
+
+inline void RObject::setVelocityX(int x)
+{
+    velocity.x = x;
+}
+
+inline void RObject::setVelocityY(int y)
+{
+    velocity.y = y;
 }
 
 inline void RObject::setVelocity(glm::vec2 velocity)

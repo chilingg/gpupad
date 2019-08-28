@@ -22,7 +22,7 @@ RWindow::RWindow():
     title("Redopera"),
     window(nullptr),
     cursorTrack(false),
-    vSync(true)
+    vSync(1)
 {
 }
 
