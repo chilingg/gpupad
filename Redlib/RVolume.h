@@ -11,8 +11,10 @@ public:
     void setSize(int widht, int height);
     int x() const;
     int y() const;
-    bool checkCollision(const RVolume &volume);
-    bool contains(const RVolume &volume);
+    bool checkCollision(const RVolume &volume) const;
+    bool contains(const RVolume &volume) const;
+    bool containsX(const RVolume &volume) const;
+    bool containsY(const RVolume &volume) const;
 
 private:
     glm::vec2 *_pos;
@@ -44,7 +46,7 @@ inline int RVolume::y() const
     return static_cast<int>(_pos->y);
 }
 
-inline bool RVolume::checkCollision(const RVolume &volume)
+inline bool RVolume::checkCollision(const RVolume &volume) const
 {
     bool collitionX = _pos->x + _widht >= volume._pos->x && _pos->x <= volume._pos->x + volume._widht;
     bool collitionY = _pos->y + _height >= volume._pos->y && _pos->y <= volume._pos->y + volume._height;
@@ -52,13 +54,23 @@ inline bool RVolume::checkCollision(const RVolume &volume)
     return collitionX && collitionY;
 }
 
-inline bool RVolume::contains(const RVolume &volume)
+inline bool RVolume::contains(const RVolume &volume) const
 {
     bool collitionX = _pos->x + _widht >= volume._pos->x + volume._widht && _pos->x <= volume._pos->x;
     bool collitionY = _pos->y + _height >= volume._pos->y + volume._height && _pos->y <= volume._pos->y;
     //RDebug() << *_pos << *volume._pos << collitionX;
 
     return collitionX && collitionY;
+}
+
+inline bool RVolume::containsX(const RVolume &volume) const
+{
+    return _pos->x + _widht >= volume._pos->x + volume._widht && _pos->x <= volume._pos->x;
+}
+
+inline bool RVolume::containsY(const RVolume &volume) const
+{
+    return _pos->y + _height >= volume._pos->y + volume._height && _pos->y <= volume._pos->y;
 }
 
 #endif // RVOLUME_H

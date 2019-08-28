@@ -11,8 +11,7 @@ TestCtrl::TestCtrl(RController *parent):
     move(0.0f, 0.0f),
     step(0.1f),
     ob(32, 32),
-    ob2(255, 16),
-    jumpPoint(0)
+    ob2(255, 16)
 {
     RShader vertex(RE_PATH + "shaders/vertex.vert", RShader::VERTEX_SHADER);
     RShader fragment((RE_PATH + "shaders/fragment.frag"), RShader::FRAGMENT_SHADER);
@@ -45,6 +44,7 @@ void TestCtrl::control()
 void TestCtrl::paintEvent()
 {
     //FPS();
+    static const int gravitation = -30;
 
     glDisable(GL_CULL_FACE);
     program.use();
@@ -52,24 +52,29 @@ void TestCtrl::paintEvent()
 
     ob2.render(&program);
 
-    ob.setColor(0, 0, 0);
-    if(jumpPoint != 0)
+    ob.setColor(255, 255, 255);
+
+    ob.motion();
+    ob.move(move, 10);
+    if(ob.y() > 0)
     {
-        if(jumpPoint == 1)
-            ob.stop();
-        --jumpPoint;
+        //if(ob2.getVolume().containsX(ob.getVolume()) )
+        RDebug() << ob.getVelocity();
+
+        if(ob.getVelocity().y > gravitation)
+            ob.giveVelocity(0, -1);
     }
-    else if(ob.y() > 0.0f)
-    {
-        ob.move({0.0f, -1.0f}, 10);
-        ob.setColor(255, 0, 0);
+    else {
+        ob.setPosition(ob.x(), 0);
+        ob.setVelocity(ob.getVelocity().x, 0);
     }
 
-    ob.move(move, 10);
     if(ob.checkCollision(ob2))
     {
-        ob.stop();
-        ob.move(-move, 20);
+        ob.move(-move, 10);
+        ob.motion(false);
+        ob.setVelocity(-ob.getVelocity() * 0.5f);
+        //RDebug() << ob.getVelocity() << ob.y()+ob.widht() << ob2.y();
     }
 
     ob.render(&program);
@@ -82,10 +87,10 @@ void TestCtrl::keyPressEvent(RKeyEvent *event)
         move.x += 1.0f;
     if(event->key() == RKeyEvent::KEY_LEFT)
         move.x -= 1.0f;
-    if(event->key() == RKeyEvent::KEY_UP)
+    if(event->key() == RKeyEvent::KEY_SPACE)
     {
-        jumpPoint = 10;
-        ob.giveVelocity(0, 25);
+        ob.stop();//清空下坠
+        ob.giveVelocity(0, 20);
     }
 }
 
@@ -96,7 +101,7 @@ void TestCtrl::keyReleaseEvent(RKeyEvent *event)
         move.x -= 1.0f;
     if(event->key() == RKeyEvent::KEY_LEFT)
         move.x += 1.0f;
-    if(event->key() == RKeyEvent::KEY_UP)
+    if(event->key() == RKeyEvent::KEY_SPACE)
         ob.stop();
 }
 

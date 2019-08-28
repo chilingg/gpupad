@@ -18,14 +18,19 @@ public:
     void setColor(int r, int g, int b, int a = 255);
     void setPosition(int x, int y);
     void setVelocity(int x, int y);
+    void setVelocity(glm::vec2 velocity);
 
     const glm::vec2& getVelocity() const;
+    int widht() const;
+    int height() const;
+    glm::vec2 pos() const;
     int x() const;
     int y() const;
 
     void giveVelocity(int x, int y);
     void powerVelocity(double value);
     void stop();
+    void motion(bool b = true);
     void move(glm::vec2 direction, int step);
     bool checkCollision(const RObject &obj);
     const RVolume& getVolume() const;
@@ -33,11 +38,11 @@ public:
 protected:
     static float* getPlantArray(int widht, int height);
 
-    glm::vec2 pos;
+    glm::vec2 _pos;
     glm::vec2 velocity;
     glm::vec4 color;
-    int widht;
-    int height;
+    int _widht;
+    int _height;
     RVolume volume;
 
     unsigned VAO, VBO;
@@ -45,8 +50,8 @@ protected:
 
 inline void RObject::setPosition(int x, int y)
 {
-    pos.x = static_cast<float>(x);
-    pos.y = static_cast<float>(y);
+    _pos.x = static_cast<float>(x);
+    _pos.y = static_cast<float>(y);
 }
 
 inline void RObject::move(glm::vec2 direction, int step)
@@ -54,7 +59,7 @@ inline void RObject::move(glm::vec2 direction, int step)
     if(direction.x == 0.0f && direction.y == 0.0f)
         return;
     glm::vec2 velocity = glm::normalize(direction) * static_cast<float>(step);
-    pos += velocity;
+    _pos += velocity;
 }
 
 inline void RObject::setColor(int r, int g, int b, int a)
@@ -77,7 +82,12 @@ inline const RVolume &RObject::getVolume() const
 
 inline void RObject::setVelocity(int x, int y)
 {
-    velocity = {x, y};
+    setVelocity({x, y});
+}
+
+inline void RObject::setVelocity(glm::vec2 velocity)
+{
+    this->velocity = velocity;
 }
 
 inline void RObject::giveVelocity(int x, int y)
@@ -96,19 +106,39 @@ inline const glm::vec2 &RObject::getVelocity() const
     return velocity;
 }
 
+inline int RObject::widht() const
+{
+    return _widht;
+}
+
+inline int RObject::height() const
+{
+    return _height;
+}
+
+inline glm::vec2 RObject::pos() const
+{
+    return _pos;
+}
+
 inline int RObject::x() const
 {
-    return static_cast<int>(pos.x);
+    return static_cast<int>(_pos.x);
 }
 
 inline int RObject::y() const
 {
-    return static_cast<int>(pos.y);
+    return static_cast<int>(_pos.y);
 }
 
 inline void RObject::stop()
 {
     velocity = {0, 0};
+}
+
+inline void RObject::motion(bool b)
+{
+    _pos += b ? velocity : -velocity;
 }
 
 #endif // ROBJECT_H
