@@ -22,8 +22,10 @@ public:
     int right() const;
     int top() const;
     int bottom() const;
+    int widht() const;
+    int height() const;
 
-    bool checkCollision(const RVolume &volume, bool left = true, bool right = true) const;
+    bool checkCollision(const RVolume &volume, bool left = true, bool right = true, int extend = 0) const;
     bool contains(const RVolume &volume, bool top = true, bool bottom = true, bool left = true, bool right = true) const;
     bool containsAxisX(float left) const;
     bool containsAxisY(float right) const;
@@ -68,13 +70,24 @@ inline int RVolume::bottom() const
     return static_cast<int>(_pos->y);
 }
 
-inline bool RVolume::checkCollision(const RVolume &volume, bool x, bool y) const
+inline int RVolume::widht() const
+{
+    return static_cast<int>(_widht);
+}
+
+inline int RVolume::height() const
+{
+    return static_cast<int>(_height);
+}
+
+inline bool RVolume::checkCollision(const RVolume &volume, bool x, bool y, int extend) const
 {
     bool b = true;
+    //RDebug() << _pos->y + _height << volume._pos->y - extend << _pos->y << volume._pos->y + volume._height + extend;
     if(x)
-        b &= _pos->x + _widht >= volume._pos->x && _pos->x <= volume._pos->x + volume._widht;
+        b &= _pos->x + _widht >= volume._pos->x - extend && _pos->x <= volume._pos->x + volume._widht + extend;
     if(y)
-        b &= _pos->y + _height >= volume._pos->y && _pos->y <= volume._pos->y + volume._height;
+        b &= _pos->y + _height >= volume._pos->y - extend && _pos->y <= volume._pos->y + volume._height + extend;
 
     return b;
 }

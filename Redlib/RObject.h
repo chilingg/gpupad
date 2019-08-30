@@ -38,7 +38,7 @@ public:
     void move(glm::vec2 direction, int step);
     bool checkCollision(const RObject &obj);
     const RVolume& getVolume() const;
-    bool touchSide(const RObject & platform, RVolume::Side side);
+    bool touchSide(const RObject & platform, RVolume::Side side, int extend = 0) const;
 
 protected:
     static float* getPlantArray(int widht, int height);
@@ -93,29 +93,6 @@ inline bool RObject::checkCollision(const RObject &obj)
 inline const RVolume &RObject::getVolume() const
 {
     return volume;
-}
-
-inline bool RObject::touchSide(const RObject &platform, RVolume::Side side)
-{
-    bool b = false;
-    switch(side)
-    {
-    case RVolume::Top:
-        b = volume.checkCollision(platform.volume, true, false) && volume.containsAxisY(platform.volume.top());
-        break;
-    case RVolume::Bottom:
-        b = volume.checkCollision(platform.volume, true, false) && volume.containsAxisY(platform.volume.bottom());
-        break;
-    case RVolume::Left:
-        b = volume.checkCollision(platform.volume, false, true) && volume.containsAxisX(platform.volume.left());
-        break;
-    case RVolume::Right:
-        b = volume.checkCollision(platform.volume, false, true) && volume.containsAxisX(platform.volume.right());
-        break;
-    default:
-        break;
-    }
-    return b;
 }
 
 inline void RObject::setVelocity(int x, int y)

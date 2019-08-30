@@ -28,6 +28,29 @@ RObject::~RObject()
     glDeleteBuffers(1, &VBO);
 }
 
+bool RObject::touchSide(const RObject &platform, RVolume::Side side, int extend) const
+{
+    bool b = false;
+    switch(side)
+    {
+    case RVolume::Top:
+        b = volume.checkCollision(platform.volume, true, false, extend) && volume.containsAxisY(platform.volume.top());
+        break;
+    case RVolume::Bottom:
+        b = volume.checkCollision(platform.volume, true, false, extend) && volume.containsAxisY(platform.volume.bottom());
+        break;
+    case RVolume::Left:
+        b = volume.checkCollision(platform.volume, false, true, extend) && volume.containsAxisX(platform.volume.left());
+        break;
+    case RVolume::Right:
+        b = volume.checkCollision(platform.volume, false, true, extend) && volume.containsAxisX(platform.volume.right());
+        break;
+    default:
+        break;
+    }
+    return b;
+}
+
 void RObject::render(RShaderProgram *shader)
 {
     glBindVertexArray(VAO);

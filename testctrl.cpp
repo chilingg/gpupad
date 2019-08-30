@@ -11,7 +11,7 @@ TestCtrl::TestCtrl(RController *parent):
     move(0.0f, 0.0f),
     step(0.1f),
     ob(32, 32),
-    ob2(255, 60)
+    ob2(255, 120)
 {
     RShader vertex(RE_PATH + "shaders/vertex.vert", RShader::VERTEX_SHADER);
     RShader fragment((RE_PATH + "shaders/fragment.frag"), RShader::FRAGMENT_SHADER);
@@ -21,6 +21,8 @@ TestCtrl::TestCtrl(RController *parent):
 
     projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
     //projection = glm::mat4(1);
+
+    view = glm::mat4(1);
 
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 0);
@@ -48,11 +50,12 @@ void TestCtrl::paintEvent()
 
     glDisable(GL_CULL_FACE);
     program.use();
+    program.setUniformMatrix4fv("view", glm::value_ptr(view));
     program.setUniformMatrix4fv("projection", glm::value_ptr(projection));
 
     ob2.render(&program);
 
-    ob.setColor(255, 255, 255);
+    ob.setColor(255, 0, 0);
 
     ob.motion();
     ob.move(move, 10);
@@ -62,11 +65,7 @@ void TestCtrl::paintEvent()
     air = false;
     if(ob.y() > 0)
     {
-        if(ob.touchSide(ob2, RVolume::Top))
-            ob.setPositionY(ob2.getVolume().top());
-        else {
-            air |= true;
-        }
+        air |= standIn(ob2);
     }
     else if(ob.y() < 0){
         ob.setPositionY(0);
@@ -81,19 +80,7 @@ void TestCtrl::paintEvent()
         ob.setVelocity(ob.getVelocity().x, 0);
     }
 
-    //碰撞检测
-    if(ob.touchSide(ob2, RVolume::Left) || ob.touchSide(ob2, RVolume::Right))
-    {
-        ob.move(-move, 10);
-        ob.powerVelocity(0.5);
-    }
-    else if(ob.touchSide(ob2, RVolume::Bottom))
-    {
-        ob.motion(false);
-        ob.move(-move, 10);
-        ob.setVelocity(-ob.getVelocity());
-        ob.powerVelocity(0.5);
-    }
+    platformCllision(ob2);
 
     ob.render(&program);
 }
@@ -140,6 +127,33 @@ void TestCtrl::FPS()
         RDebug() << "fps:" << fps;//5000 1700
         fps = 0;
         t.start();
+    }
+
+}
+
+void TestCtrl::platformCllision(const RObject &platform)
+{
+    //平台碰撞检测
+    if(ob.touchSide(platform, RVolume::Bottom, -1))
+    {
+        //RDebug() << "B";
+        ob.motion(false);
+        ob.setPositionY(platform.getVolume().bottom() - ob.getVolume().height() - 1);
+        ob.powerVelocity(0.5);
+    }
+    else if(ob.touchSide(platform, RVolume::Left, -1))
+    {
+        //RDebug() << "L";
+        ob.move(-move, 10);
+        ob.powerVelocity(0.5);
+        ob.setPositionX(platform.getVolume().left() - ob.getVolume().widht() -1);
+    }
+    else if(ob.touchSide(platform, RVolume::Right, -1))
+    {
+        //RDebug() << "R";
+        ob.move(-move, 10);
+        ob.powerVelocity(0.5);
+        ob.setPositionX(platform.getVolume().right()+1);
     }
 
 }
