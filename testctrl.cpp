@@ -26,7 +26,7 @@ TestCtrl::TestCtrl(RController *parent):
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 10);
 
-    platform.push_back(new RObject(255, 120));
+    platform.push_back(new RObject(32, 800));
     platform.back()->setPosition(100, 200);
 
     platform.push_back(new RObject(400, 100));
@@ -82,7 +82,6 @@ void TestCtrl::paintEvent()
         platformCllision(ob, *p);
     }
 
-    //RDebug() << ob.pos() << ob.getVelocity() << '\n';
     ob.render(&program);
 }
 
@@ -140,7 +139,6 @@ bool TestCtrl::platformCllision(RObject &ob, const RObject &platform)
         ob.setColor(255, 0, 0);
         glm::vec2 temp = ob.getVelocity();
         temp += move * static_cast<float>(forward);
-        glm::vec2 oldPos = ob.pos();
 
         float intervalY = temp.y > 0.0f ? 1.0f : -1.0f;
         float tempY = temp.y;
@@ -172,15 +170,14 @@ bool TestCtrl::platformCllision(RObject &ob, const RObject &platform)
         }
         else
         {
-            ob.ry() = oldPos.y;
             while(temp.y <= -0.5f || temp.y >= 0.5f)
             {
-                ob.ry() -= intervalY;
+                ob.ry() += intervalY;
                 temp.y -= intervalY;
-                if(!platform.checkCollision(ob))
+                if(platform.checkCollision(ob))
                 {
-                    if(temp.y <= 0.0f)
-                        return true;
+                    ob.ry() += intervalY;
+                    return true;
                 }
             }
         }
