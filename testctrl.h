@@ -7,6 +7,7 @@
 #include <glm/vec2.hpp>
 #include <RObject.h>
 #include <RTimer.h>
+#include <vector>
 
 class TestCtrl : public RController
 {
@@ -24,16 +25,18 @@ protected:
 
 private:
     void FPS();
-    void platformCllision(const RObject &ob2);
+    bool platformCllision(RObject &ob, const RObject &platform);
     bool standIn(const RObject &platform);
 
+    const int forward = 10;
+    const int gravitation = -30;
     const float VIEW_PROT_WIDTH;
     const float VIEW_PROT_HEIGHT;
     glm::vec2 move;
     float step;
     RObject ob;
-    RObject ob2;
 
+    std::vector<RObject*> platform;
     RTimer timer;
     RShaderProgram program;
     glm::mat4 model;

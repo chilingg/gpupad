@@ -12,6 +12,8 @@ class RObject
 {
 public:
     RObject(int widht, int height);
+    RObject(const RObject&) = delete;
+    RObject& operator=(const RObject&) = delete;
     virtual ~RObject();
     virtual void render(RShaderProgram *shader);
 
@@ -21,6 +23,8 @@ public:
     void setPositionY(int y);
     void setVelocity(int x, int y);
     void setVelocityX(int x);
+    void setVelocityX(float x);
+    void setVelocityY(float y);
     void setVelocityY(int y);
     void setVelocity(glm::vec2 velocity);
 
@@ -29,14 +33,16 @@ public:
     int height() const;
     glm::vec2 pos() const;
     int x() const;
+    float& rx();
     int y() const;
+    float& ry();
 
     void giveVelocity(int x, int y);
     void powerVelocity(double value);
     void stop();
     void motion(bool b = true);
     void move(glm::vec2 direction, int step);
-    bool checkCollision(const RObject &obj);
+    bool checkCollision(const RObject &obj) const;
     const RVolume& getVolume() const;
     bool touchSide(const RObject & platform, RVolume::Side side, int extend = 0) const;
 
@@ -85,7 +91,7 @@ inline void RObject::setColor(int r, int g, int b, int a)
     color.a = a/255.0f;
 }
 
-inline bool RObject::checkCollision(const RObject &obj)
+inline bool RObject::checkCollision(const RObject &obj) const
 {
     return volume.checkCollision(obj.volume);
 }
@@ -103,6 +109,16 @@ inline void RObject::setVelocity(int x, int y)
 inline void RObject::setVelocityX(int x)
 {
     velocity.x = x;
+}
+
+inline void RObject::setVelocityX(float x)
+{
+    velocity.x = x;
+}
+
+inline void RObject::setVelocityY(float y)
+{
+    velocity.y = y;
 }
 
 inline void RObject::setVelocityY(int y)
@@ -151,9 +167,19 @@ inline int RObject::x() const
     return static_cast<int>(_pos.x);
 }
 
+inline float &RObject::rx()
+{
+    return _pos.x;
+}
+
 inline int RObject::y() const
 {
     return static_cast<int>(_pos.y);
+}
+
+inline float &RObject::ry()
+{
+    return _pos.y;
 }
 
 inline void RObject::stop()
