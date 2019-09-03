@@ -1,6 +1,8 @@
 #ifndef RMOUSEEVENT_H
 #define RMOUSEEVENT_H
 
+#include <glm/vec2.hpp>
+
 class RMouseEvent
 {
 public:

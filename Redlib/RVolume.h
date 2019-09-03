@@ -17,13 +17,20 @@ public:
     RVolume(glm::vec2 *pos, int widht = 0, int height = 0);
 
     void setSize(int widht, int height);
+    void setPos(glm::vec2 pos);
 
     int left() const;
     int right() const;
     int top() const;
     int bottom() const;
+    float leftF() const;
+    float rightF() const;
+    float topF() const;
+    float bottomF() const;
     int widht() const;
     int height() const;
+    glm::vec2 getPos();
+    glm::vec2 *getPosP();
 
     bool checkCollision(const RVolume &volume, bool left = true, bool right = true, int extend = 0) const;
     bool contains(const RVolume &volume, bool top = true, bool bottom = true, bool left = true, bool right = true) const;
@@ -50,6 +57,11 @@ inline void RVolume::setSize(int widht, int height)
     _height = height;
 }
 
+inline void RVolume::setPos(glm::vec2 pos)
+{
+    *_pos = pos;
+}
+
 inline int RVolume::left() const
 {
     return static_cast<int>(_pos->x);
@@ -70,6 +82,26 @@ inline int RVolume::bottom() const
     return static_cast<int>(_pos->y);
 }
 
+inline float RVolume::leftF() const
+{
+    return _pos->x;
+}
+
+inline float RVolume::rightF() const
+{
+    return _pos->x + _widht;
+}
+
+inline float RVolume::topF() const
+{
+    return _pos->y + _height;
+}
+
+inline float RVolume::bottomF() const
+{
+    return _pos->y;
+}
+
 inline int RVolume::widht() const
 {
     return static_cast<int>(_widht);
@@ -78,6 +110,16 @@ inline int RVolume::widht() const
 inline int RVolume::height() const
 {
     return static_cast<int>(_height);
+}
+
+inline glm::vec2 RVolume::getPos()
+{
+    return *_pos;
+}
+
+inline glm::vec2* RVolume::getPosP()
+{
+    return _pos;
 }
 
 inline bool RVolume::checkCollision(const RVolume &volume, bool x, bool y, int extend) const
@@ -94,16 +136,16 @@ inline bool RVolume::checkCollision(const RVolume &volume, bool x, bool y, int e
 
 inline bool RVolume::contains(const RVolume &volume, bool top, bool bottom, bool left, bool right) const
 {
-    bool b = false;
+    bool b = true;
 
     if(top)
-        b |= _pos->y + _height >= volume._pos->y + volume._height;
+        b &= _pos->y + _height >= volume._pos->y + volume._height;
     if(bottom)
-        b |= _pos->y <= volume._pos->y;
+        b &= _pos->y <= volume._pos->y;
     if(left)
-        b |= _pos->x <= volume._pos->x;
+        b &= _pos->x <= volume._pos->x;
     if(right)
-        b |= _pos->x + _widht >= volume._pos->x + volume._widht;
+        b &= _pos->x + _widht >= volume._pos->x + volume._widht;
 
     return b;
 }

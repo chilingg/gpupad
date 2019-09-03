@@ -54,13 +54,9 @@ bool RObject::touchSide(const RObject &platform, RVolume::Side side, int extend)
 void RObject::render(RShaderProgram *shader)
 {
     glBindVertexArray(VAO);
-
     shader->use();
-    shader->setUniform4F("color", color);
+    renderControl(shader);
 
-    glm::mat4 model(1.0f);
-    model = glm::translate(model, {_pos, 0.0f});
-    shader->setUniformMatrix4fv("model", glm::value_ptr(model));
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
@@ -77,4 +73,13 @@ float *RObject::getPlantArray(int widht, int height)
     };
 
     return plant;
+}
+
+void RObject::renderControl(RShaderProgram *shader)
+{
+    shader->setUniform4F("color", color);
+
+    glm::mat4 model(1.0f);
+    model = glm::translate(model, {_pos, 0.0f});
+    shader->setUniformMatrix4fv("model", glm::value_ptr(model));
 }

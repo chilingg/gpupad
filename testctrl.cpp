@@ -8,6 +8,8 @@ TestCtrl::TestCtrl(RController *parent):
     RController(parent),
     VIEW_PROT_WIDTH(1600.0f),
     VIEW_PROT_HEIGHT(900.0f),
+    viewProt(new glm::vec2({0.0f, 0.0f}), VIEW_PROT_WIDTH, VIEW_PROT_HEIGHT),
+    charBox(new glm::vec2({0.0f, 0.0f}), 256, 256),
     move(0.0f, 0.0f),
     step(0.1f),
     ob(32, 32)
@@ -18,20 +20,25 @@ TestCtrl::TestCtrl(RController *parent):
     program.attachShader(fragment);
     program.linkProgram();
 
-    projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
-    //projection = glm::mat4(1);
-
-    view = glm::mat4(1);
-
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 10);
 
     platform.push_back(new RObject(32, 800));
     platform.back()->setPosition(100, 200);
 
-    platform.push_back(new RObject(400, 100));
+    platform.push_back(new RObject(200, 32));
+    platform.back()->setPosition(132, 400);
+
+    platform.push_back(new RObject(200, 32));
+    platform.back()->setPosition(325, 110);
+
+    platform.push_back(new RObject(100, 32));
+    platform.back()->setPosition(460, 330);
+
+    platform.push_back(new RObject(400, 32));
     platform.back()->setPosition(700, 200);
 
+    //地板
     platform.push_back(new RObject(1700, 100));
     platform.back()->setPosition(-50, -91);
 
@@ -59,28 +66,60 @@ void TestCtrl::paintEvent()
 
     glDisable(GL_CULL_FACE);
     program.use();
-    program.setUniformMatrix4fv("view", glm::value_ptr(view));
-    program.setUniformMatrix4fv("projection", glm::value_ptr(projection));
 
     for(auto p : platform)
     {
         p->render(&program);
     }
 
-    ob.setColor(127, 127, 127);
-
     //给予引力
     if(ob.getVelocity().y > gravitation)
         ob.giveVelocity(0, -1);
 
+    //移动
     ob.motion();
     ob.move(move, forward);
 
-    //RDebug() << ob.pos() << ob.getVelocity();
+    //检查碰撞
     for(auto p : platform)
     {
         platformCllision(ob, *p);
     }
+
+    //视图移动
+    charBox.setPos({ob.x()-(charBox.widht()/2), ob.y()-10});
+    if(!viewProt.contains(charBox))
+    {
+        glm::vec2 *vp = viewProt.getPosP();
+        if(!viewProt.contains(charBox, true, false, false, false))
+        {
+            //RDebug() << "T " << charBox.topF() << viewProt.topF();
+            vp->y += charBox.topF() - viewProt.topF();
+        }
+        if(!viewProt.contains(charBox, false, true, false, false))
+        {
+            //RDebug() << "B ";
+            vp->y += charBox.bottomF() - viewProt.bottomF();
+        }
+        if(!viewProt.contains(charBox, false, false, true, false))
+        {
+            //RDebug() << "L ";
+            vp->x += charBox.leftF() - viewProt.leftF();
+        }
+        if(!viewProt.contains(charBox, false, false, false, true))
+        {
+            //RDebug() << "R ";
+            vp->x += charBox.rightF() - viewProt.rightF();
+        }
+    }
+
+    //projection = glm::ortho(viewProt.leftF(), viewProt.rightF(), viewProt.bottomF(), viewProt.topF(), -1.0f, 1.0f);
+    projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
+    program.setUniformMatrix4fv("projection", glm::value_ptr(projection));
+
+    view = glm::mat4(1);
+    view = glm::translate(view, {-viewProt.getPos(), 0.0f});
+    program.setUniformMatrix4fv("view", glm::value_ptr(view));
 
     ob.render(&program);
 }
@@ -93,7 +132,10 @@ void TestCtrl::keyPressEvent(RKeyEvent *event)
     if(event->key() == RKeyEvent::KEY_LEFT)
         move.x -= 1.0f;
     if(event->key() == RKeyEvent::KEY_Z)
+    {
         ob.setVelocityY(20);
+        ob.setState(Character::jumped);
+    }
 }
 
 void TestCtrl::keyReleaseEvent(RKeyEvent *event)
@@ -109,12 +151,19 @@ void TestCtrl::keyReleaseEvent(RKeyEvent *event)
 
 void TestCtrl::mousePressEvent(RMouseEvent *event)
 {
-    //RDebug() << event->x() << event->y();
+    RDebug() << event->x()*(VIEW_PROT_WIDTH/width) << (height-event->y())*(VIEW_PROT_HEIGHT/height);
 }
 
 void TestCtrl::mouseReleaseEvent(RMouseEvent *event)
 {
     //RDebug() << event->x() << event->y();
+}
+
+void TestCtrl::resizeEvent(RResizeEvent *event)
+{
+    //RDebug() << event->width() << event->height();
+    width = event->width();
+    height = event->height();
 }
 
 void TestCtrl::FPS()
@@ -131,12 +180,11 @@ void TestCtrl::FPS()
 
 }
 
-bool TestCtrl::platformCllision(RObject &ob, const RObject &platform)
+bool TestCtrl::platformCllision(Character &ob, const RObject &platform)
 {
     //平台碰撞检测
     if(platform.checkCollision(ob))
     {
-        ob.setColor(255, 0, 0);
         glm::vec2 temp = ob.getVelocity();
         temp += move * static_cast<float>(forward);
 
@@ -150,7 +198,10 @@ bool TestCtrl::platformCllision(RObject &ob, const RObject &platform)
             if(!platform.checkCollision(ob))
             {
                 if(tempY <= 0.0f)
+                {
                     ob.setVelocityY(0);
+                    ob.setState(Character::normal);
+                }
                 return true;
             }
         }
@@ -176,8 +227,9 @@ bool TestCtrl::platformCllision(RObject &ob, const RObject &platform)
                 temp.y -= intervalY;
                 if(platform.checkCollision(ob))
                 {
-                    ob.ry() += intervalY;
-                    return true;
+                    RDebug() << "Y axis error!";
+                    //ob.ry() += intervalY;
+                    //return true;
                 }
             }
         }

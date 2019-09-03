@@ -31,10 +31,12 @@ SOURCES += \
         Redlib/RResource.cpp \
         Redlib/RShader.cpp \
         Redlib/RShaderProgram.cpp \
+    Redlib/RTexObject.cpp \
         Redlib/RTexture.cpp \
         Redlib/RWindow.cpp \
         Redlib/glad.c \
         Redlib/stb_image.cpp \
+    character.cpp \
         main.cpp \
     testclass.cpp \
     testctrl.cpp
@@ -51,12 +53,14 @@ HEADERS += \
     Redlib/RResource.h \
     Redlib/RShader.h \
     Redlib/RShaderProgram.h \
+    Redlib/RTexObject.h \
     Redlib/RTexture.h \
     Redlib/RTimer.h \
     Redlib/RVolume.h \
     Redlib/RWheelEvent.h \
     Redlib/RWindow.h \
     Redlib/stb_image.h \
+    character.h \
     constant.h \
     testclass.h \
     testctrl.h

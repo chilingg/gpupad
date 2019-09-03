@@ -5,9 +5,10 @@
 #include <RController.h>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
-#include <RObject.h>
 #include <RTimer.h>
 #include <vector>
+
+#include "character.h"
 
 class TestCtrl : public RController
 {
@@ -22,20 +23,25 @@ protected:
     void keyReleaseEvent(RKeyEvent *event) override;
     void mousePressEvent(RMouseEvent *event) override;
     void mouseReleaseEvent(RMouseEvent *event) override;
+    void resizeEvent(RResizeEvent *event) override;
 
 private:
     void FPS();
-    bool platformCllision(RObject &ob, const RObject &platform);
+    bool platformCllision(Character &ob, const RObject &platform);
     bool standIn(const RObject &platform);
 
-    const int forward = 10;
+    const int forward = 5;
     const int gravitation = -30;
     const float VIEW_PROT_WIDTH;
     const float VIEW_PROT_HEIGHT;
+    RVolume viewProt;
+    RVolume charBox;
     glm::vec2 move;
     float step;
-    RObject ob;
+    Character ob;
 
+    int width;
+    int height;
     std::vector<RObject*> platform;
     RTimer timer;
     RShaderProgram program;
