@@ -35,7 +35,7 @@ SOURCES += \
         Redlib/RTexture.cpp \
         Redlib/RWindow.cpp \
         Redlib/glad.c \
-        Redlib/stb_image.cpp \
+    Redlib/stb_image_implementatio.cpp \
     character.cpp \
         main.cpp \
     testclass.cpp \
@@ -67,4 +67,5 @@ HEADERS += \
 
 DISTFILES += \
     shaders/fragment.frag \
+    shaders/texture.frag \
     shaders/vertex.vert

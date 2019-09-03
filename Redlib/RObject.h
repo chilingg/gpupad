@@ -15,7 +15,7 @@ public:
     RObject(const RObject&) = delete;
     RObject& operator=(const RObject&) = delete;
     virtual ~RObject();
-    void render(RShaderProgram *shader);
+    virtual void allocation();
 
     void setColor(int r, int g, int b, int a = 255);
     void setPosition(int x, int y);
@@ -37,6 +37,7 @@ public:
     int y() const;
     float& ry();
 
+    void render(RShaderProgram *shader);
     void giveVelocity(int x, int y);
     void powerVelocity(double value);
     void stop();
@@ -47,8 +48,9 @@ public:
     bool touchSide(const RObject & platform, RVolume::Side side, int extend = 0) const;
 
 protected:
-    float* getPlantArray(int widht, int height);
     virtual void renderControl(RShaderProgram *shader);
+
+    float* getPlantArray(int widht, int height);
 
     glm::vec2 _pos;
     glm::vec2 velocity;

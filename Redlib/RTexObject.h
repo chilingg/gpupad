@@ -7,7 +7,8 @@
 class RTexObject : public RObject
 {
 public:
-    RTexObject(int widht, int height);
+    RTexObject(int widht, int height, const char *path);
+    void allocation() override;
 
 protected:
     float* getPlantArray(int widht, int height);

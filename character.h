@@ -1,14 +1,15 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
-#include <RObject.h>
+#include <RTexObject.h>
 
-class Character : public RObject
+class Character : public RTexObject
 {
 public:
     enum States{ normal, jumped, injured };
 
-    Character(int widht, int height);
+    Character(int widht, int height, const char *path);
+    Character(int widht, int height, const std::string &path);
     States state();
     void setState(States s);
 

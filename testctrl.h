@@ -44,7 +44,8 @@ private:
     int height;
     std::vector<RObject*> platform;
     RTimer timer;
-    RShaderProgram program;
+    RShaderProgram colorProgram;
+    RShaderProgram texProgram;
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 projection;

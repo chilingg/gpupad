@@ -8,11 +8,12 @@ class RImage : public RResource
 {
 public:
     RImage();
-    RImage(const char* path);
+    RImage(const char* path, bool flip = false);
+    RImage(const std::string &path, bool flip = false);
     ~RImage();
 
     void deleteResource();
-    bool load(const char *);
+    bool load(const char *, bool flip = false);
     int getWidth() const;
     int getHeight() const;
     int channelSize() const;

@@ -10,16 +10,6 @@ RObject::RObject(int widht, int height):
 {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    float *plant = getPlantArray(widht, height);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(*plant)*12, plant, GL_STATIC_DRAW);
-    delete [] plant;
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
 }
 
 RObject::~RObject()
@@ -82,4 +72,18 @@ void RObject::renderControl(RShaderProgram *shader)
     glm::mat4 model(1.0f);
     model = glm::translate(model, {_pos, 0.0f});
     shader->setUniformMatrix4fv("model", glm::value_ptr(model));
+}
+
+void RObject::allocation()
+{
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    float *plant = getPlantArray(_widht, _height);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(*plant)*12, plant, GL_STATIC_DRAW);
+    delete [] plant;
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
 }

@@ -12,34 +12,45 @@ TestCtrl::TestCtrl(RController *parent):
     charBox(new glm::vec2({0.0f, 0.0f}), 256, 256),
     move(0.0f, 0.0f),
     step(0.1f),
-    ob(32, 32)
+    ob(32, 32, RE_PATH+"texture/Robot_normal.png")
 {
     RShader vertex(RE_PATH + "shaders/vertex.vert", RShader::VERTEX_SHADER);
     RShader fragment((RE_PATH + "shaders/fragment.frag"), RShader::FRAGMENT_SHADER);
-    program.attachShader(vertex);
-    program.attachShader(fragment);
-    program.linkProgram();
+    RShader texShader((RE_PATH + "shaders/texture.frag"), RShader::FRAGMENT_SHADER);
+    colorProgram.attachShader(vertex);
+    colorProgram.attachShader(fragment);
+    colorProgram.linkProgram();
+    texProgram.attachShader(vertex);
+    texProgram.attachShader(texShader);
+    texProgram.linkProgram();
 
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 10);
+    ob.allocation();
 
     platform.push_back(new RObject(32, 800));
+    platform.back()->allocation();
     platform.back()->setPosition(100, 200);
 
     platform.push_back(new RObject(200, 32));
+    platform.back()->allocation();
     platform.back()->setPosition(132, 400);
 
     platform.push_back(new RObject(200, 32));
+    platform.back()->allocation();
     platform.back()->setPosition(325, 110);
 
     platform.push_back(new RObject(100, 32));
+    platform.back()->allocation();
     platform.back()->setPosition(460, 330);
 
     platform.push_back(new RObject(400, 32));
+    platform.back()->allocation();
     platform.back()->setPosition(700, 200);
 
     //地板
     platform.push_back(new RObject(1700, 100));
+    platform.back()->allocation();
     platform.back()->setPosition(-50, -91);
 
     //timer.start();
@@ -65,11 +76,11 @@ void TestCtrl::paintEvent()
     //FPS();
 
     glDisable(GL_CULL_FACE);
-    program.use();
+    colorProgram.use();
 
     for(auto p : platform)
     {
-        p->render(&program);
+        p->render(&colorProgram);
     }
 
     //给予引力
@@ -87,7 +98,7 @@ void TestCtrl::paintEvent()
     }
 
     //视图移动
-    charBox.setPos({ob.x()-(charBox.widht()/2), ob.y()-10});
+    charBox.setPos({ob.x()-(charBox.widht()/2), ob.y()-(charBox.height()/2)});
     if(!viewProt.contains(charBox))
     {
         glm::vec2 *vp = viewProt.getPosP();
@@ -115,13 +126,17 @@ void TestCtrl::paintEvent()
 
     //projection = glm::ortho(viewProt.leftF(), viewProt.rightF(), viewProt.bottomF(), viewProt.topF(), -1.0f, 1.0f);
     projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
-    program.setUniformMatrix4fv("projection", glm::value_ptr(projection));
+    colorProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
 
     view = glm::mat4(1);
     view = glm::translate(view, {-viewProt.getPos(), 0.0f});
-    program.setUniformMatrix4fv("view", glm::value_ptr(view));
+    colorProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
 
-    ob.render(&program);
+    texProgram.use();
+    texProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
+    texProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
+
+    ob.render(&texProgram);
 }
 
 void TestCtrl::keyPressEvent(RKeyEvent *event)
@@ -197,7 +212,7 @@ bool TestCtrl::platformCllision(Character &ob, const RObject &platform)
             tempY -= intervalY;
             if(!platform.checkCollision(ob))
             {
-                if(tempY <= 0.0f)
+                if(temp.y < 0.0f)
                 {
                     ob.setVelocityY(0);
                     ob.setState(Character::normal);
