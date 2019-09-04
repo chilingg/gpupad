@@ -12,7 +12,7 @@ TestCtrl::TestCtrl(RController *parent):
     charBox(new glm::vec2({0.0f, 0.0f}), 256, 256),
     move(0.0f, 0.0f),
     step(0.1f),
-    ob(32, 32, RE_PATH+"texture/Robot_normal.png")
+    ob(64, 64)
 {
     RShader vertex(RE_PATH + "shaders/vertex.vert", RShader::VERTEX_SHADER);
     RShader fragment((RE_PATH + "shaders/fragment.frag"), RShader::FRAGMENT_SHADER);
@@ -26,6 +26,9 @@ TestCtrl::TestCtrl(RController *parent):
 
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 10);
+    RVolume v = ob.getVolume();
+    v.setHeight(v.height() - 10);
+    ob.setVolume(v);
     ob.allocation();
 
     platform.push_back(new RObject(32, 800));
@@ -88,6 +91,7 @@ void TestCtrl::paintEvent()
         ob.giveVelocity(0, -1);
 
     //移动
+    ob.setState(Character::quiet);//默认
     ob.motion();
     ob.move(move, forward);
 
@@ -98,7 +102,7 @@ void TestCtrl::paintEvent()
     }
 
     //视图移动
-    charBox.setPos({ob.x()-(charBox.widht()/2), ob.y()-(charBox.height()/2)});
+    charBox.setPos({ob.x()-(charBox.width()/2), ob.y()-(charBox.height()/2)});
     if(!viewProt.contains(charBox))
     {
         glm::vec2 *vp = viewProt.getPosP();
@@ -136,6 +140,8 @@ void TestCtrl::paintEvent()
     texProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
     texProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
 
+    if(ob.getVelocity() != move || move != glm::vec2{0.0f, 0.0f})
+        ob.setState(Character::moved);
     ob.render(&texProgram);
 }
 
@@ -149,7 +155,7 @@ void TestCtrl::keyPressEvent(RKeyEvent *event)
     if(event->key() == RKeyEvent::KEY_Z)
     {
         ob.setVelocityY(20);
-        ob.setState(Character::jumped);
+        ob.setState(Character::moved);
     }
 }
 
@@ -215,7 +221,6 @@ bool TestCtrl::platformCllision(Character &ob, const RObject &platform)
                 if(temp.y < 0.0f)
                 {
                     ob.setVelocityY(0);
-                    ob.setState(Character::normal);
                 }
                 return true;
             }

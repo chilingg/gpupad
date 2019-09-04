@@ -1,9 +1,10 @@
 #include "RTexObject.h"
 
-RTexObject::RTexObject(int widht, int height, const char *path):
+RTexObject::RTexObject(int widht, int height):
     RObject(widht, height),
-    texture(RImage(path, true))
+    textures()
 {
+
 }
 
 void RTexObject::allocation()
@@ -38,5 +39,5 @@ float *RTexObject::getPlantArray(int widht, int height)
 
 void RTexObject::renderControl(RShaderProgram *shader)
 {
-    texture.bind();
+    textures[currentTex].bind();
 }

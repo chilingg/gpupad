@@ -27,6 +27,7 @@ public:
     void setVelocityY(float y);
     void setVelocityY(int y);
     void setVelocity(glm::vec2 velocity);
+    void setVolume(const RVolume &volume);
 
     const glm::vec2& getVelocity() const;
     int widht() const;
@@ -57,7 +58,7 @@ protected:
     glm::vec4 color;
     int _widht;
     int _height;
-    RVolume volume;
+    RVolume _volume;
 
     unsigned VAO, VBO;
 };
@@ -96,12 +97,12 @@ inline void RObject::setColor(int r, int g, int b, int a)
 
 inline bool RObject::checkCollision(const RObject &obj) const
 {
-    return volume.checkCollision(obj.volume);
+    return _volume.checkCollision(obj._volume);
 }
 
 inline const RVolume &RObject::getVolume() const
 {
-    return volume;
+    return _volume;
 }
 
 inline void RObject::setVelocity(int x, int y)
@@ -132,6 +133,11 @@ inline void RObject::setVelocityY(int y)
 inline void RObject::setVelocity(glm::vec2 velocity)
 {
     this->velocity = velocity;
+}
+
+inline void RObject::setVolume(const RVolume &volume)
+{
+    _volume = volume;
 }
 
 inline void RObject::giveVelocity(int x, int y)

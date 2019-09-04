@@ -6,10 +6,9 @@
 class Character : public RTexObject
 {
 public:
-    enum States{ normal, jumped, injured };
+    enum States{ quiet, moved, injured, attacked };
 
-    Character(int widht, int height, const char *path);
-    Character(int widht, int height, const std::string &path);
+    Character(int widht, int height);
     States state();
     void setState(States s);
 

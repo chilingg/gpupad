@@ -1,25 +1,23 @@
 #include "character.h"
+#include "constant.h"
 
-Character::Character(int widht, int height, const char *path):
-    RTexObject(widht, height, path),
-    _states(normal)
+Character::Character(int widht, int height):
+    RTexObject(widht, height),
+    _states(quiet)
 {
-
-}
-
-Character::Character(int widht, int height, const std::string &path):
-    RTexObject(widht, height, path.c_str())
-{
-
+    addTexture("Quiet", RE_PATH+"texture/Robot_idle.png");
+    addTexture("Move", RE_PATH+"texture/Robot_normal.png");
+    addTexture("Attacked", RE_PATH+"texture/Robot_attacked.png");
+    addTexture("Injured", RE_PATH+"texture/Robot_injured.png");
 }
 
 void Character::renderControl(RShaderProgram *shader)
 {
     RTexObject::renderControl(shader);
-    if(_states == jumped)
-        color = { 1.0f, 0.0f, 0.0f, 1.0f};
+    if(_states == moved)
+        setCurrentTexture("Move");
     else
-        color = { 1.0f, 1.0f, 1.0f, 1.0f};
+        setCurrentTexture("Quiet");
 
     RObject::renderControl(shader);
     RTexObject::renderControl(shader);

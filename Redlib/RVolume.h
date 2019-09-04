@@ -14,9 +14,11 @@ public:
         Right
     };
 
-    RVolume(glm::vec2 *pos, int widht = 0, int height = 0);
+    RVolume(glm::vec2 *pos, int width = 0, int height = 0);
 
-    void setSize(int widht, int height);
+    void setSize(int width, int height);
+    void setWidth(int width);
+    void setHeight(int height);
     void setPos(glm::vec2 pos);
 
     int left() const;
@@ -27,7 +29,7 @@ public:
     float rightF() const;
     float topF() const;
     float bottomF() const;
-    int widht() const;
+    int width() const;
     int height() const;
     glm::vec2 getPos();
     glm::vec2 *getPosP();
@@ -39,21 +41,31 @@ public:
 
 private:
     glm::vec2 *_pos;
-    float _widht;
+    float _width;
     float _height;
 };
 
-inline RVolume::RVolume(glm::vec2 *pos, int widht, int height):
+inline RVolume::RVolume(glm::vec2 *pos, int width, int height):
     _pos(pos),
-    _widht(widht),
+    _width(width),
     _height(height)
 {
 
 }
 
-inline void RVolume::setSize(int widht, int height)
+inline void RVolume::setSize(int width, int height)
 {
-    _widht = widht;
+    _width = width;
+    _height = height;
+}
+
+inline void RVolume::setWidth(int width)
+{
+    _width = width;
+}
+
+inline void RVolume::setHeight(int height)
+{
     _height = height;
 }
 
@@ -69,7 +81,7 @@ inline int RVolume::left() const
 
 inline int RVolume::right() const
 {
-    return static_cast<int>(_pos->x + _widht);
+    return static_cast<int>(_pos->x + _width);
 }
 
 inline int RVolume::top() const
@@ -89,7 +101,7 @@ inline float RVolume::leftF() const
 
 inline float RVolume::rightF() const
 {
-    return _pos->x + _widht;
+    return _pos->x + _width;
 }
 
 inline float RVolume::topF() const
@@ -102,9 +114,9 @@ inline float RVolume::bottomF() const
     return _pos->y;
 }
 
-inline int RVolume::widht() const
+inline int RVolume::width() const
 {
-    return static_cast<int>(_widht);
+    return static_cast<int>(_width);
 }
 
 inline int RVolume::height() const
@@ -127,7 +139,7 @@ inline bool RVolume::checkCollision(const RVolume &volume, bool x, bool y, int e
     bool b = true;
     //RDebug() << _pos->y + _height << volume._pos->y - extend << _pos->y << volume._pos->y + volume._height + extend;
     if(x)
-        b &= _pos->x + _widht >= volume._pos->x - extend && _pos->x <= volume._pos->x + volume._widht + extend;
+        b &= _pos->x + _width >= volume._pos->x - extend && _pos->x <= volume._pos->x + volume._width + extend;
     if(y)
         b &= _pos->y + _height >= volume._pos->y - extend && _pos->y <= volume._pos->y + volume._height + extend;
 
@@ -145,14 +157,14 @@ inline bool RVolume::contains(const RVolume &volume, bool top, bool bottom, bool
     if(left)
         b &= _pos->x <= volume._pos->x;
     if(right)
-        b &= _pos->x + _widht >= volume._pos->x + volume._widht;
+        b &= _pos->x + _width >= volume._pos->x + volume._width;
 
     return b;
 }
 
 inline bool RVolume::containsAxisX(float x) const
 {
-    return _pos->x + _widht >= x && _pos->x <= x;
+    return _pos->x + _width >= x && _pos->x <= x;
 }
 
 inline bool RVolume::containsAxisY(float y) const

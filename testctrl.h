@@ -30,7 +30,7 @@ private:
     bool platformCllision(Character &ob, const RObject &platform);
     bool standIn(const RObject &platform);
 
-    const int forward = 5;
+    const int forward = 10;
     const int gravitation = -30;
     const float VIEW_PROT_WIDTH;
     const float VIEW_PROT_HEIGHT;

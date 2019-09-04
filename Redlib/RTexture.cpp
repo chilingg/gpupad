@@ -9,10 +9,10 @@ RTexture::RTexture():
     glGenTextures(1, &ID);
 }
 
-RTexture::RTexture(const RImage &image):
+RTexture::RTexture(std::string path):
     RTexture()
 {
-    generate(image);
+    generate(path);
 }
 
 RTexture::~RTexture()
@@ -20,7 +20,7 @@ RTexture::~RTexture()
     deleteResource();
 }
 
-bool RTexture::generate(const RImage &image)
+bool RTexture::generate(std::string path)
 {
     glGenTextures(1, &ID);
     glBindTexture(GL_TEXTURE_2D, ID);
@@ -29,6 +29,7 @@ bool RTexture::generate(const RImage &image)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMin);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMax);
 
+    RImage image(path, true);
     state = image.isValid();
     if(!state)
         return false;
