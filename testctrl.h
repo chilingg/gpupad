@@ -55,7 +55,7 @@ inline bool TestCtrl::standIn(const RObject &platform)
 {
     if(ob.touchSide(platform, RVolume::Top))
     {
-        ob.setPositionY(platform.getVolume().top());
+        ob.setPositionY(platform.volume().top());
         return true;
     }
     return false;

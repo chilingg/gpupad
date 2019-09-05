@@ -6,7 +6,7 @@ RObject::RObject(int widht, int height):
     color(1.0f),
     _widht(widht),
     _height(height),
-    _volume(&_pos, widht, height)
+    _vSize(widht, height)
 {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -24,21 +24,47 @@ bool RObject::touchSide(const RObject &platform, RVolume::Side side, int extend)
     switch(side)
     {
     case RVolume::Top:
-        b = _volume.checkCollision(platform._volume, true, false, extend) && _volume.containsAxisY(platform._volume.top());
+        b = volume().checkCollision(platform.volume(), true, false, extend) && volume().containsAxisY(platform.volume().top());
         break;
     case RVolume::Bottom:
-        b = _volume.checkCollision(platform._volume, true, false, extend) && _volume.containsAxisY(platform._volume.bottom());
+        b = volume().checkCollision(platform.volume(), true, false, extend) && volume().containsAxisY(platform.volume().bottom());
         break;
     case RVolume::Left:
-        b = _volume.checkCollision(platform._volume, false, true, extend) && _volume.containsAxisX(platform._volume.left());
+        b = volume().checkCollision(platform.volume(), false, true, extend) && volume().containsAxisX(platform.volume().left());
         break;
     case RVolume::Right:
-        b = _volume.checkCollision(platform._volume, false, true, extend) && _volume.containsAxisX(platform._volume.right());
+        b = volume().checkCollision(platform.volume(), false, true, extend) && volume().containsAxisX(platform.volume().right());
         break;
     default:
         break;
     }
     return b;
+}
+
+bool RObject::moveCollision(glm::vec2 velocity, RObject object, const std::vector<RObject*> &platforms)
+{
+    object.setPosition(object.pos() + velocity);
+
+    for(auto platform : platforms)
+    {
+        if(platform.checkCollision(object))
+        {
+            float intervalY = velocity.y > 0.0f ? 1.0f : -1.0f;
+            float velocityY = velocity.y;
+
+            while(velocityY <= -0.5f || velocityY >= 0.5f)
+            {
+                object.ry() -= intervalY;
+                velocityY  -= intervalY;
+                if(!platform.checkCollision(object))
+                {
+
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 void RObject::render(RShaderProgram *shader)

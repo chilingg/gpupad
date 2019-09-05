@@ -39,5 +39,6 @@ float *RTexObject::getPlantArray(int widht, int height)
 
 void RTexObject::renderControl(RShaderProgram *shader)
 {
+    RObject::renderControl(shader);
     textures[currentTex].bind();
 }

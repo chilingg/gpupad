@@ -31,6 +31,7 @@ SOURCES += \
         Redlib/RResource.cpp \
         Redlib/RShader.cpp \
         Redlib/RShaderProgram.cpp \
+    Redlib/RSize.cpp \
     Redlib/RTexObject.cpp \
         Redlib/RTexture.cpp \
         Redlib/RWindow.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     Redlib/RResource.h \
     Redlib/RShader.h \
     Redlib/RShaderProgram.h \
+    Redlib/RSize.h \
     Redlib/RTexObject.h \
     Redlib/RTexture.h \
     Redlib/RTimer.h \

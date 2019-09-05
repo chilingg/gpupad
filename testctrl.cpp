@@ -8,8 +8,8 @@ TestCtrl::TestCtrl(RController *parent):
     RController(parent),
     VIEW_PROT_WIDTH(1600.0f),
     VIEW_PROT_HEIGHT(900.0f),
-    viewProt(new glm::vec2({0.0f, 0.0f}), VIEW_PROT_WIDTH, VIEW_PROT_HEIGHT),
-    charBox(new glm::vec2({0.0f, 0.0f}), 256, 256),
+    viewProt({0.0f, 0.0f}, VIEW_PROT_WIDTH, VIEW_PROT_HEIGHT),
+    charBox({0.0f, 0.0f}, 256, 256),
     move(0.0f, 0.0f),
     step(0.1f),
     ob(64, 64)
@@ -26,7 +26,7 @@ TestCtrl::TestCtrl(RController *parent):
 
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 10);
-    RVolume v = ob.getVolume();
+    RVolume v = ob.volume();
     v.setHeight(v.height() - 10);
     ob.setVolume(v);
     ob.allocation();
@@ -105,27 +105,28 @@ void TestCtrl::paintEvent()
     charBox.setPos({ob.x()-(charBox.width()/2), ob.y()-(charBox.height()/2)});
     if(!viewProt.contains(charBox))
     {
-        glm::vec2 *vp = viewProt.getPosP();
+        glm::vec2 vp = viewProt.getPos();
         if(!viewProt.contains(charBox, true, false, false, false))
         {
             //RDebug() << "T " << charBox.topF() << viewProt.topF();
-            vp->y += charBox.topF() - viewProt.topF();
+            vp.y += charBox.topF() - viewProt.topF();
         }
         if(!viewProt.contains(charBox, false, true, false, false))
         {
             //RDebug() << "B ";
-            vp->y += charBox.bottomF() - viewProt.bottomF();
+            vp.y += charBox.bottomF() - viewProt.bottomF();
         }
         if(!viewProt.contains(charBox, false, false, true, false))
         {
             //RDebug() << "L ";
-            vp->x += charBox.leftF() - viewProt.leftF();
+            vp.x += charBox.leftF() - viewProt.leftF();
         }
         if(!viewProt.contains(charBox, false, false, false, true))
         {
             //RDebug() << "R ";
-            vp->x += charBox.rightF() - viewProt.rightF();
+            vp.x += charBox.rightF() - viewProt.rightF();
         }
+        viewProt.setPos(vp);
     }
 
     //projection = glm::ortho(viewProt.leftF(), viewProt.rightF(), viewProt.bottomF(), viewProt.topF(), -1.0f, 1.0f);

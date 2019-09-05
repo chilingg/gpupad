@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <RVolume.h>
+#include <vector>
 
 class RObject
 {
@@ -19,6 +20,7 @@ public:
 
     void setColor(int r, int g, int b, int a = 255);
     void setPosition(int x, int y);
+    void setPosition(glm::vec2 pos);
     void setPositionX(int x);
     void setPositionY(int y);
     void setVelocity(int x, int y);
@@ -38,6 +40,7 @@ public:
     int y() const;
     float& ry();
 
+    static bool moveCollision(glm::vec2 velocity, RObject object, const std::vector<RObject *> &platforms);
     void render(RShaderProgram *shader);
     void giveVelocity(int x, int y);
     void powerVelocity(double value);
@@ -45,9 +48,8 @@ public:
     void motion(bool b = true);
     void move(glm::vec2 direction, int step);
     bool checkCollision(const RObject &obj) const;
-    const RVolume& getVolume() const;
+    RVolume volume() const;
     bool touchSide(const RObject & platform, RVolume::Side side, int extend = 0) const;
-
 protected:
     virtual void renderControl(RShaderProgram *shader);
 
@@ -58,7 +60,7 @@ protected:
     glm::vec4 color;
     int _widht;
     int _height;
-    RVolume _volume;
+    RSize _vSize;
 
     unsigned VAO, VBO;
 };
@@ -67,6 +69,11 @@ inline void RObject::setPosition(int x, int y)
 {
     _pos.x = static_cast<float>(x);
     _pos.y = static_cast<float>(y);
+}
+
+inline void RObject::setPosition(glm::vec2 pos)
+{
+    _pos = pos;
 }
 
 inline void RObject::setPositionX(int x)
@@ -97,12 +104,12 @@ inline void RObject::setColor(int r, int g, int b, int a)
 
 inline bool RObject::checkCollision(const RObject &obj) const
 {
-    return _volume.checkCollision(obj._volume);
+    return volume().checkCollision(obj.volume());
 }
 
-inline const RVolume &RObject::getVolume() const
+inline RVolume RObject::volume() const
 {
-    return _volume;
+    return {_pos, _widht, _height};
 }
 
 inline void RObject::setVelocity(int x, int y)
@@ -137,7 +144,8 @@ inline void RObject::setVelocity(glm::vec2 velocity)
 
 inline void RObject::setVolume(const RVolume &volume)
 {
-    _volume = volume;
+    _pos = volume.getPos();
+    _vSize = volume.getSize();
 }
 
 inline void RObject::giveVelocity(int x, int y)

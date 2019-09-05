@@ -13,12 +13,10 @@ Character::Character(int widht, int height):
 
 void Character::renderControl(RShaderProgram *shader)
 {
-    RTexObject::renderControl(shader);
     if(_states == moved)
         setCurrentTexture("Move");
     else
         setCurrentTexture("Quiet");
 
-    RObject::renderControl(shader);
     RTexObject::renderControl(shader);
 }
