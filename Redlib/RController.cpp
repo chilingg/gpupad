@@ -84,26 +84,24 @@ void RController::dispatcherResizeEvent(RResizeEvent *event)
     resizeEvent(event);
 }
 
-void RController::dispatcherInputEvent(RJoystickEvent *event, RController::Event name)
+void RController::dispatcherjoystickEvent(RJoystickEvent *event, Event name)
 {
     for(auto child : children)
     {
-        child->dispatcherInputEvent(event, name);
+        child->dispatcherjoystickEvent(event, name);
     }
+
 
     switch(name)
     {
-    case JoystickEvent:
-        joystickEvent(event);
+    case JoystickPresentEvent:
+        joystickPresentEvent(event);
         break;
-    case JoystickConnectEvent:
-        joystickConnectEvent(event);
-        break;
-    case JoystickDisconnectEvent:
-        joystickDisconnectEvent(event);
+    case JoystickInput:
+        joystickInputEvent(event);
         break;
     default:
-        printErro("Error joystick event call");
+        printErro("Error jostick event call");
     }
 }
 
@@ -173,17 +171,12 @@ void RController::resizeEvent(RResizeEvent *event)
 
 }
 
-void RController::joystickConnectEvent(RJoystickEvent *)
+void RController::joystickPresentEvent(RJoystickEvent *)
 {
 
 }
 
-void RController::joystickDisconnectEvent(RJoystickEvent *event)
-{
-
-}
-
-void RController::joystickEvent(RJoystickEvent *)
+void RController::joystickInputEvent(RJoystickEvent *event)
 {
 
 }

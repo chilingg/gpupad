@@ -139,7 +139,7 @@ inline float &RVolume::rx()
     return _pos.x;
 }
 
-float &RVolume::ry()
+inline float &RVolume::ry()
 {
     return _pos.y;
 }

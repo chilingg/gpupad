@@ -40,7 +40,7 @@ public:
     int y() const;
     float& ry();
 
-    static bool moveCollision(glm::vec2 velocity, RObject object, const std::vector<RObject *> &platforms);
+    bool moveCollision(glm::vec2 &velocity, const RObject &platform);
     void render(RShaderProgram *shader);
     void giveVelocity(int x, int y);
     void powerVelocity(double value);

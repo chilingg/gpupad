@@ -10,7 +10,7 @@ TestCtrl::TestCtrl(RController *parent):
     VIEW_PROT_HEIGHT(900.0f),
     viewProt({0.0f, 0.0f}, VIEW_PROT_WIDTH, VIEW_PROT_HEIGHT),
     charBox({0.0f, 0.0f}, 256, 256),
-    move(0.0f, 0.0f),
+    _move(0.0f, 0.0f),
     step(0.1f),
     ob(64, 64)
 {
@@ -93,12 +93,19 @@ void TestCtrl::paintEvent()
     //移动
     ob.setState(Character::quiet);//默认
     ob.motion();
-    ob.move(move, forward);
+    ob.move(_move, forward);
 
     //检查碰撞
+    glm::vec2 velocity = ob.getVelocity();
+    velocity += _move * static_cast<float>(forward);
     for(auto p : platform)
     {
-        platformCllision(ob, *p);
+        if(ob.moveCollision(velocity, *p))
+        {
+            if(velocity.y == 0.0f)
+                ob.setVelocityY(0);
+        }
+        //platformCllision(ob, *p);
     }
 
     //视图移动
@@ -141,7 +148,7 @@ void TestCtrl::paintEvent()
     texProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
     texProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
 
-    if(ob.getVelocity() != move || move != glm::vec2{0.0f, 0.0f})
+    if(velocity != glm::vec2{0.0f, 0.0f})
         ob.setState(Character::moved);
     ob.render(&texProgram);
 }
@@ -150,23 +157,20 @@ void TestCtrl::keyPressEvent(RKeyEvent *event)
 {
     //移动
     if(event->key() == RKeyEvent::KEY_RIGHT)
-        move.x += 1.0f;
+        _move.x += 1.0f;
     if(event->key() == RKeyEvent::KEY_LEFT)
-        move.x -= 1.0f;
+        _move.x -= 1.0f;
     if(event->key() == RKeyEvent::KEY_Z)
-    {
         ob.setVelocityY(20);
-        ob.setState(Character::moved);
-    }
 }
 
 void TestCtrl::keyReleaseEvent(RKeyEvent *event)
 {
     //移动
     if(event->key() == RKeyEvent::KEY_RIGHT)
-        move.x -= 1.0f;
+        _move.x -= 1.0f;
     if(event->key() == RKeyEvent::KEY_LEFT)
-        move.x += 1.0f;
+        _move.x += 1.0f;
     if(event->key() == RKeyEvent::KEY_Z)
         ob.stop();
 }
@@ -186,6 +190,36 @@ void TestCtrl::resizeEvent(RResizeEvent *event)
     //RDebug() << event->width() << event->height();
     width = event->width();
     height = event->height();
+}
+
+void TestCtrl::joystickPresentEvent(RJoystickEvent *event)
+{
+    if(joystick.isDisconnected())
+    {
+        if(event->isConnected())
+            joystick.setJid(event->jid());
+    }
+    else
+    {
+        if(event->isDisconnected() && event->jid() == joystick.jid())
+            joystick.setInvalid();
+    }
+}
+
+void TestCtrl::joystickInputEvent(RJoystickEvent *event)
+{
+    if(event->button() == RJoystick::GAMEPAD_BUTTON_A)
+    {
+        event->buttonValue() ? ob.setVelocityY(20) : ob.stop();
+    }
+    if(event->button() == RJoystick::GAMEPAD_BUTTON_DPAD_LEFT)
+    {
+        event->buttonValue() ? _move.x -= 1.0f : _move.x += 1.0f;
+    }
+    if(event->button() == RJoystick::GAMEPAD_BUTTON_DPAD_RIGHT)
+    {
+        event->buttonValue() ? _move.x += 1.0f : _move.x -= 1.0f;
+    }
 }
 
 void TestCtrl::FPS()
@@ -208,7 +242,7 @@ bool TestCtrl::platformCllision(Character &ob, const RObject &platform)
     if(platform.checkCollision(ob))
     {
         glm::vec2 temp = ob.getVelocity();
-        temp += move * static_cast<float>(forward);
+        temp += _move * static_cast<float>(forward);
 
         float intervalY = temp.y > 0.0f ? 1.0f : -1.0f;
         float tempY = temp.y;
@@ -256,4 +290,12 @@ bool TestCtrl::platformCllision(Character &ob, const RObject &platform)
         }
     }
     return false;
+}
+
+void TestCtrl::move(int lr)
+{
+    if(lr == Left)
+        _move.x -= 1.0f;
+    else if(lr == Right)
+        _move.x += 1.0f;
 }

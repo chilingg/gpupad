@@ -41,26 +41,44 @@ bool RObject::touchSide(const RObject &platform, RVolume::Side side, int extend)
     return b;
 }
 
-bool RObject::moveCollision(glm::vec2 velocity, RObject object, const std::vector<RObject*> &platforms)
+bool RObject::moveCollision(glm::vec2 &velocity, const RObject &platform)
 {
-    object.setPosition(object.pos() + velocity);
-
-    for(auto platform : platforms)
+    if(platform.checkCollision(*this))
     {
-        if(platform.checkCollision(object))
+        float intervalY = velocity.y > 0.0f ? 1.0f : -1.0f;
+        float velocityY = velocity.y;
+
+        while(velocity.y <= -0.5f || velocity.y >= 0.5f)
         {
-            float intervalY = velocity.y > 0.0f ? 1.0f : -1.0f;
-            float velocityY = velocity.y;
-
-            while(velocityY <= -0.5f || velocityY >= 0.5f)
+            _pos.y -= intervalY;
+            velocity.y  -= intervalY;
+            if(!platform.checkCollision(*this))
             {
-                object.ry() -= intervalY;
-                velocityY  -= intervalY;
-                if(!platform.checkCollision(object))
-                {
-
-                }
+                return true;
             }
+        }
+        float intervalX = velocity.x > 0.0f ? 1.0f : -1.0f;
+        while(velocity.x <= -0.5f || velocity.x >= 0.5f)
+        {
+            _pos.x -= intervalX;
+            velocity.x -= intervalX;
+            if(!platform.checkCollision(*this))
+            {
+                break;
+            }
+        }
+        if(platform.checkCollision(*this))
+        {
+            RDebug() << "Object stuck in platform!";
+            return false;
+        }
+        else
+        {
+            velocity.y = velocityY;
+            _pos.y  += velocityY;
+            if(platform.checkCollision(*this))
+                RDebug() << "Y axis error!";
+            return true;
         }
     }
 

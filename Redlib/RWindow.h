@@ -3,15 +3,16 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <set>
-
+#include <vector>
+#include <RJoystick.h>
 #include <RController.h>
 
 class RWindow
 {
-    using Joysticks = std::set<int>;
     enum Status{ uninit, normally };
 public:
+    using Joysticks = std::vector<RJoystick>;
+
     RWindow();
     ~RWindow();
     bool initialize();
@@ -28,8 +29,8 @@ public:
     void disableGLCapabilities(GLenum cap);
 
 private:
-    static Joysticks joysticks;
     static RController *root;
+    static Joysticks joysticks;
 
     int versionMajor;//主版本号
     int versionMinor;//副版本号
@@ -41,8 +42,6 @@ private:
 
     bool cursorTrack;
     int vSync;
-
-    void checkJoysticksPresent();
 
     static GLenum _glCheckError_(const char *file, const int line);
     #define glCheckError() _glCheckError_(__FILE__, __LINE__)
@@ -56,7 +55,7 @@ private:
     static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
     static void mouseScrollCallback(GLFWwindow *window, double x, double y);
     static void joystickPresentCallback(int jid, int event);
-    static void startJoystickEvent();
+    static void joystickInputCheck(RJoystick &joy);
 };
 
 inline void RWindow::setVSync(bool b)

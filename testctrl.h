@@ -7,11 +7,13 @@
 #include <glm/vec2.hpp>
 #include <RTimer.h>
 #include <vector>
+#include <RJoystick.h>
 
 #include "character.h"
 
 class TestCtrl : public RController
 {
+    enum { Left, Right };
 public:
     TestCtrl(RController *parent = nullptr);
     ~TestCtrl() override;
@@ -24,11 +26,14 @@ protected:
     void mousePressEvent(RMouseEvent *event) override;
     void mouseReleaseEvent(RMouseEvent *event) override;
     void resizeEvent(RResizeEvent *event) override;
+    void joystickPresentEvent(RJoystickEvent *event) override;
+    void joystickInputEvent(RJoystickEvent *event) override;
 
 private:
     void FPS();
     bool platformCllision(Character &ob, const RObject &platform);
     bool standIn(const RObject &platform);
+    void move(int lr);
 
     const int forward = 10;
     const int gravitation = -30;
@@ -36,7 +41,7 @@ private:
     const float VIEW_PROT_HEIGHT;
     RVolume viewProt;
     RVolume charBox;
-    glm::vec2 move;
+    glm::vec2 _move;
     float step;
     Character ob;
 
@@ -49,6 +54,7 @@ private:
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 projection;
+    RJoystick joystick;
 };
 
 inline bool TestCtrl::standIn(const RObject &platform)

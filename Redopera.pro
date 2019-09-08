@@ -46,6 +46,7 @@ HEADERS += \
     Redlib/RController.h \
     Redlib/RDebug.h \
     Redlib/RImage.h \
+    Redlib/RJoystick.h \
     Redlib/RJoystickEvent.h \
     Redlib/RKeyEvent.h \
     Redlib/RMouseEvent.h \

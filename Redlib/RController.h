@@ -14,16 +14,14 @@ class RController
 
 public:
     enum Event {
-        PaintEvent,
-        JoystickEvent,
-        JoystickConnectEvent,
-        JoystickDisconnectEvent,
         KeyPressEvent,
         KeyReleaseEvent,
         MouseMoveEvent,
         MousePressEvent,
         MouseReleaseEvent,
-        WheelEvent
+        WheelEvent,
+        JoystickPresentEvent,
+        JoystickInput
     };
 
     RController(RController *parent = nullptr);
@@ -37,8 +35,8 @@ public:
     void close();
     void update();
     void dispatcherResizeEvent(RResizeEvent *event);
+    void dispatcherjoystickEvent(RJoystickEvent *event, Event name);
 
-    void dispatcherInputEvent(RJoystickEvent *event, Event name);
     void dispatcherInputEvent(RKeyEvent *event, Event name);
     void dispatcherInputEvent(RMouseEvent *event, Event name);
     void dispatcherInputEvent(RWheelEvent *event, Event name);
@@ -46,9 +44,8 @@ public:
 protected:
     virtual void paintEvent();
     virtual void resizeEvent(RResizeEvent *event);
-    virtual void joystickConnectEvent(RJoystickEvent *event);
-    virtual void joystickDisconnectEvent(RJoystickEvent *event);
-    virtual void joystickEvent(RJoystickEvent *event);
+    virtual void joystickPresentEvent(RJoystickEvent *event);
+    virtual void joystickInputEvent(RJoystickEvent *event);
     virtual void keyPressEvent(RKeyEvent *event);
     virtual void keyReleaseEvent(RKeyEvent *event);
     virtual void mouseMoveEvent(RMouseEvent *event);

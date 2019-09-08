@@ -10,8 +10,8 @@
 #include <fstream>
 #include <sstream>
 
-RWindow::Joysticks RWindow::joysticks{};
 RController *RWindow::root(nullptr);
+RWindow::Joysticks RWindow::joysticks;
 
 RWindow::RWindow():
     versionMajor(3),
@@ -97,9 +97,6 @@ bool RWindow::initialize()
     //默认开启面剔除
     glEnable(GL_CULL_FACE);
 
-    //手柄连接检测
-    checkJoysticksPresent();
-
     RDebug() << glGetString(GL_VERSION);
 
     glCheckError();
@@ -121,15 +118,27 @@ int RWindow::exec()
     }
     RResizeEvent e(width, height);
     root->dispatcherResizeEvent(&e);
+    //需手动检测一次手柄连接，避免开始之前的连接无法检测（需要root控制已设置）
+    for(int i = GLFW_JOYSTICK_1; i <= GLFW_MOUSE_BUTTON_LAST; ++i)
+    {
+        if(glfwJoystickIsGamepad(i))
+        {
+            joystickPresentCallback(i, GLFW_CONNECTED);
+        }
+    }
 
     while(!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //检查手柄输入
+        //检查GLFW事件触发
+        glfwPollEvents();
+        //手柄输入检测
         if(!joysticks.empty())
-            startJoystickEvent();
-
+        {
+            for(auto &jid : joysticks)
+                joystickInputCheck(jid);
+        }
         //调用控制
         root->control();
 
@@ -137,9 +146,6 @@ int RWindow::exec()
 
         //交换颜色缓冲
         glfwSwapBuffers(window);
-        //检查GLFW事件触发
-        glfwPollEvents();
-
     }
 
     root->close();
@@ -187,18 +193,6 @@ GLenum RWindow::_glCheckError_(const char *file, const int line)
 
 #endif
     return errorCode;
-}
-
-void RWindow::checkJoysticksPresent()
-{
-    for(int i = GLFW_JOYSTICK_1; i <= GLFW_MOUSE_BUTTON_LAST; ++i)
-    {
-        if(glfwJoystickIsGamepad(i))
-        {
-            joystickPresentCallback(i, GLFW_CONNECTED);
-        }
-    }
-    RDebug() << __LINE__ << "Line: " << joysticks.size() << "joystick";
 }
 
 void RWindow::setWindowSize(int width, int height)
@@ -294,70 +288,60 @@ void RWindow::mouseScrollCallback(GLFWwindow *window, double xOffset, double yOf
 
 void RWindow::joystickPresentCallback(int jid, int event)
 {
+    RJoystickEvent e(jid);
+    root->dispatcherjoystickEvent(&e, RController::JoystickPresentEvent);
+
     if(event == GLFW_CONNECTED)
     {
-        joysticks.insert(jid);
-        RJoystickEvent event(jid);
-        root->dispatcherInputEvent(&event, RController::JoystickConnectEvent);
+        joysticks.emplace_back(jid);
+        RDebug() << __LINE__ << "Line: Connected" << "joystick jid=" << jid;
     }
     else if(event == GLFW_DISCONNECTED)
     {
-        joysticks.erase(jid);
-        RJoystickEvent event(jid);
-        root->dispatcherInputEvent(&event, RController::JoystickDisconnectEvent);
+        joysticks.emplace_back(jid);
+        RDebug() << __LINE__ << "Line: Disconnected" << "joystick jid=" << jid;
     }
 }
 
-void RWindow::startJoystickEvent()
+void RWindow::joystickInputCheck(RJoystick &joy)
 {
-    for(auto jid : joysticks)
-    {
-        RJoystickEvent event(jid);
-        root->dispatcherInputEvent(&event, RController::JoystickEvent);
-    }
-    /*
     GLFWgamepadstate status;
-    for(auto jid : joysticks)
+    if(glfwGetGamepadState(joy.jid(), &status))
     {
-        if(glfwGetGamepadState(jid, &status))
+        //GLFW_GAMEPAD_BUTTON_A
+        for(unsigned i = 0; i <= RJoystick::GAMEPAD_BUTTON_LAST; ++i)
         {
-            //GLFW_GAMEPAD_BUTTON_A
-            unsigned size = sizeof(status.buttons)/sizeof(status.buttons[0]);
-            for(unsigned i = 0; i < size; ++i)
+            if(status.buttons[i] != joy.button(i))
             {
-                if(status.buttons[i])
-                    RDebug() << i;
-            }
-
-            static const float lStart = -1;
-            static const float rStart = -1;
-            static const float inaccaracy = 0.1f;
-
-            if(status.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > inaccaracy || status.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -inaccaracy)
-            {
-                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_LEFT_X] << "LX";
-            }
-            if(status.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > inaccaracy || status.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -inaccaracy)
-            {
-                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] << "LY";
-            }
-            if(status.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] > inaccaracy || status.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] < -inaccaracy)
-            {
-                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] << "RX";
-            }
-            if(status.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > inaccaracy || status.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] < -inaccaracy)
-            {
-                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] << "RY";
-            }
-            if(status.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] > lStart)
-            {
-                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] << "L";
-            }
-            if(status.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > rStart)
-            {
-                //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] << "R";
+                //RDebug() << i;
+                RJoystickEvent event(joy.jid());
+                status.buttons[i] == GLFW_PRESS ? event.setButton(i, true) : event.setButton(i, false);
+                root->dispatcherjoystickEvent(&event, RController::JoystickInput);
             }
         }
+
+        static const float inaccaracy = 0.1f;
+        for(unsigned i = 0; i <= RJoystick::GAMEPAD_AXIS_RIGHT_Y; ++i)
+        {
+            if(status.axes[i] > inaccaracy || status.axes[i] < -inaccaracy)
+            {
+                RJoystickEvent event(joy.jid());
+                event.setAxis(i, status.axes[i]);
+                root->dispatcherjoystickEvent(&event, RController::JoystickInput);
+            }
+        }
+
+        static const float lStart = -1;
+        static const float rStart = -1;
+        if(status.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] > lStart)
+        {
+            //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] << "L";
+        }
+        if(status.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > rStart)
+        {
+            //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] << "R";
+        }
+
+        joy.update();
     }
-    */
 }

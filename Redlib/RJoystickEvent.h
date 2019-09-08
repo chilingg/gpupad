@@ -1,68 +1,88 @@
 #ifndef RJOYSTICKEVENT_H
 #define RJOYSTICKEVENT_H
 
-#include <GLFW/glfw3.h>
+#include <RJoystick.h>
 
 class RJoystickEvent
 {
-    enum Buttons {
-        GAMEPAD_BUTTON_A,
-        GAMEPAD_BUTTON_B,
-        GAMEPAD_BUTTON_X,
-        GAMEPAD_BUTTON_Y,
-        GAMEPAD_BUTTON_LEFT_BUMPER,
-        GAMEPAD_BUTTON_RIGHT_BUMPER,
-        GAMEPAD_BUTTON_BACK,
-        GAMEPAD_BUTTON_START,
-        GAMEPAD_BUTTON_GUIDE,
-        GAMEPAD_BUTTON_LEFT_THUMB,
-        GAMEPAD_BUTTON_RIGHT_THUMB,
-        GAMEPAD_BUTTON_DPAD_UP,
-        GAMEPAD_BUTTON_DPAD_RIGHT,
-        GAMEPAD_BUTTON_DPAD_DOWN,
-        GAMEPAD_BUTTON_DPAD_LEFT,
-        GAMEPAD_BUTTON_LAST
-    };
-    enum Axes {
-        GAMEPAD_AXIS_LEFT_X,
-        GAMEPAD_AXIS_LEFT_Y,
-        GAMEPAD_AXIS_RIGHT_X,
-        GAMEPAD_AXIS_RIGHT_Y,
-        GAMEPAD_AXIS_LEFT_TRIGGER,
-        GAMEPAD_AXIS_RIGHT_TRIGGER
-    };
-
 public:
     RJoystickEvent(int jid);
-    bool button(Buttons btn) const;
-    float axes(Axes axis) const;
+
     int jid() const;
+    bool isConnected() const;
+    bool isDisconnected() const;
+    int button() const;
+    int buttonValue() const;
+    int axis() const;
+    float axisValue() const;
+
+    void setButton(unsigned button, bool value);
+    void setAxis(unsigned axis, float value);
 
 private:
-    const int JID;
-    GLFWgamepadstate status;
-    bool valid;
+    const int _jid;
+    bool _valid;
+    int _button;
+    bool _buttonValue;
+    int _axis;
+    float _axisValue;
 };
 
 inline RJoystickEvent::RJoystickEvent(int jid):
-    JID(jid)
+    _jid(jid),
+    _valid(glfwJoystickIsGamepad(jid)),
+    _button(-1),
+    _buttonValue(false),
+    _axis(-1),
+    _axisValue(0.0f)
 {
-    valid = glfwGetGamepadState(jid, &status);
-}
-
-inline bool RJoystickEvent::button(RJoystickEvent::Buttons btn) const
-{
-    return status.buttons[btn];
-}
-
-inline float RJoystickEvent::axes(RJoystickEvent::Axes axis) const
-{
-    return status.axes[axis];
 }
 
 inline int RJoystickEvent::jid() const
 {
-    return JID;
+    return _jid;
+}
+
+inline bool RJoystickEvent::isConnected() const
+{
+    return _valid;
+}
+
+inline bool RJoystickEvent::isDisconnected() const
+{
+    return !_valid;
+}
+
+inline int RJoystickEvent::button() const
+{
+    return _button;
+}
+
+inline int RJoystickEvent::buttonValue() const
+{
+    return _buttonValue;
+}
+
+inline int RJoystickEvent::axis() const
+{
+    return _axis;
+}
+
+inline float RJoystickEvent::axisValue() const
+{
+    return _axisValue;
+}
+
+inline void RJoystickEvent::setButton(unsigned button, bool value)
+{
+    _button = static_cast<int>(button);
+    _buttonValue = value;
+}
+
+inline void RJoystickEvent::setAxis(unsigned axis, float value)
+{
+    _axis = static_cast<int>(axis);
+    _axisValue = value;
 }
 
 #endif // RJOYSTICKEVENT_H
