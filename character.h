@@ -1,9 +1,9 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
-#include <RTexObject.h>
+#include <RSprite.h>
 
-class Character : public RTexObject
+class Character : public RSprite
 {
 public:
     enum States{ quiet, moved, injured, attacked };
@@ -16,7 +16,11 @@ protected:
     void renderControl(RShaderProgram *shader) override;
 
 private:
+    using frameSequence = std::map<States, std::vector<std::string>>;
+
     States _states;
+    States oldStates;
+    frameSequence frames;
 };
 
 inline Character::States Character::state()
