@@ -8,15 +8,15 @@
 class RTexObject : public RObject
 {
 public:
-    RTexObject(int widht, int height);
-    RTexObject(int widht, int height, const char *path);
+    RTexObject(int width, int height);
+    RTexObject(int width, int height, const char *path);
 
     void allocation() override;
     void addTexture(std::string name, std::string path);
     bool setCurrentTexture(std::string name);
 
 protected:
-    float* getPlantArray(int widht, int height);
+    float* getPlantArray(int width, int height) override;
     void renderControl(RShaderProgram *shader) override;
 
     std::map<std::string, RTexture> textures;

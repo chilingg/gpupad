@@ -12,7 +12,7 @@
 class RObject
 {
 public:
-    RObject(int widht, int height);
+    RObject(int width, int height);
     RObject(const RObject&) = delete;
     RObject& operator=(const RObject&) = delete;
     virtual ~RObject();
@@ -32,7 +32,7 @@ public:
     void setVolume(const RVolume &volume);
 
     const glm::vec2& getVelocity() const;
-    int widht() const;
+    int width() const;
     int height() const;
     glm::vec2 pos() const;
     int x() const;
@@ -53,12 +53,12 @@ public:
 protected:
     virtual void renderControl(RShaderProgram *shader);
 
-    float* getPlantArray(int widht, int height);
+    virtual float* getPlantArray(int width, int height);
 
     glm::vec2 _pos;
     glm::vec2 velocity;
     glm::vec4 color;
-    int _widht;
+    int _width;
     int _height;
     RSize _vSize;
 
@@ -109,7 +109,7 @@ inline bool RObject::checkCollision(const RObject &obj) const
 
 inline RVolume RObject::volume() const
 {
-    return {_pos, _widht, _height};
+    return {_pos, _width, _height};
 }
 
 inline void RObject::setVelocity(int x, int y)
@@ -164,9 +164,9 @@ inline const glm::vec2 &RObject::getVelocity() const
     return velocity;
 }
 
-inline int RObject::widht() const
+inline int RObject::width() const
 {
-    return _widht;
+    return _width;
 }
 
 inline int RObject::height() const

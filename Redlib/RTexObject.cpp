@@ -1,7 +1,7 @@
 #include "RTexObject.h"
 
-RTexObject::RTexObject(int widht, int height):
-    RObject(widht, height),
+RTexObject::RTexObject(int width, int height):
+    RObject(width, height),
     textures()
 {
 
@@ -12,7 +12,7 @@ void RTexObject::allocation()
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    float *plant = getPlantArray(_widht, _height);
+    float *plant = getPlantArray(_width, _height);
     glBufferData(GL_ARRAY_BUFFER, sizeof(*plant)*24, plant, GL_STATIC_DRAW);
     delete [] plant;
 
@@ -23,14 +23,14 @@ void RTexObject::allocation()
     glBindVertexArray(0);
 }
 
-float *RTexObject::getPlantArray(int widht, int height)
+float *RTexObject::getPlantArray(int width, int height)
 {
     float *plant = new float[24]{
             0.0f, 0.0f, 0.0f, 0.0f,//左下
             0.0f, static_cast<float>(height), 0.0f, 1.0f,//左上
-            static_cast<float>(widht), static_cast<float>(height), 1.0f, 1.0f,//右上
-            static_cast<float>(widht), static_cast<float>(height), 1.0f, 1.0f,//右上
-            static_cast<float>(widht), 0.0f, 1.0f, 0.0f,//右下
+            static_cast<float>(width), static_cast<float>(height), 1.0f, 1.0f,//右上
+            static_cast<float>(width), static_cast<float>(height), 1.0f, 1.0f,//右上
+            static_cast<float>(width), 0.0f, 1.0f, 0.0f,//右下
             0.0f, 0.0f, 0.0f, 0.0f,//左下
     };
 

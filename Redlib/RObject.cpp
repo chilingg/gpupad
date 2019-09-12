@@ -1,12 +1,12 @@
 #include "RObject.h"
 
-RObject::RObject(int widht, int height):
+RObject::RObject(int width, int height):
     _pos(0.0f, 0.0f),
     velocity(0.0f, 0.0f),
     color(1.0f),
-    _widht(widht),
+    _width(width),
     _height(height),
-    _vSize(widht, height)
+    _vSize(width, height)
 {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -95,14 +95,14 @@ void RObject::render(RShaderProgram *shader)
     glBindVertexArray(0);
 }
 
-float *RObject::getPlantArray(int widht, int height)
+float *RObject::getPlantArray(int width, int height)
 {
     float *plant = new float[12]{
             0.0f, 0.0f,//左下
             0.0f, static_cast<float>(height),//左上
-            static_cast<float>(widht), static_cast<float>(height),//右上
-            static_cast<float>(widht), static_cast<float>(height),//右上
-            static_cast<float>(widht), 0.0f,//右下
+            static_cast<float>(width), static_cast<float>(height),//右上
+            static_cast<float>(width), static_cast<float>(height),//右上
+            static_cast<float>(width), 0.0f,//右下
             0.0f, 0.0f,//左下
     };
 
@@ -123,7 +123,7 @@ void RObject::allocation()
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    float *plant = getPlantArray(_widht, _height);
+    float *plant = getPlantArray(_width, _height);
     glBufferData(GL_ARRAY_BUFFER, sizeof(*plant)*12, plant, GL_STATIC_DRAW);
     delete [] plant;
 
