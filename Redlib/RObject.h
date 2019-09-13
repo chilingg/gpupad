@@ -39,6 +39,7 @@ public:
     float& rx();
     int y() const;
     float& ry();
+    RVolume volume() const;
 
     bool moveCollision(glm::vec2 &velocity, const RObject &platform);
     void render(RShaderProgram *shader);
@@ -48,11 +49,14 @@ public:
     void motion(bool b = true);
     void move(glm::vec2 direction, int step);
     bool checkCollision(const RObject &obj) const;
-    RVolume volume() const;
     bool touchSide(const RObject & platform, RVolume::Side side, int extend = 0) const;
-protected:
-    virtual void renderControl(RShaderProgram *shader);
+    void displayVolume(const glm::mat4 &projection, const glm::mat4 &view);
 
+protected:
+    static RShaderProgram *volumeShader;
+    static unsigned vVAO;
+
+    virtual void renderControl(RShaderProgram *shader);
     virtual float* getPlantArray(int width, int height);
 
     glm::vec2 _pos;
@@ -109,7 +113,7 @@ inline bool RObject::checkCollision(const RObject &obj) const
 
 inline RVolume RObject::volume() const
 {
-    return {_pos, _width, _height};
+    return {_pos, _vSize.width(), _vSize.height()};
 }
 
 inline void RObject::setVelocity(int x, int y)
@@ -144,7 +148,6 @@ inline void RObject::setVelocity(glm::vec2 velocity)
 
 inline void RObject::setVolume(const RVolume &volume)
 {
-    _pos = volume.getPos();
     _vSize = volume.getSize();
 }
 

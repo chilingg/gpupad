@@ -41,6 +41,95 @@ bool RObject::touchSide(const RObject &platform, RVolume::Side side, int extend)
     return b;
 }
 
+void RObject::displayVolume(const glm::mat4 &projection, const glm::mat4 &view)
+{
+    if(!volumeShader)
+    {
+        const char *vTexCode =
+                "#version 330 core\n"
+
+                "uniform vec2 aPos;\n"
+                "uniform float aWidth;\n"
+                "uniform float aHeight;\n"
+
+                "out vec2 pos;\n"
+                "out float width;\n"
+                "out float height;\n"
+
+                "void main(void)\n"
+                "{\n"
+                    "pos = aPos;\n"
+                    "width = aWidth;\n"
+                    "height = aHeight;\n"
+                "}";
+        const char *vFragCode =
+                "#version 330 core\n"
+
+                "void main(void)\n"
+                "{\n"
+                    "gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
+                "}";
+        const char *vGeomCode =
+                "#version 330 core\n"
+
+                "layout (points) in;\n"
+                "layout (line_strip, max_vertices = 5) out;\n"
+
+                "in vec2 pos[];\n"
+                "in float width[];\n"
+                "in float height[];\n"
+
+                "void main(void)\n"
+                "{\n"
+                    "vec4 position = vec4(pos[0], 0.0, 1.0);\n"
+
+                    "gl_Position = position;\n"
+                    "EmitVertex();\n"
+                    "gl_Position = position + vec4(0.0, height[0], 0.0, 0.0);\n"
+                    "EmitVertex();\n"
+                    "gl_Position = position + vec4(width[0], height[0], 0.0, 0.0);\n"
+                    "EmitVertex();\n"
+                    "gl_Position = position + vec4(width[0], 0.0, 0.0, 0.0);\n"
+                    "EmitVertex();\n"
+                    "gl_Position = position;\n"
+                    "EmitVertex();\n"
+
+                    "EndPrimitive();\n"
+                "}";
+
+        RShader vTex;
+        RShader vFrag;
+        RShader vGeom;
+        vTex.compileShaderCode(vTexCode, RShader::VERTEX_SHADER);
+        vFrag.compileShaderCode(vFragCode, RShader::FRAGMENT_SHADER);
+        vGeom.compileShaderCode(vGeomCode, RShader::GEOMETRY_SHADER);
+
+        //全局存在 不需要delete
+        volumeShader = new RShaderProgram();
+        volumeShader->attachShader(vTex);
+        volumeShader->attachShader(vFrag);
+        volumeShader->attachShader(vGeom);
+        volumeShader->linkProgram();
+
+        glGenVertexArrays(1, &vVAO);
+    }
+
+    glBindVertexArray(vVAO);
+    volumeShader->use();
+
+    glm::mat4 model(1.0f);
+    model = glm::translate(model, {_pos, 0.0f});
+    glm::vec4 p(volume().getPos(), 0.0f, 1.0f);
+    p = projection * view * p;
+    volumeShader->setUniform2F("aPos", p.x, p.y);
+    p.x = volume().widthF();
+    p.y = volume().heightF();
+    p = projection * p;
+    volumeShader->setUniform1F("aWidth", p.x - -1.0f);
+    volumeShader->setUniform1F("aHeight", p.y - -1.0f);
+    glDrawArrays(GL_POINTS, 0, 1);
+}
+
 bool RObject::moveCollision(glm::vec2 &velocity, const RObject &platform)
 {
     if(platform.checkCollision(*this))
@@ -131,3 +220,6 @@ void RObject::allocation()
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 }
+
+RShaderProgram *RObject::volumeShader(nullptr);
+unsigned RObject::vVAO(0);

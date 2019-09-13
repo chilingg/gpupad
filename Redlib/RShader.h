@@ -19,6 +19,7 @@ public:
 
     void deleteResource();
     bool compileShader(const GLchar *path, GLenum type);
+    bool compileShaderCode(const GLchar *code, GLenum type);
     GLuint getShaderID() const;
 
 private:

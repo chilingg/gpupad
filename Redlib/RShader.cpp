@@ -23,14 +23,20 @@ RShader::~RShader()
 
 bool RShader::compileShader(const GLchar *path, GLenum type)
 {
+    std::string code = openTextFile(path);
+    const char* shaderCode = code.c_str();
+
+    return compileShaderCode(shaderCode, type);
+}
+
+bool RShader::compileShaderCode(const GLchar *code, GLenum type)
+{
     int success;
     char infoLog[512];
 
-    std::string code = openTextFile(path);
-    const char* shaderCode = code.c_str();
     //创建编译顶点着色器
     shaderID = glCreateShader(type);
-    glShaderSource(shaderID, 1, &shaderCode, nullptr);
+    glShaderSource(shaderID, 1, &code, nullptr);
     glCompileShader(shaderID);
     state = true;
     //若有错误，则打印

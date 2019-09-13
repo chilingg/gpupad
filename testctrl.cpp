@@ -79,7 +79,15 @@ void TestCtrl::paintEvent()
     //FPS();
 
     glDisable(GL_CULL_FACE);
+
+    //projection = glm::ortho(viewProt.leftF(), viewProt.rightF(), viewProt.bottomF(), viewProt.topF(), -1.0f, 1.0f);
+    projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
+    view = glm::mat4(1);
+    view = glm::translate(view, {-viewProt.getPos(), 0.0f});
+
     colorProgram.use();
+    colorProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
+    colorProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
 
     for(auto p : platform)
     {
@@ -136,14 +144,6 @@ void TestCtrl::paintEvent()
         viewProt.setPos(vp);
     }
 
-    //projection = glm::ortho(viewProt.leftF(), viewProt.rightF(), viewProt.bottomF(), viewProt.topF(), -1.0f, 1.0f);
-    projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
-    colorProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
-
-    view = glm::mat4(1);
-    view = glm::translate(view, {-viewProt.getPos(), 0.0f});
-    colorProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
-
     texProgram.use();
     texProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
     texProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
@@ -151,6 +151,7 @@ void TestCtrl::paintEvent()
     if(velocity != glm::vec2{0.0f, 0.0f})
         ob.setState(Character::moved);
     ob.render(&texProgram);
+    ob.displayVolume(projection, view);
 }
 
 void TestCtrl::keyPressEvent(RKeyEvent *event)

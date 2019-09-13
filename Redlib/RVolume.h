@@ -31,6 +31,8 @@ public:
     float rightF() const;
     float topF() const;
     float bottomF() const;
+    float widthF() const;
+    float heightF() const;
     int width() const;
     int height() const;
     float &rx();
@@ -122,6 +124,16 @@ inline float RVolume::topF() const
 inline float RVolume::bottomF() const
 {
     return _pos.y;
+}
+
+inline float RVolume::widthF() const
+{
+    return _width;
+}
+
+inline float RVolume::heightF() const
+{
+    return _height;
 }
 
 inline int RVolume::width() const

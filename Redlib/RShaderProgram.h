@@ -21,6 +21,8 @@ public:
     void use();
     void setUniform1F(const std::string &name, float value) const;
     void setUniform1I(const std::string &name, int value) const;
+    void setUniform2F(const std::string &name, glm::vec2 value) const;
+    void setUniform2F(const std::string &name, float value1, float value2) const;
     void setUniform3F(const std::string &name, float value1, float value2, float value3) const;
     void setUniform3F(const std::string &name, glm::vec3 vec) const;
     void setUniform4F(const std::string &name, float value1, float value2, float value3, float value4) const;
@@ -66,6 +68,20 @@ inline void RShaderProgram::setUniform1I(const std::string &name, int value) con
     int loc = glGetUniformLocation(ID, name.c_str());
     if(loc != -1)
         glUniform1i(loc, value);
+    else
+        RDebug() << "No find uniform location of the " << name.c_str();
+}
+
+inline void RShaderProgram::setUniform2F(const std::string &name, glm::vec2 value) const
+{
+    setUniform2F(name, value.x, value.y);
+}
+
+inline void RShaderProgram::setUniform2F(const std::string &name, float value1, float value2) const
+{
+    int loc = glGetUniformLocation(ID, name.c_str());
+    if(loc != -1)
+        glUniform2f(loc, value1, value2);
     else
         RDebug() << "No find uniform location of the " << name.c_str();
 }
