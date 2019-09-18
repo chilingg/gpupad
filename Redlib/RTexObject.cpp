@@ -12,7 +12,7 @@ void RTexObject::allocation()
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    float *plant = getPlantArray(_width, _height);
+    float *plant = getPlantArray();
     glBufferData(GL_ARRAY_BUFFER, sizeof(*plant)*24, plant, GL_STATIC_DRAW);
     delete [] plant;
 
@@ -21,17 +21,29 @@ void RTexObject::allocation()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), reinterpret_cast<void*>(2*sizeof(float)));
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
+
+#ifndef RO_NO_DEBUGE
+    allocationed = true;
+#endif
 }
 
-float *RTexObject::getPlantArray(int width, int height)
+float *RTexObject::getPlantArray()
 {
+    float wf = static_cast<float>(_width);
+    float hf = static_cast<float>(_height);
+    float pt = _paddingTop / hf;
+    float pb = _paddingBottom / hf;
+    float pl = _paddingLeft / wf;
+    float pr = _paddingRight / wf;
+    RDebug() << pt << pb << pl << pr;
+
     float *plant = new float[24]{
-            0.0f, 0.0f, 0.0f, 0.0f,//左下
-            0.0f, static_cast<float>(height), 0.0f, 1.0f,//左上
-            static_cast<float>(width), static_cast<float>(height), 1.0f, 1.0f,//右上
-            static_cast<float>(width), static_cast<float>(height), 1.0f, 1.0f,//右上
-            static_cast<float>(width), 0.0f, 1.0f, 0.0f,//右下
-            0.0f, 0.0f, 0.0f, 0.0f,//左下
+            0.0f, 0.0f, 0.0f-pl, 0.0f-pb,//左下
+            0.0f, hf, 0.0f-pl, 1.0f+pt,//左上
+            wf, hf, 1.0f+pr, 1.0f+pt,//右上
+            wf, hf, 1.0f+pr, 1.0f+pt,//右上
+            wf, 0.0f, 1.0f+pr, 0.0f-pb,//右下
+            0.0f, 0.0f, 0.0f-pl, 0.0f-pb,//左下
     };
 
     return plant;

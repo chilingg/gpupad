@@ -36,6 +36,9 @@ void RSprite::renderControl(RShaderProgram *shader)
     }
     else {
         delta = _interval;
+        if(currentTexAry.empty())
+            printErro("Unspecified frame sequence!");
+
         if(!textures.empty())
             texIndex = (texIndex + 1) % currentTexAry.size();
         else

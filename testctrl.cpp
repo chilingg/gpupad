@@ -12,7 +12,8 @@ TestCtrl::TestCtrl(RController *parent):
     charBox({0.0f, 0.0f}, 256, 256),
     _move(0.0f, 0.0f),
     step(0.1f),
-    ob(64, 64)
+    ob(64, 64),
+    moveAnimation(48, 30)
 {
     RShader vertex(RE_PATH + "shaders/vertex.vert", RShader::VERTEX_SHADER);
     RShader fragment((RE_PATH + "shaders/fragment.frag"), RShader::FRAGMENT_SHADER);
@@ -26,10 +27,14 @@ TestCtrl::TestCtrl(RController *parent):
 
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 10);
-    RVolume v = ob.volume();
-    v.setHeight(v.height() - 10);
-    ob.setVolume(v);
+    ob.setMargin(-10, 0, 0, 0);
     ob.allocation();
+
+    moveAnimation.addTexture("Moved_1", RE_PATH+"texture/Moved_1.png");
+    moveAnimation.addTexture("Moved_2", RE_PATH+"texture/Moved_2.png");
+    moveAnimation.setCurrentTextureArray({"Moved_1", "Moved_2"});
+    moveAnimation.setPadding(0, 0, 10, 10);
+    moveAnimation.allocation();
 
     platform.push_back(new RObject(32, 800));
     platform.back()->allocation();
@@ -89,6 +94,10 @@ void TestCtrl::paintEvent()
     colorProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
     colorProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
 
+    texProgram.use();
+    texProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
+    texProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
+
     for(auto p : platform)
     {
         p->render(&colorProgram);
@@ -102,6 +111,16 @@ void TestCtrl::paintEvent()
     ob.setState(Character::quiet);//默认
     ob.motion();
     ob.move(_move, forward);
+    if(_move.x < 0)
+    {
+        ob.filp(true);
+        moveAnimation.filp(true);
+    }
+    else if(_move.x > 0)
+    {
+        ob.filp(false);
+        moveAnimation.filp(false);
+    }
 
     //检查碰撞
     glm::vec2 velocity = ob.getVelocity();
@@ -111,11 +130,24 @@ void TestCtrl::paintEvent()
         if(ob.moveCollision(velocity, *p))
         {
             if(velocity.y == 0.0f)
+            {
                 ob.setVelocityY(0);
+                if(velocity.x > 0.0f)
+                {
+                    moveAnimation.setPositionX(ob.volume().left() - moveAnimation.width());
+                    moveAnimation.setPositionY(ob.volume().bottom());
+                    moveAnimation.render(&texProgram);
+                }
+                if(velocity.x < 0.0f)
+                {
+                    moveAnimation.setPositionX(ob.volume().right());
+                    moveAnimation.setPositionY(ob.volume().bottom());
+                    moveAnimation.render(&texProgram);
+                }
+            }
         }
         //platformCllision(ob, *p);
     }
-
     //视图移动
     charBox.setPos({ob.x()-(charBox.width()/2), ob.y()-(charBox.height()/2)});
     if(!viewProt.contains(charBox))
@@ -144,14 +176,11 @@ void TestCtrl::paintEvent()
         viewProt.setPos(vp);
     }
 
-    texProgram.use();
-    texProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
-    texProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
-
     if(velocity != glm::vec2{0.0f, 0.0f})
         ob.setState(Character::moved);
     ob.render(&texProgram);
-    ob.displayVolume(projection, view);
+    //ob.displayVolume(projection, view);
+    //moveAnimation.displayVolume(projection, view);
 }
 
 void TestCtrl::keyPressEvent(RKeyEvent *event)
@@ -173,7 +202,10 @@ void TestCtrl::keyReleaseEvent(RKeyEvent *event)
     if(event->key() == RKeyEvent::KEY_LEFT)
         _move.x += 1.0f;
     if(event->key() == RKeyEvent::KEY_Z)
-        ob.stop();
+    {
+        if(ob.getVelocity().y > 0.0f)
+            ob.stop();
+    }
 }
 
 void TestCtrl::mousePressEvent(RMouseEvent *event)

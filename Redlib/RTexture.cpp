@@ -1,8 +1,8 @@
 #include "RTexture.h"
 
 RTexture::RTexture():
-    wrapS(GL_CLAMP_TO_EDGE),
-    wrapT(GL_CLAMP_TO_EDGE),
+    wrapS(GL_CLAMP_TO_BORDER),
+    wrapT(GL_CLAMP_TO_BORDER),
     filterMin(GL_NEAREST),
     filterMax(GL_NEAREST)
 {
@@ -24,6 +24,8 @@ bool RTexture::generate(std::string path)
 {
     glGenTextures(1, &ID);
     glBindTexture(GL_TEXTURE_2D, ID);
+    float borderColor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMin);

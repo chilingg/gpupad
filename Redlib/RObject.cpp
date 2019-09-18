@@ -1,12 +1,16 @@
 #include "RObject.h"
 
 RObject::RObject(int width, int height):
+#ifndef RO_NO_DEBUGE
+    allocationed(false),
+#endif
     _pos(0.0f, 0.0f),
     velocity(0.0f, 0.0f),
     color(1.0f),
     _width(width),
     _height(height),
-    _vSize(width, height)
+    _flipH(false),
+    _flipV(false)
 {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -176,6 +180,14 @@ bool RObject::moveCollision(glm::vec2 &velocity, const RObject &platform)
 
 void RObject::render(RShaderProgram *shader)
 {
+#ifndef RO_NO_DEBUGE
+    if(!allocationed)
+    {
+        printErro("Unallocation content!");
+        RDebug() << VAO;
+    }
+#endif
+
     glBindVertexArray(VAO);
     shader->use();
     renderControl(shader);
@@ -184,14 +196,14 @@ void RObject::render(RShaderProgram *shader)
     glBindVertexArray(0);
 }
 
-float *RObject::getPlantArray(int width, int height)
+float *RObject::getPlantArray()
 {
     float *plant = new float[12]{
             0.0f, 0.0f,//左下
-            0.0f, static_cast<float>(height),//左上
-            static_cast<float>(width), static_cast<float>(height),//右上
-            static_cast<float>(width), static_cast<float>(height),//右上
-            static_cast<float>(width), 0.0f,//右下
+            0.0f, static_cast<float>(_height),//左上
+            static_cast<float>(_width), static_cast<float>(_height),//右上
+            static_cast<float>(_width), static_cast<float>(_height),//右上
+            static_cast<float>(_width), 0.0f,//右下
             0.0f, 0.0f,//左下
     };
 
@@ -204,6 +216,17 @@ void RObject::renderControl(RShaderProgram *shader)
 
     glm::mat4 model(1.0f);
     model = glm::translate(model, {_pos, 0.0f});
+    if(_flipH)
+    {
+        model = glm::translate(model, {_width, 0.0f, 0.0f});
+        model[0][0] = -model[0][0];
+    }
+    if(_flipV)
+    {
+        model = glm::translate(model, {0.0f, _height, 0.0f});
+        model[1][1] = -model[1][1];
+    }
+
     shader->setUniformMatrix4fv("model", glm::value_ptr(model));
 }
 
@@ -212,13 +235,17 @@ void RObject::allocation()
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    float *plant = getPlantArray(_width, _height);
+    float *plant = getPlantArray();
     glBufferData(GL_ARRAY_BUFFER, sizeof(*plant)*12, plant, GL_STATIC_DRAW);
     delete [] plant;
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
+
+#ifndef RO_NO_DEBUGE
+    allocationed = true;
+#endif
 }
 
 RShaderProgram *RObject::volumeShader(nullptr);

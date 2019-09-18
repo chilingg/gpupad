@@ -29,7 +29,8 @@ public:
     void setVelocityY(float y);
     void setVelocityY(int y);
     void setVelocity(glm::vec2 velocity);
-    void setVolume(const RVolume &volume);
+    void setMargin(int top, int bottom, int left, int right);
+    void setMargin(int value);
 
     const glm::vec2& getVelocity() const;
     int width() const;
@@ -51,20 +52,29 @@ public:
     bool checkCollision(const RObject &obj) const;
     bool touchSide(const RObject & platform, RVolume::Side side, int extend = 0) const;
     void displayVolume(const glm::mat4 &projection, const glm::mat4 &view);
+    void filp(bool h, bool v = false);
 
 protected:
     static RShaderProgram *volumeShader;
     static unsigned vVAO;
 
     virtual void renderControl(RShaderProgram *shader);
-    virtual float* getPlantArray(int width, int height);
+    virtual float* getPlantArray();
 
+#ifndef RO_NO_DEBUGE
+    bool allocationed;
+#endif
     glm::vec2 _pos;
     glm::vec2 velocity;
     glm::vec4 color;
     int _width;
     int _height;
-    RSize _vSize;
+    bool _flipH;
+    bool _flipV;
+    int _marginTop = 0;
+    int _marginBottom = 0;
+    int _marginLeft = 0;
+    int _marginRight = 0;
 
     unsigned VAO, VBO;
 };
@@ -111,9 +121,15 @@ inline bool RObject::checkCollision(const RObject &obj) const
     return volume().checkCollision(obj.volume());
 }
 
+inline void RObject::filp(bool h, bool v)
+{
+    _flipH = h;
+    _flipV = v;
+}
+
 inline RVolume RObject::volume() const
 {
-    return {_pos, _vSize.width(), _vSize.height()};
+    return {{_pos.x-_marginLeft, _pos.y-_marginBottom}, _width+_marginRight, _height+_marginTop};
 }
 
 inline void RObject::setVelocity(int x, int y)
@@ -146,9 +162,17 @@ inline void RObject::setVelocity(glm::vec2 velocity)
     this->velocity = velocity;
 }
 
-inline void RObject::setVolume(const RVolume &volume)
+inline void RObject::setMargin(int top, int bottom, int left, int right)
 {
-    _vSize = volume.getSize();
+    _marginTop = top;
+    _marginBottom = bottom;
+    _marginLeft = left;
+    _marginRight = right;
+}
+
+inline void RObject::setMargin(int value)
+{
+    setMargin(value, value, value, value);
 }
 
 inline void RObject::giveVelocity(int x, int y)

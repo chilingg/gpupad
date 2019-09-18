@@ -44,6 +44,7 @@ private:
     glm::vec2 _move;
     float step;
     Character ob;
+    RSprite moveAnimation;
 
     int width;
     int height;

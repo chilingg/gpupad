@@ -20,10 +20,10 @@ public:
     static void unBind();
 
 private:
-    GLuint wrapS;
-    GLuint wrapT;
-    GLuint filterMin;
-    GLuint filterMax;
+    GLint wrapS;
+    GLint wrapT;
+    GLint filterMin;
+    GLint filterMax;
     GLuint ID;
 };
 
