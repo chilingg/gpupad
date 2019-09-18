@@ -35,7 +35,6 @@ float *RTexObject::getPlantArray()
     float pb = _paddingBottom / hf;
     float pl = _paddingLeft / wf;
     float pr = _paddingRight / wf;
-    RDebug() << pt << pb << pl << pr;
 
     float *plant = new float[24]{
             0.0f, 0.0f, 0.0f-pl, 0.0f-pb,//左下

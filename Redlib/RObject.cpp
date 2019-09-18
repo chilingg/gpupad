@@ -8,9 +8,7 @@ RObject::RObject(int width, int height):
     velocity(0.0f, 0.0f),
     color(1.0f),
     _width(width),
-    _height(height),
-    _flipH(false),
-    _flipV(false)
+    _height(height)
 {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);

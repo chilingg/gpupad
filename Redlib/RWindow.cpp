@@ -335,10 +335,16 @@ void RWindow::joystickInputCheck(RJoystick &joy)
         static const float rStart = -1;
         if(status.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] > lStart)
         {
+            RJoystickEvent event(joy.jid());
+            event.setAxis(RJoystick::GAMEPAD_AXIS_LEFT_TRIGGER, status.axes[RJoystick::GAMEPAD_AXIS_LEFT_TRIGGER]);
+            root->dispatcherjoystickEvent(&event, RController::JoystickInput);
             //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] << "L";
         }
         if(status.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > rStart)
         {
+            RJoystickEvent event(joy.jid());
+            event.setAxis(RJoystick::GAMEPAD_AXIS_RIGHT_TRIGGER, status.axes[RJoystick::GAMEPAD_AXIS_RIGHT_TRIGGER]);
+            root->dispatcherjoystickEvent(&event, RController::JoystickInput);
             //RDebug() << status.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] << "R";
         }
 

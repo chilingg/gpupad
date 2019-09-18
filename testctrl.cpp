@@ -3,6 +3,7 @@
 #include <RDebug.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <algorithm>
 
 TestCtrl::TestCtrl(RController *parent):
     RController(parent),
@@ -104,27 +105,32 @@ void TestCtrl::paintEvent()
     }
 
     //给予引力
-    if(ob.getVelocity().y > gravitation)
+    if(ob.getVelocity().y > GRAVITATION)
         ob.giveVelocity(0, -1);
 
     //移动
-    ob.setState(Character::quiet);//默认
-    ob.motion();
-    ob.move(_move, forward);
     if(_move.x < 0)
     {
-        ob.filp(true);
-        moveAnimation.filp(true);
+        ob.flip(true);
+        moveAnimation.flip(true);
     }
     else if(_move.x > 0)
     {
-        ob.filp(false);
-        moveAnimation.filp(false);
+        ob.flip(false);
+        moveAnimation.flip(false);
     }
+    //RDebug() << sprint;
+    if(sprint > 10.0f || sprint < -10.0f)
+        ob.setVelocityX(sprint);
+    else
+        ob.setVelocityX(0);
+    sprint *= 0.95f;
+    ob.motion();
+    ob.move(_move, FORWARD);
 
     //检查碰撞
     glm::vec2 velocity = ob.getVelocity();
-    velocity += _move * static_cast<float>(forward);
+    velocity += _move * static_cast<float>(FORWARD);
     for(auto p : platform)
     {
         if(ob.moveCollision(velocity, *p))
@@ -176,7 +182,9 @@ void TestCtrl::paintEvent()
         viewProt.setPos(vp);
     }
 
-    if(velocity != glm::vec2{0.0f, 0.0f})
+    if(velocity == glm::vec2{0.0f, 0.0f} && ob.state() == Character::moved)
+        ob.setState(Character::quiet);
+    else if(velocity != glm::vec2{0.0f, 0.0f} && ob.state() == Character::quiet)
         ob.setState(Character::moved);
     ob.render(&texProgram);
     //ob.displayVolume(projection, view);
@@ -243,7 +251,11 @@ void TestCtrl::joystickInputEvent(RJoystickEvent *event)
 {
     if(event->button() == RJoystick::GAMEPAD_BUTTON_A)
     {
-        event->buttonValue() ? ob.setVelocityY(20) : ob.stop();
+        if(event->buttonValue())
+            ob.setVelocityY(20);
+        else
+            if(ob.getVelocity().y > 0.0f)
+                ob.stop();
     }
     if(event->button() == RJoystick::GAMEPAD_BUTTON_DPAD_LEFT)
     {
@@ -252,6 +264,10 @@ void TestCtrl::joystickInputEvent(RJoystickEvent *event)
     if(event->button() == RJoystick::GAMEPAD_BUTTON_DPAD_RIGHT)
     {
         event->buttonValue() ? _move.x += 1.0f : _move.x -= 1.0f;
+    }
+    if(event->axis() == RJoystick::GAMEPAD_AXIS_RIGHT_TRIGGER && (sprint < 2.0f && sprint > -2.0f))
+    {
+        sprint = ob.isFlipH() ? -SPRINT : SPRINT;
     }
 }
 
@@ -275,7 +291,7 @@ bool TestCtrl::platformCllision(Character &ob, const RObject &platform)
     if(platform.checkCollision(ob))
     {
         glm::vec2 temp = ob.getVelocity();
-        temp += _move * static_cast<float>(forward);
+        temp += _move * static_cast<float>(FORWARD);
 
         float intervalY = temp.y > 0.0f ? 1.0f : -1.0f;
         float tempY = temp.y;

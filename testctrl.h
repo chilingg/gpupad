@@ -35,10 +35,12 @@ private:
     bool standIn(const RObject &platform);
     void move(int lr);
 
-    const int forward = 10;
-    const int gravitation = -30;
+    const int FORWARD = 10;
+    const int GRAVITATION = -30;
     const float VIEW_PROT_WIDTH;
     const float VIEW_PROT_HEIGHT;
+    const float SPRINT = 20;
+    float sprint = 0;
     RVolume viewProt;
     RVolume charBox;
     glm::vec2 _move;

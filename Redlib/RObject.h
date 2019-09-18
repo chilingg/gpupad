@@ -41,6 +41,8 @@ public:
     int y() const;
     float& ry();
     RVolume volume() const;
+    bool isFlipV() const;
+    bool isFlipH() const;
 
     bool moveCollision(glm::vec2 &velocity, const RObject &platform);
     void render(RShaderProgram *shader);
@@ -52,7 +54,7 @@ public:
     bool checkCollision(const RObject &obj) const;
     bool touchSide(const RObject & platform, RVolume::Side side, int extend = 0) const;
     void displayVolume(const glm::mat4 &projection, const glm::mat4 &view);
-    void filp(bool h, bool v = false);
+    void flip(bool h, bool v = false);
 
 protected:
     static RShaderProgram *volumeShader;
@@ -69,8 +71,8 @@ protected:
     glm::vec4 color;
     int _width;
     int _height;
-    bool _flipH;
-    bool _flipV;
+    bool _flipH = false;
+    bool _flipV = false;
     int _marginTop = 0;
     int _marginBottom = 0;
     int _marginLeft = 0;
@@ -121,7 +123,7 @@ inline bool RObject::checkCollision(const RObject &obj) const
     return volume().checkCollision(obj.volume());
 }
 
-inline void RObject::filp(bool h, bool v)
+inline void RObject::flip(bool h, bool v)
 {
     _flipH = h;
     _flipV = v;
@@ -130,6 +132,16 @@ inline void RObject::filp(bool h, bool v)
 inline RVolume RObject::volume() const
 {
     return {{_pos.x-_marginLeft, _pos.y-_marginBottom}, _width+_marginRight, _height+_marginTop};
+}
+
+inline bool RObject::isFlipV() const
+{
+    return _flipV;
+}
+
+inline bool RObject::isFlipH() const
+{
+    return _flipH;
 }
 
 inline void RObject::setVelocity(int x, int y)
