@@ -139,7 +139,7 @@ bool RObject::moveCollision(glm::vec2 &velocity, const RObject &platform)
         float intervalY = velocity.y > 0.0f ? 1.0f : -1.0f;
         float velocityY = velocity.y;
 
-        while(velocity.y <= -0.5f || velocity.y >= 0.5f)
+        while(velocity.y <= -0.001f || velocity.y >= 0.001f)
         {
             _pos.y -= intervalY;
             velocity.y  -= intervalY;
@@ -149,7 +149,7 @@ bool RObject::moveCollision(glm::vec2 &velocity, const RObject &platform)
             }
         }
         float intervalX = velocity.x > 0.0f ? 1.0f : -1.0f;
-        while(velocity.x <= -0.5f || velocity.x >= 0.5f)
+        while(velocity.x <= -0.001f || velocity.x >= 0.001f)
         {
             _pos.x -= intervalX;
             velocity.x -= intervalX;
@@ -160,7 +160,7 @@ bool RObject::moveCollision(glm::vec2 &velocity, const RObject &platform)
         }
         if(platform.checkCollision(*this))
         {
-            RDebug() << "Object stuck in platform!";
+            RDebug() << "Object stuck in platform!" << _pos;
             return false;
         }
         else

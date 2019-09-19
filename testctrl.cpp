@@ -200,6 +200,10 @@ void TestCtrl::keyPressEvent(RKeyEvent *event)
         _move.x -= 1.0f;
     if(event->key() == RKeyEvent::KEY_Z)
         ob.setVelocityY(20);
+    if(event->key() == RKeyEvent::KEY_C && (sprint < 2.0f && sprint > -2.0f))
+    {
+        sprint = ob.isFlipH() ? -SPRINT : SPRINT;
+    }
 }
 
 void TestCtrl::keyReleaseEvent(RKeyEvent *event)

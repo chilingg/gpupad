@@ -21,6 +21,7 @@ unix{
 unix:!macx:
 LIBS += -lglfw \
     -ldl \
+    -lfreetype \
 }
 
 SOURCES += \
