@@ -12,6 +12,7 @@
 
 RController *RWindow::root(nullptr);
 RWindow::Joysticks RWindow::joysticks;
+static RResizeEvent::Pattern _pattern = RResizeEvent::Keep;
 
 RWindow::RWindow():
     versionMajor(3),
@@ -221,7 +222,7 @@ void RWindow::framebufferSizeCallback(GLFWwindow *, int width, int height)
     RResizeEvent e(width, height);
     root->dispatcherResizeEvent(&e);
 
-    if(e.pattern() == RResizeEvent::Keep)
+    if(windowPattern == RResizeEvent::Keep)
     {
         bool wh = width/16.0 < height/9.0;
         double base = wh ? width/16.0 : height/9.0;
@@ -232,10 +233,15 @@ void RWindow::framebufferSizeCallback(GLFWwindow *, int width, int height)
             glViewport(0, (height-newH)/2.0, newW, newH);
         else
             glViewport((width-newW)/2.0, 0, newW, newH);
+
+        RResizeEvent e(newW, newH);
+        root->dispatcherResizeEvent(&e);
     }
     else
     {
         glViewport(0, 0, width, height);
+        RResizeEvent e(width, height, windowPattern);
+        root->dispatcherResizeEvent(&e);
     }
 }
 

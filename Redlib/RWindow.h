@@ -31,6 +31,7 @@ public:
 private:
     static RController *root;
     static Joysticks joysticks;
+    static RResizeEvent::Pattern windowPattern;
 
     int versionMajor;//主版本号
     int versionMinor;//副版本号

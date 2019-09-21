@@ -10,11 +10,11 @@ class RTexture : public RResource
 {
 public:
     RTexture();
-    RTexture(std::string path);
+    RTexture(std::string imagePath);
     ~RTexture();
 
     void deleteResource();
-    bool generate(std::string path);
+    bool generate(std::string imagePath);
     void bind() const;
 
     static void unBind();
@@ -40,6 +40,11 @@ inline void RTexture::deleteResource()
 inline void RTexture::bind() const
 {
     glBindTexture(GL_TEXTURE_2D, ID);
+}
+
+inline void RTexture::unBind()
+{
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 #endif // RTEXTURE_H
