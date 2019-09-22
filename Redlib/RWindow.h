@@ -13,18 +13,13 @@ class RWindow
 public:
     using Joysticks = std::vector<RJoystick>;
 
-    RWindow();
+    RWindow(int vMajor = 3, int vMinor = 3, int profile = GLFW_OPENGL_CORE_PROFILE);
     ~RWindow();
-    bool initialize();
-    int exec();
+    int exec(RController *root);
 
     void setVSync(bool b);
-    void setVersionMajor(int value);
-    void setVersionMinor(int value);
-    void setProfile(int value);
     void setWindowSize(int width, int height);
     void setCursorTrak(bool b);
-    void setRootController(RController *root);
     void enableGLCapabilities(GLenum cap);
     void disableGLCapabilities(GLenum cap);
 
@@ -33,9 +28,6 @@ private:
     static Joysticks joysticks;
     static RResizeEvent::Pattern windowPattern;
 
-    int versionMajor;//主版本号
-    int versionMinor;//副版本号
-    int profile;//OpenGL模式
     int width;//窗口宽度
     int height;//窗口高度
     const char *title;//窗口标题
@@ -46,6 +38,7 @@ private:
 
     static GLenum _glCheckError_(const char *file, const int line);
     #define glCheckError() _glCheckError_(__FILE__, __LINE__)
+    bool initialize();
 
     //回调与事件相关函数
     static void errorCallback(int error, const char* description);
@@ -62,21 +55,6 @@ private:
 inline void RWindow::setVSync(bool b)
 {
     vSync = b ?  1 : 0;
-}
-
-inline void RWindow::setVersionMajor(int value)
-{
-    versionMajor = value;
-}
-
-inline void RWindow::setVersionMinor(int value)
-{
-    versionMinor = value;
-}
-
-inline void RWindow::setProfile(int value)
-{
-    profile = value;
 }
 
 inline void RWindow::setCursorTrak(bool b)

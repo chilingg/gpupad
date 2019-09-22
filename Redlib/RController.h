@@ -34,6 +34,7 @@ public:
 
     void close();
     void update();
+    void initialization();
     void dispatcherResizeEvent(RResizeEvent *event);
     void dispatcherjoystickEvent(RJoystickEvent *event, Event name);
 
@@ -42,6 +43,7 @@ public:
     void dispatcherInputEvent(RWheelEvent *event, Event name);
 
 protected:
+    virtual void initEvent();
     virtual void paintEvent();
     virtual void resizeEvent(RResizeEvent *event);
     virtual void joystickPresentEvent(RJoystickEvent *event);

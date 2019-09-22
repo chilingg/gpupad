@@ -12,12 +12,9 @@
 
 RController *RWindow::root(nullptr);
 RWindow::Joysticks RWindow::joysticks;
-static RResizeEvent::Pattern _pattern = RResizeEvent::Keep;
+RResizeEvent::Pattern RWindow::windowPattern = RResizeEvent::Keep;
 
-RWindow::RWindow():
-    versionMajor(3),
-    versionMinor(3),
-    profile(GLFW_OPENGL_CORE_PROFILE),
+RWindow::RWindow(int vMajor, int vMinor, int profile):
     width(800),
     height(450),
     title("Redopera"),
@@ -25,6 +22,36 @@ RWindow::RWindow():
     cursorTrack(false),
     vSync(1)
 {
+    //初始化GLFW
+    if(!glfwInit())
+    {
+        printErro("Failed to initialize GLFW");
+        exit(EXIT_FAILURE);
+    }
+    //设置上下文
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, vMajor);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, vMinor);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
+
+    //初始化窗口对象并创建上下文
+    window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    if(window == nullptr)
+    {
+        printErro("Fainled to create GLFW window!");
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+
+    //GLFW将该context设置为当前线程主context
+    glfwMakeContextCurrent(window);
+
+    //初始化GLAD
+    if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+    {
+        printErro("Failed to initialize GLAD");
+        exit(EXIT_FAILURE);
+    }
+
 }
 
 RWindow::~RWindow()
@@ -34,34 +61,14 @@ RWindow::~RWindow()
 
 bool RWindow::initialize()
 {
-    if(window)
-    {
-        printErro("The window already exists!");
-        return false;
-    }
+    root->initialization();
 
-    //初始化GLFW
-    if(!glfwInit())
-    {
-        printErro("Failed to initialize GLFW");
-        return false;
-    }
-    //设置上下文
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, versionMajor);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, versionMinor);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
+    glfwSetWindowSize(window, width, height);
+    RResizeEvent e(width, height);
+    root->dispatcherResizeEvent(&e);
 
-    //初始化窗口对象并创建上下文
-    window = glfwCreateWindow(width, height, title, nullptr, nullptr);
-    if(window == nullptr)
-    {
-        printErro("Fainled to create GLFW window!");
-        glfwTerminate();
-        return false;
-    }
-
-    //GLFW将该context设置为当前线程主context
-    glfwMakeContextCurrent(window);
+    //垂直同步
+    glfwSwapInterval(vSync);
 
     glfwSetErrorCallback(errorCallback);
     //对窗口注册一个resize回调函数
@@ -82,14 +89,14 @@ bool RWindow::initialize()
     std::string mapping = RResource::openTextFile("../Redopera/data/gamecontrollerdb.txt");
     glfwUpdateGamepadMappings(mapping.c_str());
 
-    //垂直同步
-    glfwSwapInterval(vSync);
-
-    //初始化GLAD
-    if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+    //需手动检测一次手柄连接，避免开始之前的连接无法检测（需要root控制已设置）
+    for(int i = GLFW_JOYSTICK_1; i <= GLFW_MOUSE_BUTTON_LAST; ++i)
     {
-        printErro("Failed to initialize GLAD");
-        return false;
+        if(glfwJoystickIsGamepad(i))
+        {
+            RDebug() << 1;
+            joystickPresentCallback(i, GLFW_CONNECTED);
+        }
     }
 
     glViewport(0, 0, width, height);
@@ -105,27 +112,19 @@ bool RWindow::initialize()
     return true;
 }
 
-int RWindow::exec()
+int RWindow::exec(RController *root)
 {
-    int flag = 0;
-
-    if(!window)
-        return -1;
-
     if(!root)
     {
         printErro("Lack of controller!");
-        return false;
+        return -1;
     }
-    RResizeEvent e(width, height);
-    root->dispatcherResizeEvent(&e);
-    //需手动检测一次手柄连接，避免开始之前的连接无法检测（需要root控制已设置）
-    for(int i = GLFW_JOYSTICK_1; i <= GLFW_MOUSE_BUTTON_LAST; ++i)
+    this->root = root;
+
+    if(!initialize())
     {
-        if(glfwJoystickIsGamepad(i))
-        {
-            joystickPresentCallback(i, GLFW_CONNECTED);
-        }
+        printErro("Initialization filed!");
+        exit(EXIT_FAILURE);
     }
 
     while(!glfwWindowShouldClose(window))
@@ -153,7 +152,7 @@ int RWindow::exec()
     glfwDestroyWindow(window);
     window = nullptr;
 
-    return flag;
+    return 0;
 }
 
 GLenum RWindow::_glCheckError_(const char *file, const int line)
@@ -198,17 +197,8 @@ GLenum RWindow::_glCheckError_(const char *file, const int line)
 
 void RWindow::setWindowSize(int width, int height)
 {
-    if(window)
-    {
-        framebufferSizeCallback(window, width, height);
-    }
     this->width = width;
     this->height = height;
-}
-
-void RWindow::setRootController(RController *root)
-{
-    this->root = root;
 }
 
 void RWindow::errorCallback(int error, const char *description)

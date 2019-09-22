@@ -10,11 +10,11 @@ class RTexture : public RResource
 {
 public:
     RTexture();
-    RTexture(std::string imagePath);
+    RTexture(const RImage &image);
     ~RTexture();
 
     void deleteResource();
-    bool generate(std::string imagePath);
+    bool generate(const RImage &image);
     void bind() const;
 
     static void unBind();

@@ -28,6 +28,7 @@ protected:
     void resizeEvent(RResizeEvent *event) override;
     void joystickPresentEvent(RJoystickEvent *event) override;
     void joystickInputEvent(RJoystickEvent *event) override;
+    void initEvent() override;
 
 private:
     void FPS();

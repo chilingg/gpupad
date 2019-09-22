@@ -75,6 +75,15 @@ void RController::update()
     paintEvent();
 }
 
+void RController::initialization()
+{
+    for(auto child : children)
+    {
+        child->initialization();
+    }
+    initEvent();
+}
+
 void RController::dispatcherResizeEvent(RResizeEvent *event)
 {
     for(auto child : children)
@@ -159,6 +168,11 @@ void RController::dispatcherInputEvent(RWheelEvent *event, RController::Event na
         wheelEvent(event);
     else
         printf("Error wheel event call");
+}
+
+void RController::initEvent()
+{
+
 }
 
 void RController::paintEvent()
