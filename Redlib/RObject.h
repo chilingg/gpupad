@@ -31,6 +31,8 @@ public:
     void setVelocity(glm::vec2 velocity);
     void setMargin(int top, int bottom, int left, int right);
     void setMargin(int value);
+    void setPadding(int top, int bottom, int left, int right);
+    void setPadding(int value);
 
     const glm::vec2& getVelocity() const;
     int width() const;
@@ -63,9 +65,6 @@ protected:
     virtual void renderControl(RShaderProgram *shader);
     virtual float* getPlantArray();
 
-#ifndef RO_NO_DEBUGE
-    bool allocationed;
-#endif
     glm::vec2 _pos;
     glm::vec2 velocity;
     glm::vec4 color;
@@ -73,10 +72,16 @@ protected:
     int _height;
     bool _flipH = false;
     bool _flipV = false;
+
     int _marginTop = 0;
     int _marginBottom = 0;
     int _marginLeft = 0;
     int _marginRight = 0;
+
+    int _paddingTop = 0;
+    int _paddingBottom = 0;
+    int _paddingLeft = 0;
+    int _paddingRight = 0;
 
     unsigned VAO, VBO;
 };
@@ -185,6 +190,19 @@ inline void RObject::setMargin(int top, int bottom, int left, int right)
 inline void RObject::setMargin(int value)
 {
     setMargin(value, value, value, value);
+}
+
+inline void RObject::setPadding(int top, int bottom, int left, int right)
+{
+    _paddingTop = top;
+    _paddingBottom = bottom;
+    _paddingLeft = left;
+    _paddingRight = right;
+}
+
+inline void RObject::setPadding(int value)
+{
+    setPadding(value, value, value, value);
 }
 
 inline void RObject::giveVelocity(int x, int y)
