@@ -1,9 +1,6 @@
 #include "RObject.h"
 
 RObject::RObject(int width, int height):
-#ifndef RO_NO_DEBUGE
-    allocationed(false),
-#endif
     _pos(0.0f, 0.0f),
     velocity(0.0f, 0.0f),
     color(1.0f),
@@ -178,14 +175,6 @@ bool RObject::moveCollision(glm::vec2 &velocity, const RObject &platform)
 
 void RObject::render(RShaderProgram *shader)
 {
-#ifndef RO_NO_DEBUGE
-    if(!allocationed)
-    {
-        printErro("Unallocation content!");
-        RDebug() << VAO;
-    }
-#endif
-
     glBindVertexArray(VAO);
     shader->use();
     renderControl(shader);
@@ -241,9 +230,6 @@ void RObject::allocation()
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 
-#ifndef RO_NO_DEBUGE
-    allocationed = true;
-#endif
 }
 
 RShaderProgram *RObject::volumeShader(nullptr);

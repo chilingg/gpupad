@@ -21,10 +21,6 @@ void RTexObject::allocation()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), reinterpret_cast<void*>(2*sizeof(float)));
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
-
-#ifndef RO_NO_DEBUGE
-    allocationed = true;
-#endif
 }
 
 float *RTexObject::getPlantArray()

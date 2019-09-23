@@ -12,7 +12,8 @@ public:
     RTexObject(int width, int height, const char *path);
 
     void allocation() override;
-    void addTexture(std::string name, std::string path);
+    void addTexture(std::string name, const std::string &path);
+    void addTexture(std::string name, const RImage &image);
     bool setCurrentTexture(std::string name);
 
 protected:
@@ -23,13 +24,19 @@ protected:
     std::string currentTex;
 };
 
-inline void RTexObject::addTexture(std::string name, std::string path)
+inline void RTexObject::addTexture(std::string name, const std::string &path)
 {
-    auto pr = textures.emplace(name, path);
+    RImage image(path, true);
+    addTexture(name, image);
+}
+
+inline void RTexObject::addTexture(std::string name, const RImage &image)
+{
+    auto pr = textures.emplace(name, image);
     if(pr.second)
     {
         textures.erase(pr.first);
-        textures.emplace(name, path);
+        textures.emplace(name, image);
     }
 }
 
