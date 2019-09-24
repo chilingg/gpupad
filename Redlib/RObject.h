@@ -16,7 +16,7 @@ public:
     RObject(const RObject&) = delete;
     RObject& operator=(const RObject&) = delete;
     virtual ~RObject();
-    virtual void allocation();
+    virtual void render(RShaderProgram *shader);
 
     void setColor(int r, int g, int b, int a = 255);
     void setPosition(int x, int y);
@@ -47,7 +47,6 @@ public:
     bool isFlipH() const;
 
     bool moveCollision(glm::vec2 &velocity, const RObject &platform);
-    void render(RShaderProgram *shader);
     void giveVelocity(int x, int y);
     void powerVelocity(double value);
     void stop();
@@ -61,15 +60,19 @@ public:
 protected:
     static RShaderProgram *volumeShader;
     static unsigned vVAO;
+    static unsigned plantVAO, plantVBO;
 
     virtual void renderControl(RShaderProgram *shader);
-    virtual float* getPlantArray();
+
+    void setSizeMat();
 
     glm::vec2 _pos;
     glm::vec2 velocity;
     glm::vec4 color;
     int _width;
     int _height;
+    glm::mat4 sizeMat;
+
     bool _flipH = false;
     bool _flipV = false;
 
@@ -83,7 +86,8 @@ protected:
     int _paddingLeft = 0;
     int _paddingRight = 0;
 
-    unsigned VAO, VBO;
+private:
+    void allocation();
 };
 
 inline void RObject::setPosition(int x, int y)

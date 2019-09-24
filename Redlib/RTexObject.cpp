@@ -9,8 +9,8 @@ RTexObject::RTexObject(int width, int height):
 
 void RTexObject::allocation()
 {
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindVertexArray(plantVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, plantVBO);
 
     float *plant = getPlantArray();
     glBufferData(GL_ARRAY_BUFFER, sizeof(*plant)*24, plant, GL_STATIC_DRAW);

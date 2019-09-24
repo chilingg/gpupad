@@ -1,20 +1,26 @@
 #include "RObject.h"
 
+RShaderProgram *RObject::volumeShader(nullptr);
+unsigned RObject::vVAO(0);
+unsigned RObject::plantVAO(0);
+unsigned RObject::plantVBO(0);
+
 RObject::RObject(int width, int height):
     _pos(0.0f, 0.0f),
     velocity(0.0f, 0.0f),
     color(1.0f),
     _width(width),
-    _height(height)
+    _height(height),
+    sizeMat(1)
 {
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    if(plantVAO)
+        allocation();
 }
 
 RObject::~RObject()
 {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    //glDeleteVertexArrays(1, &VAO);
+    //glDeleteBuffers(1, &VBO);
 }
 
 bool RObject::touchSide(const RObject &platform, RVolume::Side side, int extend) const
@@ -175,7 +181,7 @@ bool RObject::moveCollision(glm::vec2 &velocity, const RObject &platform)
 
 void RObject::render(RShaderProgram *shader)
 {
-    glBindVertexArray(VAO);
+    glBindVertexArray(plantVAO);
     shader->use();
     renderControl(shader);
 
@@ -217,20 +223,33 @@ void RObject::renderControl(RShaderProgram *shader)
     shader->setUniformMatrix4fv("model", glm::value_ptr(model));
 }
 
+void RObject::setSizeMat()
+{
+    sizeMat[0][0] = _width - _paddingLeft - _paddingRight;
+    sizeMat[1][1] = _height - _paddingTop - _paddingBottom;
+
+    sizeMat = glm::translate(sizeMat)
+}
+
 void RObject::allocation()
 {
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glGenVertexArrays(1, &plantVAO);
+    glGenBuffers(1, &plantVBO);
 
-    float *plant = getPlantArray();
-    glBufferData(GL_ARRAY_BUFFER, sizeof(*plant)*12, plant, GL_STATIC_DRAW);
-    delete [] plant;
+    glBindVertexArray(plantVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, plantVBO);
+
+    float plant[12]{
+            0.0f, 0.0f,//左下
+            0.0f, 1.0f,//左上
+            1.0f, 1.0f,//右上
+            1.0f, 1.0f,//右上
+            1.0f, 0.0f,//右下
+            0.0f, 0.0f,//左下：
+    };
+    glBufferData(GL_ARRAY_BUFFER, sizeof(plant), plant, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
-
 }
-
-RShaderProgram *RObject::volumeShader(nullptr);
-unsigned RObject::vVAO(0);
