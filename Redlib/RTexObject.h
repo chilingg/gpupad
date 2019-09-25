@@ -8,20 +8,44 @@
 class RTexObject : public RObject
 {
 public:
+    enum TextureSizePattern {
+        Length,
+        Auto,
+        Cover,
+        Contain
+    };
+    enum Alignment {
+        Left,
+        Right,
+        Mind,
+        Top,
+        Bottom
+    };
+
     RTexObject(int width, int height);
     RTexObject(int width, int height, const char *path);
 
-    void allocation() override;
+    void render(RShaderProgram *shader) override;
+
     void addTexture(std::string name, const std::string &path);
     void addTexture(std::string name, const RImage &image);
     bool setCurrentTexture(std::string name);
+    void setTextureSizePattern(TextureSizePattern pattern);
+    void setAlignment(Alignment vAlign, Alignment hAlign);
 
 protected:
-    float* getPlantArray() override;
+    static unsigned texVAO, texVBO;
+
+    void allocation() override;
     void renderControl(RShaderProgram *shader) override;
+    void updataSizeMat();
 
     std::map<std::string, RTexture> textures;
     std::string currentTex;
+
+    TextureSizePattern _sizePattern = Auto;
+    Alignment _vAlign = Bottom;
+    Alignment _hAlign = Left;
 };
 
 inline void RTexObject::addTexture(std::string name, const std::string &path)
@@ -38,6 +62,17 @@ inline void RTexObject::addTexture(std::string name, const RImage &image)
         textures.erase(pr.first);
         textures.emplace(name, image);
     }
+}
+
+inline void RTexObject::setTextureSizePattern(TextureSizePattern pattern)
+{
+    _sizePattern = pattern;
+}
+
+inline void RTexObject::setAlignment(Alignment vAlign, Alignment hAlign)
+{
+    _vAlign = vAlign;
+    _hAlign = hAlign;
 }
 
 inline bool RTexObject::setCurrentTexture(std::string name)

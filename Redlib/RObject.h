@@ -58,13 +58,14 @@ public:
     void flip(bool h, bool v = false);
 
 protected:
+    virtual void renderControl(RShaderProgram *shader);
+    virtual void allocation();
+
+    void updataSizeMat();
+
     static RShaderProgram *volumeShader;
     static unsigned vVAO;
     static unsigned plantVAO, plantVBO;
-
-    virtual void renderControl(RShaderProgram *shader);
-
-    void setSizeMat();
 
     glm::vec2 _pos;
     glm::vec2 velocity;
@@ -85,9 +86,6 @@ protected:
     int _paddingBottom = 0;
     int _paddingLeft = 0;
     int _paddingRight = 0;
-
-private:
-    void allocation();
 };
 
 inline void RObject::setPosition(int x, int y)
@@ -202,6 +200,7 @@ inline void RObject::setPadding(int top, int bottom, int left, int right)
     _paddingBottom = bottom;
     _paddingLeft = left;
     _paddingRight = right;
+    updataSizeMat();
 }
 
 inline void RObject::setPadding(int value)

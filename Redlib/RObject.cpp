@@ -13,7 +13,8 @@ RObject::RObject(int width, int height):
     _height(height),
     sizeMat(1)
 {
-    if(plantVAO)
+    updataSizeMat();
+    if(plantVAO == 0)
         allocation();
 }
 
@@ -189,20 +190,6 @@ void RObject::render(RShaderProgram *shader)
     glBindVertexArray(0);
 }
 
-float *RObject::getPlantArray()
-{
-    float *plant = new float[12]{
-            0.0f, 0.0f,//左下
-            0.0f, static_cast<float>(_height),//左上
-            static_cast<float>(_width), static_cast<float>(_height),//右上
-            static_cast<float>(_width), static_cast<float>(_height),//右上
-            static_cast<float>(_width), 0.0f,//右下
-            0.0f, 0.0f,//左下
-    };
-
-    return plant;
-}
-
 void RObject::renderControl(RShaderProgram *shader)
 {
     shader->setUniform4F("color", color);
@@ -219,16 +206,18 @@ void RObject::renderControl(RShaderProgram *shader)
         model = glm::translate(model, {0.0f, _height, 0.0f});
         model[1][1] = -model[1][1];
     }
+    model *= sizeMat;
 
     shader->setUniformMatrix4fv("model", glm::value_ptr(model));
 }
 
-void RObject::setSizeMat()
+void RObject::updataSizeMat()
 {
     sizeMat[0][0] = _width - _paddingLeft - _paddingRight;
     sizeMat[1][1] = _height - _paddingTop - _paddingBottom;
 
-    sizeMat = glm::translate(sizeMat)
+    sizeMat[3][0] = _paddingLeft;
+    sizeMat[3][1] = _paddingBottom;
 }
 
 void RObject::allocation()

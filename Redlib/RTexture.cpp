@@ -35,6 +35,9 @@ bool RTexture::generate(const RImage &image)
     if(!state)
         return false;
 
+    _width = image.getWidth();
+    _height = image.getHeight();
+
     bind();
     GLenum format;
     switch(image.channelSize())

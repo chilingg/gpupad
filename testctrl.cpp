@@ -141,7 +141,7 @@ void TestCtrl::paintEvent()
     else if(velocity != glm::vec2{0.0f, 0.0f} && ob.state() == Character::quiet)
         ob.setState(Character::moved);
     ob.render(&texProgram);
-    //ob.displayVolume(projection, view);
+    ob.displayVolume(projection, view);
     //moveAnimation.displayVolume(projection, view);
 }
 
@@ -244,37 +244,29 @@ void TestCtrl::initEvent()
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 10);
     ob.setMargin(-10, 0, 0, 0);
-    ob.allocation();
 
     moveAnimation.addTexture("Moved_1", RE_PATH+"texture/Moved_1.png");
     moveAnimation.addTexture("Moved_2", RE_PATH+"texture/Moved_2.png");
     moveAnimation.setCurrentTextureArray({"Moved_1", "Moved_2"});
     moveAnimation.setPadding(0, 0, 10, 10);
-    moveAnimation.allocation();
 
     platform.push_back(new RObject(32, 800));
-    platform.back()->allocation();
     platform.back()->setPosition(100, 200);
 
     platform.push_back(new RObject(200, 32));
-    platform.back()->allocation();
     platform.back()->setPosition(132, 400);
 
     platform.push_back(new RObject(200, 32));
-    platform.back()->allocation();
     platform.back()->setPosition(325, 110);
 
     platform.push_back(new RObject(100, 32));
-    platform.back()->allocation();
     platform.back()->setPosition(460, 330);
 
     platform.push_back(new RObject(400, 32));
-    platform.back()->allocation();
     platform.back()->setPosition(700, 200);
 
     //地板
     platform.push_back(new RObject(1700, 100));
-    platform.back()->allocation();
     platform.back()->setPosition(-50, -91);
 }
 
