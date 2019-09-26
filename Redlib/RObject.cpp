@@ -198,12 +198,12 @@ void RObject::renderControl(RShaderProgram *shader)
     model = glm::translate(model, {_pos, 0.0f});
     if(_flipH)
     {
-        model = glm::translate(model, {_width, 0.0f, 0.0f});
+        model[3][1] = model[0][1] + model[3][1];
         model[0][0] = -model[0][0];
     }
     if(_flipV)
     {
-        model = glm::translate(model, {0.0f, _height, 0.0f});
+        model[3][1] = model[0][1] + model[3][1];
         model[1][1] = -model[1][1];
     }
     model *= sizeMat;

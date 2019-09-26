@@ -67,12 +67,14 @@ inline void RTexObject::addTexture(std::string name, const RImage &image)
 inline void RTexObject::setTextureSizePattern(TextureSizePattern pattern)
 {
     _sizePattern = pattern;
+    updataSizeMat();
 }
 
 inline void RTexObject::setAlignment(Alignment vAlign, Alignment hAlign)
 {
     _vAlign = vAlign;
     _hAlign = hAlign;
+    updataSizeMat();
 }
 
 inline bool RTexObject::setCurrentTexture(std::string name)

@@ -55,29 +55,43 @@ void RTexObject::renderControl(RShaderProgram *shader)
 void RTexObject::updataSizeMat()
 {
     int tw, th;
+    int width = _width - _paddingLeft - _paddingRight;
+    int height = _height - _paddingTop - _paddingBottom;
+    int min = textures[currentTex].width() / width;
+    int max = textures[currentTex].height() / height;
+    if(min > max)
+        std::swap(min, max);
     switch(_sizePattern) {
     case Length:
         tw = textures[currentTex].width();
         th = textures[currentTex].height();
         break;
     case Auto:
-        tw = _width;
-        th = _height;
+        tw = width;
+        th = height;
         break;
     case Cover:
-        int base = textures[currentTex].width() / _width;
-        tw = _width;
-        th = _height;
+        tw = textures[currentTex].width() * max;
+        th = textures[currentTex].height() * max;
         break;
-    case Auto:
-        tw = _width;
-        th = _height;
+    case Contain:
+        tw = textures[currentTex].width() * min;
+        th = textures[currentTex].height() * min;
         break;
     }
+    sizeMat[0][0] = tw;
+    sizeMat[1][1] = th;
 
-    sizeMat[0][0] = _width - _paddingLeft - _paddingRight;
-    sizeMat[1][1] = _height - _paddingTop - _paddingBottom;
-
-    sizeMat[3][0] = _paddingLeft;
-    sizeMat[3][1] = _paddingBottom;
+    if(_hAlign == Left)
+        sizeMat[3][0] = _paddingLeft;
+    else if(_hAlign == Mind)
+        sizeMat[3][0] = _width/2 - tw/2;
+    else if(_hAlign == Right)
+        sizeMat[3][0] = _width - tw;
+    if(_vAlign == Bottom)
+        sizeMat[3][1] = _paddingBottom;
+    else if(_vAlign == Mind)
+        sizeMat[3][1] = _height/2 - th/2;
+    else if(_vAlign == Top)
+        sizeMat[3][1] = _height - th;
 }

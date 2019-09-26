@@ -244,6 +244,7 @@ void TestCtrl::initEvent()
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 10);
     ob.setMargin(-10, 0, 0, 0);
+    ob.setTextureSizePattern(RTexObject::Length);
 
     moveAnimation.addTexture("Moved_1", RE_PATH+"texture/Moved_1.png");
     moveAnimation.addTexture("Moved_2", RE_PATH+"texture/Moved_2.png");
