@@ -65,13 +65,13 @@ void TestCtrl::paintEvent()
     //移动
     if(_move.x < 0)
     {
-        ob.flip(true);
-        moveAnimation.flip(true);
+        ob.flipH(true);
+        moveAnimation.flipH(true);
     }
     else if(_move.x > 0)
     {
-        ob.flip(false);
-        moveAnimation.flip(false);
+        ob.flipH(false);
+        moveAnimation.flipH(false);
     }
     //RDebug() << sprint;
     if(sprint > 10.0f || sprint < -10.0f)
@@ -141,7 +141,7 @@ void TestCtrl::paintEvent()
     else if(velocity != glm::vec2{0.0f, 0.0f} && ob.state() == Character::quiet)
         ob.setState(Character::moved);
     ob.render(&texProgram);
-    ob.displayVolume(projection, view);
+    //ob.displayVolume(projection, view);
     //moveAnimation.displayVolume(projection, view);
 }
 
@@ -244,7 +244,7 @@ void TestCtrl::initEvent()
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 10);
     ob.setMargin(-10, 0, 0, 0);
-    ob.setTextureSizePattern(RTexObject::Length);
+    ob.setTextureSizePattern(RTexObject::Auto);
 
     moveAnimation.addTexture("Moved_1", RE_PATH+"texture/Moved_1.png");
     moveAnimation.addTexture("Moved_2", RE_PATH+"texture/Moved_2.png");

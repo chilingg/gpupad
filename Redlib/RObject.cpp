@@ -196,16 +196,6 @@ void RObject::renderControl(RShaderProgram *shader)
 
     glm::mat4 model(1.0f);
     model = glm::translate(model, {_pos, 0.0f});
-    if(_flipH)
-    {
-        model[3][1] = model[0][1] + model[3][1];
-        model[0][0] = -model[0][0];
-    }
-    if(_flipV)
-    {
-        model[3][1] = model[0][1] + model[3][1];
-        model[1][1] = -model[1][1];
-    }
     model *= sizeMat;
 
     shader->setUniformMatrix4fv("model", glm::value_ptr(model));

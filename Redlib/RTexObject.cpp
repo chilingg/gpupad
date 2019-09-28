@@ -82,16 +82,16 @@ void RTexObject::updataSizeMat()
     sizeMat[0][0] = tw;
     sizeMat[1][1] = th;
 
-    if(_hAlign == Left)
+    if(_hAlign == Align_Left)
         sizeMat[3][0] = _paddingLeft;
-    else if(_hAlign == Mind)
+    else if(_hAlign == Align_Mind)
         sizeMat[3][0] = _width/2 - tw/2;
-    else if(_hAlign == Right)
+    else if(_hAlign == Align_Right)
         sizeMat[3][0] = _width - tw;
-    if(_vAlign == Bottom)
+    if(_vAlign == Align_Bottom)
         sizeMat[3][1] = _paddingBottom;
-    else if(_vAlign == Mind)
+    else if(_vAlign == Align_Mind)
         sizeMat[3][1] = _height/2 - th/2;
-    else if(_vAlign == Top)
+    else if(_vAlign == Align_Top)
         sizeMat[3][1] = _height - th;
 }

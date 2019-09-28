@@ -55,7 +55,8 @@ public:
     bool checkCollision(const RObject &obj) const;
     bool touchSide(const RObject & platform, RVolume::Side side, int extend = 0) const;
     void displayVolume(const glm::mat4 &projection, const glm::mat4 &view);
-    void flip(bool h, bool v = false);
+    void flipH(bool h);
+    void flipV(bool v);
 
 protected:
     virtual void renderControl(RShaderProgram *shader);
@@ -130,10 +131,28 @@ inline bool RObject::checkCollision(const RObject &obj) const
     return volume().checkCollision(obj.volume());
 }
 
-inline void RObject::flip(bool h, bool v)
+inline void RObject::flipH(bool h)
 {
-    _flipH = h;
-    _flipV = v;
+    if(_flipH != h)
+    {
+        glm::mat4 flipMat(1);
+        flipMat[3][0] = 1;
+        flipMat[0][0] = -1;
+        sizeMat *= flipMat;
+        _flipH = h;
+    }
+}
+
+inline void RObject::flipV(bool v)
+{
+    if(_flipV != v)
+    {
+        glm::mat4 flipMat(1);
+        flipMat[3][1] = flipMat[0][1] + flipMat[3][1];
+        flipMat[1][1] = -flipMat[1][1];
+        sizeMat *= flipMat;
+        _flipV = v;
+    }
 }
 
 inline RVolume RObject::volume() const

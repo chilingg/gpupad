@@ -160,4 +160,25 @@ const RDebug &RDebug::operator<<(const glm::vec2 &v) const
     return *this;
 }
 
+const RDebug &RDebug::operator<<(const glm::vec4 &v) const
+{
+#ifndef RO_NO_DEBUGE
+    printf("(%f, %f, %f, %f) ", v.x, v.y, v.z, v.w);
+    fflush(stdout);
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const glm::mat4 &mat) const
+{
+#ifndef RO_NO_DEBUGE
+    for(int i = 0; i < 4; ++i)
+    {
+        printf("(%f, %f, %f, %f) \n", mat[i][0], mat[i][1], mat[i][2], mat[i][3]);
+    }
+    fflush(stdout);
+#endif
+    return *this;
+}
+
 int RDebug::count = 0;

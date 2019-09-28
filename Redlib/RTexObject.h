@@ -15,11 +15,11 @@ public:
         Contain
     };
     enum Alignment {
-        Left,
-        Right,
-        Mind,
-        Top,
-        Bottom
+        Align_Left,
+        Align_Right,
+        Align_Mind,
+        Align_Top,
+        Align_Bottom
     };
 
     RTexObject(int width, int height);
@@ -44,8 +44,8 @@ protected:
     std::string currentTex;
 
     TextureSizePattern _sizePattern = Auto;
-    Alignment _vAlign = Bottom;
-    Alignment _hAlign = Left;
+    Alignment _vAlign = Align_Bottom;
+    Alignment _hAlign = Align_Left;
 };
 
 inline void RTexObject::addTexture(std::string name, const std::string &path)
