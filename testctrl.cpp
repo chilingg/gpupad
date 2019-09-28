@@ -38,7 +38,8 @@ void TestCtrl::paintEvent()
 {
     //FPS();
 
-    glDisable(GL_CULL_FACE);
+    //开启面剔除
+    //glEnable(GL_CULL_FACE);
 
     //projection = glm::ortho(viewProt.leftF(), viewProt.rightF(), viewProt.bottomF(), viewProt.topF(), -1.0f, 1.0f);
     projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);

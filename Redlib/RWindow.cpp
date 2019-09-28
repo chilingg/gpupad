@@ -103,7 +103,7 @@ bool RWindow::initialize()
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
     //默认开启面剔除
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
 
     RDebug() << glGetString(GL_VERSION);
 

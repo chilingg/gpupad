@@ -22,6 +22,11 @@ RTexture::~RTexture()
 
 bool RTexture::generate(const RImage &image)
 {
+    return generate(image.getWidth(), image.getHeight(), image.data(), image.channelSize());
+}
+
+bool RTexture::generate(int width, int height, const unsigned char* data, int channel)
+{
     glGenTextures(1, &ID);
     glBindTexture(GL_TEXTURE_2D, ID);
     float borderColor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -31,16 +36,19 @@ bool RTexture::generate(const RImage &image)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMin);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMax);
 
-    state = image.isValid();
-    if(!state)
+    if(!data)
+    {
+        state = false;
         return false;
+    }
+    state = true;
 
-    _width = image.getWidth();
-    _height = image.getHeight();
+    _width = width;
+    _height = height;
 
     bind();
     GLenum format;
-    switch(image.channelSize())
+    switch(channel)
     {
     case 4:
         format = GL_RGBA;
@@ -60,7 +68,7 @@ bool RTexture::generate(const RImage &image)
         break;
     }
 
-    glTexImage2D(GL_TEXTURE_2D, 0, format, image.getWidth(), image.getHeight(), 0, format, GL_UNSIGNED_BYTE, image.data());
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
     unBind();
 
     return state;

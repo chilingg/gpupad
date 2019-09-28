@@ -220,10 +220,10 @@ void RObject::allocation()
 
     float plant[12]{
             0.0f, 0.0f,//左下
-            0.0f, 1.0f,//左上
-            1.0f, 1.0f,//右上
-            1.0f, 1.0f,//右上
             1.0f, 0.0f,//右下
+            1.0f, 1.0f,//右上
+            1.0f, 1.0f,//右上
+            0.0f, 1.0f,//左上
             0.0f, 0.0f,//左下：
     };
     glBufferData(GL_ARRAY_BUFFER, sizeof(plant), plant, GL_STATIC_DRAW);

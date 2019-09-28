@@ -35,6 +35,7 @@ SOURCES += \
     Redlib/RSize.cpp \
     Redlib/RSprite.cpp \
     Redlib/RTexObject.cpp \
+    Redlib/RTextline.cpp \
         Redlib/RTexture.cpp \
         Redlib/RWindow.cpp \
         Redlib/glad.c \
@@ -60,6 +61,7 @@ HEADERS += \
     Redlib/RSize.h \
     Redlib/RSprite.h \
     Redlib/RTexObject.h \
+    Redlib/RTextline.h \
     Redlib/RTexture.h \
     Redlib/RTimer.h \
     Redlib/RVolume.h \

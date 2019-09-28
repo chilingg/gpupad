@@ -15,6 +15,7 @@ public:
 
     void deleteResource();
     bool generate(const RImage &image);
+    bool generate(int width, int height, const unsigned char *data, int channel = GL_RGBA);
     void bind() const;
 
     int width();
