@@ -123,6 +123,15 @@ const RDebug &RDebug::operator<<(char s) const
     return *this;
 }
 
+const RDebug &RDebug::operator<<(wchar_t s) const
+{
+#ifndef RO_NO_DEBUGE
+    printf("%S", s);
+    fflush(stdout);
+#endif
+    return *this;
+}
+
 const RDebug &RDebug::operator<<(std::string s) const
 {
 #ifndef RO_NO_DEBUGE
