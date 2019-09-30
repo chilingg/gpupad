@@ -126,17 +126,38 @@ const RDebug &RDebug::operator<<(char s) const
 const RDebug &RDebug::operator<<(wchar_t s) const
 {
 #ifndef RO_NO_DEBUGE
-    printf("%S", s);
+    setlocale(LC_CTYPE, "");
+    printf("%C", s);
+    setlocale(LC_CTYPE, "C");
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const wchar_t *str) const
+{
+#ifndef RO_NO_DEBUGE
+    setlocale(LC_CTYPE, "");
+    printf("%S", str);
+    setlocale(LC_CTYPE, "C");
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const std::string &s) const
+{
+#ifndef RO_NO_DEBUGE
+    printf("%s", s.c_str());
     fflush(stdout);
 #endif
     return *this;
 }
 
-const RDebug &RDebug::operator<<(std::string s) const
+const RDebug &RDebug::operator<<(const std::wstring &s) const
 {
 #ifndef RO_NO_DEBUGE
-    printf("%s", s.c_str());
-    fflush(stdout);
+    setlocale(LC_CTYPE, "");
+    printf("%S", s.c_str());
+    setlocale(LC_CTYPE, "C");
 #endif
     return *this;
 }

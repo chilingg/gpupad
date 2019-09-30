@@ -27,7 +27,9 @@ public:
     const RDebug& operator<<(const unsigned char *str) const;
     const RDebug& operator<<(char s) const;
     const RDebug& operator<<(wchar_t s) const;
-    const RDebug& operator<<(std::string s) const;
+    const RDebug& operator<<(const wchar_t *str) const;
+    const RDebug& operator<<(const std::string &s) const;
+    const RDebug& operator<<(const std::wstring &s) const;
     const RDebug& operator<<(void* p) const;
     const RDebug& operator<<(bool b) const;
     const RDebug& operator<<(const glm::vec2 &v) const;

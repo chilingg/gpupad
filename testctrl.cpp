@@ -16,9 +16,6 @@ TestCtrl::TestCtrl(RController *parent):
     ob(64, 64),
     moveAnimation(48, 30)
 {
-    std::wstring s = L"快速";
-    //s[1] = charBox;
-    RDebug() << s[1] << s[0];
     //timer.start();
 }
 
