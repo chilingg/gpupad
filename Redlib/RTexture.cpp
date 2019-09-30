@@ -6,7 +6,7 @@ RTexture::RTexture():
     filterMin(GL_NEAREST),
     filterMax(GL_NEAREST)
 {
-    glGenTextures(1, &ID);
+    glGenTextures(1, &_ID);
 }
 
 RTexture::RTexture(const RImage &image):
@@ -27,8 +27,8 @@ bool RTexture::generate(const RImage &image)
 
 bool RTexture::generate(int width, int height, const unsigned char* data, int channel)
 {
-    glGenTextures(1, &ID);
-    glBindTexture(GL_TEXTURE_2D, ID);
+    glGenTextures(1, &_ID);
+    glBindTexture(GL_TEXTURE_2D, _ID);
     float borderColor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);

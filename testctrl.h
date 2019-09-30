@@ -8,6 +8,7 @@
 #include <RTimer.h>
 #include <vector>
 #include <RJoystick.h>
+#include <RTextline.h>
 
 #include "character.h"
 
@@ -48,6 +49,7 @@ private:
     float step;
     Character ob;
     RSprite moveAnimation;
+    RTextline textOb;
 
     int width;
     int height;
@@ -55,6 +57,7 @@ private:
     RTimer timer;
     RShaderProgram colorProgram;
     RShaderProgram texProgram;
+    RShaderProgram textProgram;
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 projection;

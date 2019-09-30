@@ -10,6 +10,8 @@ public:
 
 protected:
     void renderControl(RShaderProgram *shader) override;
+
+    GLuint texture;
 };
 
 #endif // RTEXTLINE_H

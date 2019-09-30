@@ -52,6 +52,7 @@ inline void RTexObject::addTexture(std::string name, const std::string &path)
 {
     RImage image(path, true);
     addTexture(name, image);
+    setCurrentTexture(name);
 }
 
 inline void RTexObject::addTexture(std::string name, const RImage &image)

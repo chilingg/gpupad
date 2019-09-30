@@ -104,6 +104,9 @@ bool RWindow::initialize()
 
     //默认开启面剔除
     //glEnable(GL_CULL_FACE);
+    //默认开启混合（半透明）
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     RDebug() << glGetString(GL_VERSION);
 

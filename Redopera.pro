@@ -9,6 +9,7 @@ R_DEPENDENT_PATH = $$PWD/../Redopera/Redlib
 
 win32{
 LIBS += -L$$DEPENDENT_PATH/libs/ -lglfw3 \
+    -L$$DEPENDENT_PATH/libs/ -lfreetype
 
 INCLUDEPATH += $$DEPENDENT_PATH/include
 DEPENDPATH += $$DEPENDENT_PATH/include
@@ -75,5 +76,6 @@ HEADERS += \
 
 DISTFILES += \
     shaders/fragment.frag \
+    shaders/text.frag \
     shaders/texture.frag \
     shaders/vertex.vert

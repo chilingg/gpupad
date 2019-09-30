@@ -17,6 +17,7 @@ public:
     bool generate(const RImage &image);
     bool generate(int width, int height, const unsigned char *data, int channel = GL_RGBA);
     void bind() const;
+    GLuint getID() const;
 
     int width();
     int height();
@@ -28,7 +29,7 @@ private:
     GLint wrapT;
     GLint filterMin;
     GLint filterMax;
-    GLuint ID;
+    GLuint _ID;
 
     int _width = 0;
     int _height = 0;
@@ -36,17 +37,22 @@ private:
 
 inline void RTexture::deleteResource()
 {
-    if(ID != INVALID)
+    if(_ID != INVALID)
     {
-        glDeleteTextures(1, &ID);
-        ID = INVALID;
+        glDeleteTextures(1, &_ID);
+        _ID = INVALID;
         state = false;
     }
 }
 
 inline void RTexture::bind() const
 {
-    glBindTexture(GL_TEXTURE_2D, ID);
+    glBindTexture(GL_TEXTURE_2D, _ID);
+}
+
+inline GLuint RTexture::getID() const
+{
+    return _ID;
 }
 
 inline int RTexture::width()
