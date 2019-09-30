@@ -94,4 +94,17 @@ void RTexObject::updataSizeMat()
         sizeMat[3][1] = _height/2 - th/2;
     else if(_vAlign == Align_Top)
         sizeMat[3][1] = _height - th;
+
+    glm::mat4 flipMat(1);
+    if(_flipH == true)
+    {
+        flipMat[3][0] = 1;
+        flipMat[0][0] = -1;
+    }
+    if(_flipV == true)
+    {
+        flipMat[3][1] = flipMat[0][1] + flipMat[3][1];
+        flipMat[1][1] = -flipMat[1][1];
+    }
+    sizeMat *= flipMat;
 }

@@ -147,7 +147,6 @@ inline void RObject::flipV(bool v)
 {
     if(_flipV != v)
     {
-        RDebug() << 1;
         glm::mat4 flipMat(1);
         flipMat[3][1] = flipMat[0][1] + flipMat[3][1];
         flipMat[1][1] = -flipMat[1][1];

@@ -151,6 +151,7 @@ void TestCtrl::paintEvent()
     //moveAnimation.displayVolume(projection, view);
 
     textOb.render(&textProgram);
+    textOb.displayVolume(projection, view);
 }
 
 void TestCtrl::keyPressEvent(RKeyEvent *event)
@@ -284,7 +285,7 @@ void TestCtrl::initEvent()
 
     textOb.setPosition(0, 10);
     textOb.setTextureSizePattern(RTexObject::Auto);
-    textOb.flipV(true);
+    //textOb.flipV(true);
     textOb.setColor(255, 0, 0);
 }
 

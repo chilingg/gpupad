@@ -36,7 +36,7 @@ RTextline::RTextline(int width, int height):
     FT_Done_Face(ftFace);
     FT_Done_FreeType(ft);
 
-    //flipV(true);
+    flipV(true);
 }
 
 void RTextline::renderControl(RShaderProgram *shader)
