@@ -1,7 +1,7 @@
 #ifndef RDEBUG_H
 #define RDEBUG_H
 
-#include <cstdio>
+#include <iostream>
 #include <string>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
@@ -43,8 +43,7 @@ private:
 inline void printErro(const char *error)
 {
 #ifndef RO_NO_DEBUGE
-    fprintf(stderr, "%s\n", error);
-    fflush(stderr);
+    std::cerr << error << std::endl;
 #endif
 }
 

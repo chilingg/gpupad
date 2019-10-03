@@ -87,13 +87,16 @@ void RTexObject::updataSizeMat()
     else if(_hAlign == Align_Mind)
         sizeMat[3][0] = _width/2 - tw/2;
     else if(_hAlign == Align_Right)
-        sizeMat[3][0] = _width - tw;
+        sizeMat[3][0] = _width - tw - _paddingRight;
     if(_vAlign == Align_Bottom)
         sizeMat[3][1] = _paddingBottom;
     else if(_vAlign == Align_Mind)
         sizeMat[3][1] = _height/2 - th/2;
     else if(_vAlign == Align_Top)
-        sizeMat[3][1] = _height - th;
+        sizeMat[3][1] = _height - th - _paddingTop;
+
+    sizeMat[3][0] += _marginLeft;
+    sizeMat[3][1] += _marginBottom;
 
     glm::mat4 flipMat(1);
     if(_flipH == true)
@@ -103,8 +106,8 @@ void RTexObject::updataSizeMat()
     }
     if(_flipV == true)
     {
-        flipMat[3][1] = flipMat[0][1] + flipMat[3][1];
-        flipMat[1][1] = -flipMat[1][1];
+        flipMat[3][1] = 1;
+        flipMat[1][1] = -1;
     }
     sizeMat *= flipMat;
 }

@@ -8,10 +8,36 @@ class RTextline : public RTexObject
 public:
     RTextline(int width, int height);
 
-protected:
-    void renderControl(RShaderProgram *shader) override;
+    static RShaderProgram *textProgram;
+    void render(RShaderProgram *shader) override;
 
-    GLuint texture;
+    void setFontSizeRatio(float windowH, float viewProH);
+    void setTexts(std::wstring texts);
+
+protected:
+    std::map<wchar_t, RTexture> textTexs;
+    std::wstring texts_;
+    glm::vec4 backgroundColor_;
+
+    int fontSize_ = 32;
+    float fontSizeRatio_ = 1.0;
+
+    void updataSizeMat() override;
+    bool loadFontTextures();
 };
+
+inline void RTextline::setFontSizeRatio(float windowH, float viewProH)
+{
+    int realSize = static_cast<int>(windowH/viewProH*fontSize_);
+    fontSizeRatio_ = realSize*1.0f/fontSize_;
+    //RDebug() << realSize << fontSize_ << fontSizeRatio_;
+    loadFontTextures();
+}
+
+inline void RTextline::setTexts(std::wstring texts)
+{
+    texts_ = texts;
+    loadFontTextures();
+}
 
 #endif // RTEXTLINE_H

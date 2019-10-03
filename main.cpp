@@ -1,6 +1,7 @@
 #include <RWindow.h>
 #include "testctrl.h"
 #include <RDebug.h>
+#include <iostream>
 
 int main()
 {

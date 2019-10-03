@@ -32,7 +32,7 @@ bool RImage::load(const char* path, bool flip)
     if(!internalData)
     {
         state = false;
-        printErro("Texture failed to load at path: ");
+        printErro("Image failed to load at path: ");
         printErro(path);
         stbi_image_free(internalData);
     }

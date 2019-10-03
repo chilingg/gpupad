@@ -23,6 +23,8 @@ unix:!macx:
 LIBS += -lglfw \
     -ldl \
     -lfreetype \
+
+INCLUDEPATH += /usr/include/freetype2/
 }
 
 SOURCES += \

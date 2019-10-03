@@ -52,6 +52,7 @@ RWindow::RWindow(int vMajor, int vMinor, int profile):
         exit(EXIT_FAILURE);
     }
 
+    RDebug() << glGetString(GL_VERSION);
 }
 
 RWindow::~RWindow()
@@ -61,12 +62,6 @@ RWindow::~RWindow()
 
 bool RWindow::initialize()
 {
-    root->initialization();
-
-    glfwSetWindowSize(window, width, height);
-    RResizeEvent e(width, height);
-    root->dispatcherResizeEvent(&e);
-
     //垂直同步
     glfwSwapInterval(vSync);
 
@@ -94,7 +89,6 @@ bool RWindow::initialize()
     {
         if(glfwJoystickIsGamepad(i))
         {
-            RDebug() << 1;
             joystickPresentCallback(i, GLFW_CONNECTED);
         }
     }
@@ -108,9 +102,12 @@ bool RWindow::initialize()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    RDebug() << glGetString(GL_VERSION);
-
     glCheckError();
+
+    root->initialization();
+    glfwSetWindowSize(window, width, height);
+    RResizeEvent e(width, height);
+    root->dispatcherResizeEvent(&e);
 
     return true;
 }
@@ -212,8 +209,7 @@ void RWindow::errorCallback(int error, const char *description)
 
 void RWindow::framebufferSizeCallback(GLFWwindow *, int width, int height)
 {
-    RResizeEvent e(width, height);
-    root->dispatcherResizeEvent(&e);
+    //莫名晚几帧调用
 
     if(windowPattern == RResizeEvent::Keep)
     {

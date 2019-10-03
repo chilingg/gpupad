@@ -123,9 +123,7 @@ void RObject::displayVolume(const glm::mat4 &projection, const glm::mat4 &view)
     glBindVertexArray(vVAO);
     volumeShader->use();
 
-    glm::mat4 model(1.0f);
-    model = glm::translate(model, {_pos, 0.0f});
-    glm::vec4 p(volume().getPos(), 0.0f, 1.0f);
+    glm::vec4 p(_pos, 0.0f, 1.0f);
     p = projection * view * p;
     volumeShader->setUniform2F("aPos", p.x, p.y);
     p.x = volume().widthF();
@@ -208,6 +206,10 @@ void RObject::updataSizeMat()
 
     sizeMat[3][0] = _paddingLeft;
     sizeMat[3][1] = _paddingBottom;
+
+    sizeMat[3][0] += _marginLeft;
+    sizeMat[3][1] += _marginBottom;
+
 }
 
 void RObject::allocation()

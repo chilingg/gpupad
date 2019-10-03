@@ -10,12 +10,13 @@ TestCtrl::TestCtrl(RController *parent):
     VIEW_PROT_WIDTH(1600.0f),
     VIEW_PROT_HEIGHT(900.0f),
     viewProt({0.0f, 0.0f}, VIEW_PROT_WIDTH, VIEW_PROT_HEIGHT),
-    charBox({0.0f, 0.0f}, 256, 256),
+    charBox({0.0f, 0.0f}, 1, 1),
+    identitymat(1),
     _move(0.0f, 0.0f),
     step(0.1f),
     ob(64, 64),
     moveAnimation(48, 30),
-    textOb(64, 64)
+    textOb(200, 64)
 {
     //timer.start();
 }
@@ -44,8 +45,9 @@ void TestCtrl::paintEvent()
 
     //projection = glm::ortho(viewProt.leftF(), viewProt.rightF(), viewProt.bottomF(), viewProt.topF(), -1.0f, 1.0f);
     projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
-    view = glm::mat4(1);
+    view = identitymat;
     view = glm::translate(view, {-viewProt.getPos(), 0.0f});
+
 
     colorProgram.use();
     colorProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
@@ -54,10 +56,6 @@ void TestCtrl::paintEvent()
     texProgram.use();
     texProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
     texProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
-
-    textProgram.use();
-    textProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
-    textProgram.setUniformMatrix4fv("view", glm::value_ptr(view));
 
     for(auto p : platform)
     {
@@ -150,8 +148,16 @@ void TestCtrl::paintEvent()
     //ob.displayVolume(projection, view);
     //moveAnimation.displayVolume(projection, view);
 
-    textOb.render(&textProgram);
-    textOb.displayVolume(projection, view);
+    //projection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
+    texProgram.use();
+    texProgram.setUniformMatrix4fv("view", glm::value_ptr(identitymat));
+    texProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
+    textOb.textProgram->use();
+    textOb.textProgram->setUniformMatrix4fv("projection", glm::value_ptr(projection));
+    textOb.textProgram->setUniformMatrix4fv("view", glm::value_ptr(identitymat));
+
+    textOb.render(&texProgram);
+    textOb.displayVolume(projection, identitymat);
 }
 
 void TestCtrl::keyPressEvent(RKeyEvent *event)
@@ -166,6 +172,7 @@ void TestCtrl::keyPressEvent(RKeyEvent *event)
     if(event->key() == RKeyEvent::KEY_C && (sprint < 2.0f && sprint > -2.0f))
     {
         sprint = ob.isFlipH() ? -SPRINT : SPRINT;
+        //textOb.setFontSizeRatio(100.0f);
     }
 }
 
@@ -198,6 +205,9 @@ void TestCtrl::resizeEvent(RResizeEvent *event)
     //RDebug() << event->width() << event->height();
     width = event->width();
     height = event->height();
+
+    textOb.setFontSizeRatio(height, VIEW_PROT_HEIGHT);
+    //textOb.setPosition(1, height-textOb.outerHeight());
 }
 
 void TestCtrl::joystickPresentEvent(RJoystickEvent *event)
@@ -243,16 +253,12 @@ void TestCtrl::initEvent()
     RShader vertex(RE_PATH + "shaders/vertex.vert", RShader::VERTEX_SHADER);
     RShader fragment((RE_PATH + "shaders/fragment.frag"), RShader::FRAGMENT_SHADER);
     RShader texShader((RE_PATH + "shaders/texture.frag"), RShader::FRAGMENT_SHADER);
-    RShader textShader((RE_PATH + "shaders/text.frag"), RShader::FRAGMENT_SHADER);
     colorProgram.attachShader(vertex);
     colorProgram.attachShader(fragment);
     colorProgram.linkProgram();
     texProgram.attachShader(vertex);
     texProgram.attachShader(texShader);
     texProgram.linkProgram();
-    textProgram.attachShader(vertex);
-    textProgram.attachShader(textShader);
-    textProgram.linkProgram();
 
     //model = glm::translate(model, {16.0f/2, 9.0f/2, 0.0f});
     ob.setPosition(800, 10);
@@ -267,7 +273,7 @@ void TestCtrl::initEvent()
     platform.push_back(new RObject(32, 800));
     platform.back()->setPosition(100, 200);
 
-    platform.push_back(new RObject(200, 32));
+    platform.push_back(new RObject(200, 64));
     platform.back()->setPosition(132, 400);
 
     platform.push_back(new RObject(200, 32));
@@ -283,10 +289,13 @@ void TestCtrl::initEvent()
     platform.push_back(new RObject(1700, 100));
     platform.back()->setPosition(-50, -91);
 
-    textOb.setPosition(0, 10);
-    textOb.setTextureSizePattern(RTexObject::Auto);
-    //textOb.flipV(true);
-    textOb.setColor(255, 0, 0);
+    textOb.setMargin(10);
+    textOb.setPadding(11);
+    textOb.setPosition(1, VIEW_PROT_HEIGHT-textOb.outerHeight());
+    textOb.setAlignment(RTexObject::Align_Top, RTexObject::Align_Left);
+    //textOb.setTextureSizePattern(RTexObject::Length);
+    textOb.setColor(255, 100, 0);
+    textOb.setTexts(L"行文本^测.试a1, 完毕。-_-（)");
 }
 
 void TestCtrl::FPS()

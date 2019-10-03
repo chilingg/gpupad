@@ -37,6 +37,10 @@ public:
     const glm::vec2& getVelocity() const;
     int width() const;
     int height() const;
+    int innerWidth() const;
+    int innerHeight() const;
+    int outerWidth() const;
+    int outerHeight() const;
     glm::vec2 pos() const;
     int x() const;
     float& rx();
@@ -61,8 +65,7 @@ public:
 protected:
     virtual void renderControl(RShaderProgram *shader);
     virtual void allocation();
-
-    void updataSizeMat();
+    virtual void updataSizeMat();
 
     static RShaderProgram *volumeShader;
     static unsigned vVAO;
@@ -148,8 +151,8 @@ inline void RObject::flipV(bool v)
     if(_flipV != v)
     {
         glm::mat4 flipMat(1);
-        flipMat[3][1] = flipMat[0][1] + flipMat[3][1];
-        flipMat[1][1] = -flipMat[1][1];
+        flipMat[3][1] = 1;
+        flipMat[1][1] = -1;
         sizeMat *= flipMat;
         _flipV = v;
     }
@@ -157,7 +160,8 @@ inline void RObject::flipV(bool v)
 
 inline RVolume RObject::volume() const
 {
-    return {{_pos.x-_marginLeft, _pos.y-_marginBottom}, _width+_marginRight, _height+_marginTop};
+    return {_pos, _width+_marginLeft+_marginRight, _height+_marginTop+_marginBottom};
+    //return {{_pos.x, _pos.y}, _width+_paddingLeft+_paddingRight, _height+_paddingBottom+_paddingTop};
 }
 
 inline bool RObject::isFlipV() const
@@ -251,6 +255,26 @@ inline int RObject::width() const
 inline int RObject::height() const
 {
     return _height;
+}
+
+inline int RObject::innerWidth() const
+{
+    return _width - _paddingLeft - _paddingRight;
+}
+
+inline int RObject::innerHeight() const
+{
+    return _height - _paddingTop - _paddingBottom;
+}
+
+inline int RObject::outerWidth() const
+{
+    return _width + _marginLeft + _marginRight;
+}
+
+inline int RObject::outerHeight() const
+{
+    return _height + _marginTop + _marginBottom;
 }
 
 inline glm::vec2 RObject::pos() const

@@ -38,7 +38,7 @@ protected:
 
     void allocation() override;
     void renderControl(RShaderProgram *shader) override;
-    void updataSizeMat();
+    void updataSizeMat() override;
 
     std::map<std::string, RTexture> textures;
     std::string currentTex;

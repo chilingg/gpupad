@@ -45,6 +45,7 @@ private:
     float sprint = 0;
     RVolume viewProt;
     RVolume charBox;
+    glm::mat4 identitymat;
     glm::vec2 _move;
     float step;
     Character ob;
@@ -57,7 +58,6 @@ private:
     RTimer timer;
     RShaderProgram colorProgram;
     RShaderProgram texProgram;
-    RShaderProgram textProgram;
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 projection;
