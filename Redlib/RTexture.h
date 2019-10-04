@@ -11,6 +11,7 @@ class RTexture : public RResource
 public:
     RTexture();
     RTexture(const RImage &image);
+    RTexture(const RTexture &tex);
     ~RTexture();
 
     void deleteResource();
@@ -25,12 +26,12 @@ public:
     static void unBind();
 
 private:
-    GLint wrapS;
-    GLint wrapT;
-    GLint filterMin;
-    GLint filterMax;
     GLuint _ID;
 
+    GLint wrapS = GL_CLAMP_TO_BORDER;
+    GLint wrapT = GL_CLAMP_TO_BORDER;
+    GLint filterMin = GL_NEAREST;
+    GLint filterMax = GL_NEAREST;
     int _width = 0;
     int _height = 0;
 };

@@ -16,8 +16,9 @@ public:
     static std::string openTextFile(const char *path);
 
 protected:
-    bool state;
     static constexpr unsigned INVALID = unsigned(-1);
+    bool state;
+    int *share_ = nullptr;
 };
 
 inline bool RResource::isValid() const

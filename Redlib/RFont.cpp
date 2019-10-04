@@ -15,6 +15,7 @@ RFont::RFont()
 
 RFont::~RFont()
 {
+    FT_Done_Face(ftFace_);
     --count;
     if(count == 0)
         FT_Done_FreeType(ft);

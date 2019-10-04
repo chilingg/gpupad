@@ -1,10 +1,6 @@
 #include "RTexture.h"
 
-RTexture::RTexture():
-    wrapS(GL_CLAMP_TO_BORDER),
-    wrapT(GL_CLAMP_TO_BORDER),
-    filterMin(GL_NEAREST),
-    filterMax(GL_NEAREST)
+RTexture::RTexture()
 {
     glGenTextures(1, &_ID);
 }
@@ -13,6 +9,14 @@ RTexture::RTexture(const RImage &image):
     RTexture()
 {
     generate(image);
+}
+
+RTexture::RTexture(const RTexture &tex):
+    _ID( tex._ID),
+    _width(tex._width),
+    _height(tex._height)
+{
+    xxxxx
 }
 
 RTexture::~RTexture()
