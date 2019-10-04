@@ -296,6 +296,7 @@ void TestCtrl::initEvent()
     //textOb.setTextureSizePattern(RTexObject::Length);
     textOb.setColor(255, 100, 0);
     textOb.setTexts(L"行文本^测.试a1, 完毕。-_-（)");
+    textOb.setFontSize(24);
 }
 
 void TestCtrl::FPS()

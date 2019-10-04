@@ -1,8 +1,5 @@
 #include "RTextline.h"
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
 #include <constant.h>
 
 RShaderProgram *RTextline::textProgram(nullptr);
@@ -101,7 +98,7 @@ bool RTextline::loadFontTextures()
             printErro("ERROR::FREETYTPE: Failed to load Glyph");
             return false;
         }
-        //RDebug() << ftFace->glyph->advance.x/64 << 32.0f * fontSizeRatio_ << t;
+        //RDebug() << ftFace->glyph->bitmap.rows << fontSize_ * fontSizeRatio_ << t;
         textTexs[t].generate(ftFace->glyph->bitmap.width, ftFace->glyph->bitmap.rows, ftFace->glyph->bitmap.buffer, 1);
     }
 
@@ -145,20 +142,29 @@ void RTextline::render(RShaderProgram *shader)
 
     textProgram->use();
     textProgram->setUniform4F("color", color);
-    float interval = 0;
+    float intervalX = 0;
+    float intervalY = 0;
     for(const auto &t : texts_)
     {
+        float tw = textTexs[t].width() / fontSizeRatio_;
+        float th = textTexs[t].height() / fontSizeRatio_;
+        if(tw + intervalX > innerWidth())
+        {
+            intervalX = 0;
+            intervalY -= fontSize_ * rowSpacing;
+            //RDebug() << fontSize_ << th;
+        }
         model = glm::mat4(1.0f);
-        model[3][0] = _pos.x + interval + sizeMat[3][0];
-        model[3][1] = _pos.y + sizeMat[3][1] + textTexs[t].height() / fontSizeRatio_;
-        model[0][0] = textTexs[t].width() / fontSizeRatio_;
-        model[1][1] = textTexs[t].height() / fontSizeRatio_ * -1;
-        textProgram->setUniformMatrix4fv("model", glm::value_ptr(model));
+        model[3][0] = _pos.x + intervalX + sizeMat[3][0];
+        model[3][1] = _pos.y + sizeMat[3][1] + th + intervalY;
+        model[0][0] = tw;
+        model[1][1] = th * -1;
 
-        interval += textTexs[t].width()/ fontSizeRatio_;
+        textProgram->setUniformMatrix4fv("model", glm::value_ptr(model));
         textTexs[t].bind();
+
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        intervalX += tw;
     }
     glBindVertexArray(0);
-    setCurrentTexture("Background");
 }

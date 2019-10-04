@@ -30,6 +30,7 @@ INCLUDEPATH += /usr/include/freetype2/
 SOURCES += \
         Redlib/RController.cpp \
         Redlib/RDebug.cpp \
+    Redlib/RFont.cpp \
         Redlib/RImage.cpp \
         Redlib/RObject.cpp \
         Redlib/RResource.cpp \
@@ -51,6 +52,7 @@ SOURCES += \
 HEADERS += \
     Redlib/RController.h \
     Redlib/RDebug.h \
+    Redlib/RFont.h \
     Redlib/RImage.h \
     Redlib/RJoystick.h \
     Redlib/RJoystickEvent.h \
