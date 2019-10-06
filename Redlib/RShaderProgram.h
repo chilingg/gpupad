@@ -6,6 +6,7 @@
 #include "RDebug.h"
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <memory>
 
 class RShaderProgram : public RResource
 {
@@ -13,9 +14,11 @@ public:
     RShaderProgram();
     RShaderProgram(const RShader &vertex, const RShader &fragment);
     RShaderProgram(const RShader &vertex, const RShader &fragment, const RShader &geometry);
-    ~RShaderProgram();
+    RShaderProgram& operator=(const RShaderProgram &prg);
+    ~RShaderProgram() override;
 
-    void deleteResource();
+    bool isValid() const override;
+
     void attachShader(const RShader &shader);
     bool linkProgram();
     void use();
@@ -30,33 +33,36 @@ public:
     void setUniformMatrix4fv(const char *name, float *ptr) const;
     void setUniformMatrix3fv(const char *name, float *ptr) const;
 
-private:
-    GLuint ID;
+protected:
+    std::shared_ptr<GLuint> ID;
+    bool valid = false;
+    //三个着色器成员变量
 };
 
-inline void RShaderProgram::deleteResource()
+inline bool RShaderProgram::isValid() const
 {
-    if(ID != INVALID)
-    {
-        glDeleteProgram(ID);
-        state = false;
-        ID = INVALID;
-    }
+    return *ID;
 }
 
 inline void RShaderProgram::attachShader(const RShader &shader)
 {
-    glAttachShader(ID, shader.getShaderID());
+    if(!ID.unique())
+        ID = std::make_shared<GLuint>(0);
+    //着色器程序ID在变更时无需删除 只需重新分配
+    if(!*ID)
+        *ID = glCreateProgram();
+
+    glAttachShader(*ID, shader.getShaderID());
 }
 
 inline void RShaderProgram::use()
 {
-    glUseProgram(ID);
+    glUseProgram(*ID);
 }
 
 inline void RShaderProgram::setUniform1F(const std::string &name, float value) const
 {
-    int loc = glGetUniformLocation(ID, name.c_str());
+    int loc = glGetUniformLocation(*ID, name.c_str());
     if(loc != -1)
         glUniform1f(loc, value);
     else
@@ -65,7 +71,7 @@ inline void RShaderProgram::setUniform1F(const std::string &name, float value) c
 
 inline void RShaderProgram::setUniform1I(const std::string &name, int value) const
 {
-    int loc = glGetUniformLocation(ID, name.c_str());
+    int loc = glGetUniformLocation(*ID, name.c_str());
     if(loc != -1)
         glUniform1i(loc, value);
     else
@@ -79,7 +85,7 @@ inline void RShaderProgram::setUniform2F(const std::string &name, glm::vec2 valu
 
 inline void RShaderProgram::setUniform2F(const std::string &name, float value1, float value2) const
 {
-    int loc = glGetUniformLocation(ID, name.c_str());
+    int loc = glGetUniformLocation(*ID, name.c_str());
     if(loc != -1)
         glUniform2f(loc, value1, value2);
     else
@@ -88,7 +94,7 @@ inline void RShaderProgram::setUniform2F(const std::string &name, float value1, 
 
 inline void RShaderProgram::setUniform3F(const std::string &name, float value1, float value2, float value3) const
 {
-    int loc = glGetUniformLocation(ID, name.c_str());
+    int loc = glGetUniformLocation(*ID, name.c_str());
     if(loc != -1)
         glUniform3f(loc, value1, value2, value3);
     else
@@ -102,7 +108,7 @@ inline void RShaderProgram::setUniform3F(const std::string &name, glm::vec3 vec)
 
 inline void RShaderProgram::setUniform4F(const std::string &name, float value1, float value2, float value3, float value4) const
 {
-    int loc = glGetUniformLocation(ID, name.c_str());
+    int loc = glGetUniformLocation(*ID, name.c_str());
     if(loc != -1)
         glUniform4f(loc, value1, value2, value3, value4);
     else
@@ -116,7 +122,7 @@ inline void RShaderProgram::setUniform4F(const std::string &name, glm::vec4 vec)
 
 inline void RShaderProgram::setUniformMatrix4fv(const char *name, float *ptr) const
 {
-    int loc = glGetUniformLocation(ID, name);
+    int loc = glGetUniformLocation(*ID, name);
     if(loc != -1)
         glUniformMatrix4fv(loc, 1, GL_FALSE, ptr);
     else
@@ -125,7 +131,7 @@ inline void RShaderProgram::setUniformMatrix4fv(const char *name, float *ptr) co
 
 inline void RShaderProgram::setUniformMatrix3fv(const char *name, float *ptr) const
 {
-    int loc = glGetUniformLocation(ID, name);
+    int loc = glGetUniformLocation(*ID, name);
     if(loc != -1)
         glUniformMatrix3fv(loc, 1, GL_FALSE, ptr);
     else

@@ -3,6 +3,7 @@
 
 #include "RResource.h"
 #include "stb_image.h"
+#include <memory>
 
 class RImage : public RResource
 {
@@ -10,29 +11,28 @@ public:
     RImage();
     RImage(const char* path, bool flip = false);
     RImage(const std::string &path, bool flip = false);
-    ~RImage();
+    RImage& operator=(const RImage &img);
+    ~RImage() override;
 
-    void deleteResource();
-    bool load(const char *, bool flip = false);
+    bool isValid() const override;
+
+    bool load(const std::string &path, bool flip = false);
     int getWidth() const;
     int getHeight() const;
     int channelSize() const;
     const unsigned char *data() const;
 
 private:
-    unsigned char *internalData;
-    int width;
-    int height;
-    int channel;
+    std::shared_ptr<unsigned char*> internalData;
+
+    int width = 0;
+    int height = 0;
+    int channel = 0;
 };
 
-inline void RImage::deleteResource()
+inline bool RImage::isValid() const
 {
-    if(state)
-    {
-        stbi_image_free(internalData);
-        state = false;
-    }
+    return *internalData;
 }
 
 inline int RImage::getWidth() const
@@ -52,7 +52,7 @@ inline int RImage::channelSize() const
 
 inline const unsigned char *RImage::data() const
 {
-    return internalData;
+    return *internalData;
 }
 
 #endif // RIMAGE_H

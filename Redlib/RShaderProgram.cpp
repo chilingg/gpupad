@@ -1,9 +1,10 @@
 #include "RShaderProgram.h"
 #include "RDebug.h"
 
-RShaderProgram::RShaderProgram()
+RShaderProgram::RShaderProgram():
+    RResource(),
+    ID(std::make_shared<GLuint>(0))
 {
-    ID = glCreateProgram();
 }
 
 RShaderProgram::RShaderProgram(const RShader &vertex, const RShader &fragment):
@@ -23,9 +24,17 @@ RShaderProgram::RShaderProgram(const RShader &vertex, const RShader &fragment, c
     linkProgram();
 }
 
+RShaderProgram &RShaderProgram::operator=(const RShaderProgram &prg)
+{
+    RShaderProgram temp(*this);
+    ID = prg.ID;
+    return *this;
+}
+
 RShaderProgram::~RShaderProgram()
 {
-    deleteResource();
+    if(ID.unique() && *ID)
+        glDeleteProgram(*ID);
 }
 
 bool RShaderProgram::linkProgram()
@@ -33,17 +42,16 @@ bool RShaderProgram::linkProgram()
     int  success;
     char infoLog[512];
 
-    glLinkProgram(ID);
-    state = true;
+    glLinkProgram(*ID);
     // 打印编译错误（如果有的话）
-    glGetProgramiv(ID, GL_LINK_STATUS, &success);
+    glGetProgramiv(*ID, GL_LINK_STATUS, &success);
     if(!success)
     {
-        state = false;
-        glGetProgramInfoLog(ID, 512, nullptr, infoLog);
+        valid = false;
+        glGetProgramInfoLog(*ID, 512, nullptr, infoLog);
         RDebug() << "Eroor: program shader linking failed!" << infoLog;
         exit(EXIT_FAILURE);
     }
 
-    return state;
+    return valid = true;
 }

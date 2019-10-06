@@ -1,9 +1,9 @@
 #include "RTexture.h"
 
 RTexture::RTexture():
-    RResource()
+    RResource(),
+    _ID(std::make_shared<GLuint>(0))
 {
-    glGenTextures(1, &_ID);
 }
 
 RTexture::RTexture(const RImage &image):
@@ -12,23 +12,10 @@ RTexture::RTexture(const RImage &image):
     generate(image);
 }
 
-RTexture::RTexture(const RTexture &tex):
-    RResource(tex),
-    _ID(tex._ID),
-    wrapS(tex.wrapS),
-    wrapT(tex.wrapT),
-    filterMin(tex.filterMin),
-    filterMax(tex.filterMax),
-    _width(tex._width),
-    _height(tex._height)
-{
-}
-
 RTexture &RTexture::operator=(const RTexture &tex)
 {
-    auto p = share_;
-    RResource::operator=(tex);
-    if(*p == 0)
+    //RResource::operator=(tex);
+    RTexture temp(*this);//如果temp没有贡献贡献共享 析构函数负责删除
 
     _ID = tex._ID;
     wrapS = tex.wrapS;
@@ -43,7 +30,8 @@ RTexture &RTexture::operator=(const RTexture &tex)
 
 RTexture::~RTexture()
 {
-    deleteResource();
+    if(_ID.unique() && *_ID != 0)
+        glDeleteTextures(1, _ID.get());
 }
 
 bool RTexture::generate(const RImage &image)
@@ -53,21 +41,22 @@ bool RTexture::generate(const RImage &image)
 
 bool RTexture::generate(int width, int height, const unsigned char* data, int channel)
 {
-    glGenTextures(1, &_ID);
-    glBindTexture(GL_TEXTURE_2D, _ID);
+    if(!data)
+        return false;
+
+    if(!_ID.unique())
+        _ID = std::make_shared<GLuint>(0);
+    else if(*_ID)
+        glDeleteTextures(1, _ID.get());
+
+    glGenTextures(1, _ID.get());
+    glBindTexture(GL_TEXTURE_2D, *_ID);
     float borderColor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMin);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMax);
-
-    if(!data)
-    {
-        state = false;
-        return false;
-    }
-    state = true;
 
     _width = width;
     _height = height;
@@ -97,5 +86,5 @@ bool RTexture::generate(int width, int height, const unsigned char* data, int ch
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
     unBind();
 
-    return state;
+    return *_ID;
 }

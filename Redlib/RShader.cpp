@@ -1,12 +1,15 @@
 #include "RShader.h"
 #include "RDebug.h"
 
-RShader::RShader()
+RShader::RShader():
+    RResource(),
+    shaderID(std::make_shared<GLuint>(0))
 {
 
 }
 
-RShader::RShader(const GLchar *shaderPath, GLenum type)
+RShader::RShader(const GLchar *shaderPath, GLenum type):
+    RShader()
 {
     compileShader(shaderPath, type);
 }
@@ -16,13 +19,25 @@ RShader::RShader(const std::string &shaderPath, GLenum type):
 {
 }
 
+RShader &RShader::operator=(const RShader &shader)
+{
+    RShader temp(*this);
+    shaderID = shader.shaderID;
+    return *this;
+}
+
 RShader::~RShader()
 {
-    deleteResource();
+    if(shaderID.unique() && *shaderID)
+        glDeleteShader(*shaderID);
 }
 
 bool RShader::compileShader(const GLchar *path, GLenum type)
 {
+    auto rePath = checkResourcePath(path);
+    if(rePath.empty())
+        return false;
+
     std::string code = openTextFile(path);
     const char* shaderCode = code.c_str();
 
@@ -34,17 +49,20 @@ bool RShader::compileShaderCode(const GLchar *code, GLenum type)
     int success;
     char infoLog[512];
 
+    if(!shaderID.unique())
+        shaderID = std::make_shared<GLuint>(0);
+    else if(*shaderID)
+        glDeleteShader(*shaderID);
+
     //创建编译顶点着色器
-    shaderID = glCreateShader(type);
-    glShaderSource(shaderID, 1, &code, nullptr);
-    glCompileShader(shaderID);
-    state = true;
+    *shaderID = glCreateShader(type);
+    glShaderSource(*shaderID, 1, &code, nullptr);
+    glCompileShader(*shaderID);
     //若有错误，则打印
-    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(*shaderID, GL_COMPILE_STATUS, &success);
     if(!success)
     {
-        state = false;
-        glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
+        glGetShaderInfoLog(*shaderID, 512, nullptr, infoLog);
         std::string shaderType;
         if(type == GL_VERTEX_SHADER)
             shaderType = "Vertex";
@@ -58,9 +76,9 @@ bool RShader::compileShaderCode(const GLchar *code, GLenum type)
         std::string err = "Eroor: ";
         err += shaderType + "shader compilation failed:\n" + infoLog;
         printErro(err);
-        deleteResource();
+        *shaderID = 0;
         exit(EXIT_FAILURE);
     }
 
-    return state;
+    return *shaderID;
 }

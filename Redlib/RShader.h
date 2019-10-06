@@ -4,6 +4,7 @@
 #include "RResource.h"
 #include <glad/glad.h>
 #include <string>
+#include <memory>
 
 class RShader : protected RResource
 {
@@ -15,29 +16,26 @@ public:
     RShader();
     RShader(const GLchar* shaderPath, GLenum type);
     RShader(const std::string &shaderPath, GLenum type);
-    ~RShader();
+    RShader& operator=(const RShader &shader);
+    ~RShader() override;
 
-    void deleteResource();
+    bool isValid() const override;
     bool compileShader(const GLchar *path, GLenum type);
     bool compileShaderCode(const GLchar *code, GLenum type);
     GLuint getShaderID() const;
 
 private:
-    GLuint shaderID;
+    std::shared_ptr<GLuint> shaderID;
 };
 
-inline void RShader::deleteResource()
+bool RShader::isValid() const
 {
-    if(state)
-    {
-        glDeleteShader(shaderID);
-        state = false;
-    }
+    return glIsShader(*shaderID);
 }
 
 inline GLuint RShader::getShaderID() const
 {
-    return shaderID;
+    return *shaderID;
 }
 
 #endif // RSHADER_H
