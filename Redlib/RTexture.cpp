@@ -13,12 +13,32 @@ RTexture::RTexture(const RImage &image):
 }
 
 RTexture::RTexture(const RTexture &tex):
-    RResource(),
+    RResource(tex),
     _ID(tex._ID),
+    wrapS(tex.wrapS),
+    wrapT(tex.wrapT),
+    filterMin(tex.filterMin),
+    filterMax(tex.filterMax),
     _width(tex._width),
     _height(tex._height)
 {
-    xxxxx
+}
+
+RTexture &RTexture::operator=(const RTexture &tex)
+{
+    auto p = share_;
+    RResource::operator=(tex);
+    if(*p == 0)
+
+    _ID = tex._ID;
+    wrapS = tex.wrapS;
+    wrapT = tex.wrapT;
+    filterMin = tex.filterMin;
+    filterMax = tex.filterMax;
+    _width = tex._width;
+    _height = tex._height;
+
+    return *this;
 }
 
 RTexture::~RTexture()

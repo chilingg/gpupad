@@ -12,9 +12,9 @@ public:
     RTexture();
     RTexture(const RImage &image);
     RTexture(const RTexture &tex);
+    RTexture& operator=(const RTexture &tex);
     ~RTexture() override;
 
-    void deleteResource() override;
     bool generate(const RImage &image);
     bool generate(int width, int height, const unsigned char *data, int channel = GL_RGBA);
     void bind() const;
@@ -26,6 +26,8 @@ public:
     static void unBind();
 
 private:
+    void deleteResource() override;
+
     GLuint _ID;
 
     GLint wrapS = GL_CLAMP_TO_BORDER;
