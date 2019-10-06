@@ -4,19 +4,49 @@
 #include <sstream>
 
 RResource::RResource():
-    state(false)
+    state(false),
+    share_(new int(0))
 {
 
+}
+
+RResource::RResource(const RResource &rsc):
+    state(rsc.state),
+    share_(rsc.share_)
+{
+    ++*share_;
+}
+
+RResource &RResource::operator=(const RResource &rsc)
+{
+    auto p = share_;
+
+    share_ = rsc.share_;
+    ++*share_;
+    state = rsc.state;
+
+    if(*p > 0)
+    {
+        --*p;
+    }
+    else
+    {
+        delete p;xxxxxx
+    }
+
+    return *this;
 }
 
 RResource::~RResource()
 {
-
-}
-
-void RResource::deleteResource()
-{
-
+    if(*share_ > 0)
+    {
+        --*share_;
+    }
+    else
+    {
+        delete share_;
+    }
 }
 
 std::string RResource::openTextFile(const char *path)

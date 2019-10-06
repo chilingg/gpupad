@@ -1,6 +1,7 @@
 #include "RTexture.h"
 
-RTexture::RTexture()
+RTexture::RTexture():
+    RResource()
 {
     glGenTextures(1, &_ID);
 }
@@ -12,7 +13,8 @@ RTexture::RTexture(const RImage &image):
 }
 
 RTexture::RTexture(const RTexture &tex):
-    _ID( tex._ID),
+    RResource(),
+    _ID(tex._ID),
     _width(tex._width),
     _height(tex._height)
 {
