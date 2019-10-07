@@ -297,6 +297,7 @@ void TestCtrl::initEvent()
     textOb.setColor(255, 100, 0);
     textOb.setTexts(L"行文本^测.试a1, 完毕。-_-（)");
     textOb.setFontSize(24);
+    textOb.setFont(RE_PATH+"fonts/SourceHanSerifSC_EL-M/SourceHanSerifSC-Regular.otf");
 }
 
 void TestCtrl::FPS()

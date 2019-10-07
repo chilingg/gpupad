@@ -28,7 +28,7 @@ private:
     std::shared_ptr<GLuint> shaderID;
 };
 
-bool RShader::isValid() const
+inline bool RShader::isValid() const
 {
     return glIsShader(*shaderID);
 }

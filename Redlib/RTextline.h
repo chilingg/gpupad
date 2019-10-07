@@ -2,6 +2,7 @@
 #define RTEXTLINE_H
 
 #include <RTexObject.h>
+#include <RFont.h>
 
 class RTextline : public RTexObject
 {
@@ -14,18 +15,20 @@ public:
     void setFontSizeRatio(float windowH, float viewProH);
     void setTexts(std::wstring texts);
     void setFontSize(int size);
+    bool setFont(std::string path);
 
 protected:
-    std::map<wchar_t, RTexture> textTexs;
+    void updataSizeMat() override;
+    bool loadFontTextures();
+
+    std::map<wchar_t, RFontTexture> textTexs;
     std::wstring texts_;
     glm::vec4 backgroundColor_;
+    RFont font_;
 
     int fontSize_ = 32;
     float fontSizeRatio_ = 1.0;
     float rowSpacing = 1.2f;
-
-    void updataSizeMat() override;
-    bool loadFontTextures();
 };
 
 inline void RTextline::setFontSizeRatio(float windowH, float viewProH)
@@ -46,6 +49,13 @@ inline void RTextline::setFontSize(int size)
 {
     fontSize_ = size;
     loadFontTextures();
+}
+
+inline bool RTextline::setFont(std::string path)
+{
+    bool b = font_.loadFont(path);
+    loadFontTextures();
+    return b;
 }
 
 #endif // RTEXTLINE_H

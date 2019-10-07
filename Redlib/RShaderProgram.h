@@ -35,7 +35,6 @@ public:
 
 protected:
     std::shared_ptr<GLuint> ID;
-    bool valid = false;
     //三个着色器成员变量
 };
 

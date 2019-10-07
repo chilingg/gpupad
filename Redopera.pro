@@ -31,6 +31,7 @@ SOURCES += \
         Redlib/RController.cpp \
         Redlib/RDebug.cpp \
     Redlib/RFont.cpp \
+    Redlib/RFontTexture.cpp \
         Redlib/RImage.cpp \
         Redlib/RObject.cpp \
         Redlib/RResource.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     Redlib/RController.h \
     Redlib/RDebug.h \
     Redlib/RFont.h \
+    Redlib/RFontTexture.h \
     Redlib/RImage.h \
     Redlib/RJoystick.h \
     Redlib/RJoystickEvent.h \

@@ -47,11 +47,12 @@ bool RShaderProgram::linkProgram()
     glGetProgramiv(*ID, GL_LINK_STATUS, &success);
     if(!success)
     {
-        valid = false;
         glGetProgramInfoLog(*ID, 512, nullptr, infoLog);
         RDebug() << "Eroor: program shader linking failed!" << infoLog;
+        glDeleteProgram(*ID);
+        *ID = 0;
         exit(EXIT_FAILURE);
     }
 
-    return valid = true;
+    return *ID;
 }

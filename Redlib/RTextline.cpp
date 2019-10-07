@@ -8,7 +8,8 @@ RTextline::RTextline(int width, int height):
     RTexObject(width, height),
     textTexs(),
     texts_(),
-    backgroundColor_(0.5f, 0.5f, 0.5f, 1.0f)
+    backgroundColor_(0.5f, 0.5f, 0.5f, 1.0f),
+    font_()
 {
     if(textProgram == nullptr)
     {
@@ -68,43 +69,16 @@ void RTextline::updataSizeMat()
 
 bool RTextline::loadFontTextures()
 {
-    //初始化FreeType
-    FT_Library ft;
-    if(FT_Init_FreeType((&ft)))
-    {
-        printErro("ERROR::FREETYPE: Could not init FreeType Library");
+    if(!font_.isValid())
         return false;
-    }
 
-    //字体加载至Face
-    FT_Face ftFace;
-    std::string fontPath = RE_PATH+"fonts/SourceHanSerifSC_EL-M/SourceHanSerifSC-Regular.otf";
-    if(FT_New_Face(ft, fontPath.c_str(), 0, &ftFace))
-    {
-        printErro("ERROR::FREETYPE: Failed to load font");
-        return false;
-    }
+    font_.setFontSize(fontSize_ * fontSizeRatio_);
 
-    //字体宽高，宽为0表示从给定高度动态计算
-    FT_Set_Pixel_Sizes(ftFace, 0, fontSize_ * fontSizeRatio_);
-
-    //加载字符
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);//禁用字节对齐限制
     //加载字符的字形
     for(const auto &t : texts_)
     {
-        if(FT_Load_Char(ftFace, t, FT_LOAD_RENDER))
-        {
-            printErro("ERROR::FREETYTPE: Failed to load Glyph");
-            return false;
-        }
-        //RDebug() << ftFace->glyph->bitmap.rows << fontSize_ * fontSizeRatio_ << t;
-        textTexs[t].generate(ftFace->glyph->bitmap.width, ftFace->glyph->bitmap.rows, ftFace->glyph->bitmap.buffer, 1);
+        textTexs[t] = font_.getFontTexture(t);
     }
-
-    //清理FreeType的资源
-    FT_Done_Face(ftFace);
-    FT_Done_FreeType(ft);
 
     updataSizeMat();
 

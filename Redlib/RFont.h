@@ -5,13 +5,18 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <RDebug.h>
+#include <memory>
+#include <RFontTexture.h>
 
 class RFont : public RResource
 {
 public:
     RFont();
-    ~RFont();
+    RFont& operator=(const RFont& font);
+    ~RFont() override;
 
+    bool isValid() const override;
+    RFontTexture getFontTexture(wchar_t t);
     bool loadFont(const char *path);
     bool loadFont(const std::string &path);
     void setFontSize(unsigned size);
@@ -20,21 +25,13 @@ protected:
     static FT_Library ft;
     static int count;
 
-    FT_Face ftFace_;
+    std::shared_ptr<FT_Face> ftFace_;
     unsigned fontSize_ = 24;
 };
 
-inline bool RFont::loadFont(const char *path)
+inline bool RFont::isValid() const
 {
-    if(FT_New_Face(ft, path, 0, &ftFace_))
-    {
-        printErro("ERROR::FREETYPE: Failed to load font");
-        state = false;
-        return state;
-    }
-    //宽度动态计算
-    FT_Set_Pixel_Sizes(ftFace_, 0, fontSize_);
-    return state = true;
+    return ftFace_.get();
 }
 
 inline bool RFont::loadFont(const std::string &path)
@@ -45,6 +42,8 @@ inline bool RFont::loadFont(const std::string &path)
 inline void RFont::setFontSize(unsigned size)
 {
     fontSize_ = size;
+    if(ftFace_)
+        FT_Set_Pixel_Sizes(*ftFace_, 0, fontSize_);//宽度动态计算
 }
 
 #endif // RFONT_H
