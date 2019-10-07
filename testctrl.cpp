@@ -289,10 +289,10 @@ void TestCtrl::initEvent()
     platform.push_back(new RObject(1700, 100));
     platform.back()->setPosition(-50, -91);
 
-    textOb.setMargin(10);
-    textOb.setPadding(11);
-    textOb.setPosition(1, VIEW_PROT_HEIGHT-textOb.outerHeight());
-    textOb.setAlignment(RTexObject::Align_Top, RTexObject::Align_Left);
+    //textOb.setMargin(10);
+    textOb.setPadding(0);10xxxxxx
+    textOb.setPosition(1, 400);//VIEW_PROT_HEIGHT-textOb.outerHeight());
+    textOb.setAlignment(RTexObject::Align_Top, RTexObject::Align_Mind);
     //textOb.setTextureSizePattern(RTexObject::Length);
     textOb.setColor(255, 100, 0);
     textOb.setTexts(L"行文本^测.试a1, 完毕。-_-（)");

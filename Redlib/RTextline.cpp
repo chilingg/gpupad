@@ -6,6 +6,7 @@ RShaderProgram *RTextline::textProgram(nullptr);
 
 RTextline::RTextline(int width, int height):
     RTexObject(width, height),
+    fontPosOffset(),
     textTexs(),
     texts_(),
     backgroundColor_(0.5f, 0.5f, 0.5f, 1.0f),
@@ -35,15 +36,16 @@ void RTextline::updataSizeMat()
 {
     sizeMat = glm::mat4(1);
     float fontTexW = 0;
-    float fontTexH = 0;
+    float fontTexH = fontSize_;
     for(const auto &t : texts_)
     {
-        fontTexW += textTexs[t].width();
-        if(fontTexH < textTexs[t].height())
-            fontTexH = textTexs[t].height();
+        fontTexW += textTexs[t].advance()/fontSizeRatio_;
+        if(fontTexW > innerWidth())
+        {
+            fontTexW -= textTexs[t].advance()/fontSizeRatio_;
+            break;
+        }
     }
-    fontTexW /= fontSizeRatio_;
-    fontTexH /= fontSizeRatio_;
 
     if(_hAlign == Align_Left)
         sizeMat[3][0] = _paddingLeft;
@@ -65,6 +67,32 @@ void RTextline::updataSizeMat()
     flipMat[3][1] = 1;
     flipMat[1][1] = -1;
     sizeMat *= flipMat;
+
+    std::vector<float> temp(1, 0);
+    //RDebug() << temp.front();
+    for(const auto &t : texts_)
+    {
+        temp.back() += textTexs[t].advance()/fontSizeRatio_;
+        if(temp.front() > innerWidth())
+        {
+            temp.back() -= textTexs[t].advance()/fontSizeRatio_;
+            temp.push_back(0);
+        }
+    }
+    //RDebug() << "line" << temp.size() << _width << fontTexW << sizeMat[3][0];
+    for(auto &offset : temp)
+    {
+        //RDebug() << offset;
+        if(_hAlign == Align_Left)
+            offset = 0;
+        else if(_hAlign == Align_Mind)
+            offset = fontTexW/2 - offset/2;
+        else if(_hAlign == Align_Right)
+            offset = fontTexW - offset;
+        //RDebug() << offset << "XXX";
+    }
+    using std::swap;
+    swap(fontPosOffset, temp);
 }
 
 bool RTextline::loadFontTextures()
@@ -116,7 +144,8 @@ void RTextline::render(RShaderProgram *shader)
 
     textProgram->use();
     textProgram->setUniform4F("color", color);
-    float intervalX = 0;
+    auto offset = fontPosOffset.begin();
+    float intervalX = *offset++;
     float intervalY = 0;
     for(const auto &t : texts_)
     {
@@ -124,7 +153,7 @@ void RTextline::render(RShaderProgram *shader)
         float th = textTexs[t].height() / fontSizeRatio_;
         if(tw + intervalX > innerWidth())
         {
-            intervalX = 0;
+            intervalX = *offset++;
             intervalY -= fontSize_ * rowSpacing;
             //RDebug() << fontSize_ << th;
         }

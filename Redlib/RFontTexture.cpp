@@ -16,7 +16,7 @@ RFontTexture &RFontTexture::operator=(const RFontTexture &fontTex)
 {
     bearingX_ = fontTex.bearingX_;
     bearingY_ = fontTex.bearingY_;
-    advance_ = fontTex.advance_;
+    advance_ = fontTex.advance_ >> 6;
     RTexture::operator=(fontTex);
 
     return *this;

@@ -17,10 +17,15 @@ public:
     void setFontSize(int size);
     bool setFont(std::string path);
 
+    int realityFontSize() const;
+    float realityFontSizeF() const;
+
 protected:
     void updataSizeMat() override;
+
     bool loadFontTextures();
 
+    std::vector<float> fontPosOffset;
     std::map<wchar_t, RFontTexture> textTexs;
     std::wstring texts_;
     glm::vec4 backgroundColor_;
@@ -56,6 +61,16 @@ inline bool RTextline::setFont(std::string path)
     bool b = font_.loadFont(path);
     loadFontTextures();
     return b;
+}
+
+inline int RTextline::realityFontSize() const
+{
+    return fontSize_ * fontSizeRatio_ + 0.5f;//四舍五入
+}
+
+inline float RTextline::realityFontSizeF() const
+{
+    return fontSize_ * fontSizeRatio_;
 }
 
 #endif // RTEXTLINE_H

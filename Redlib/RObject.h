@@ -18,6 +18,7 @@ public:
     virtual ~RObject();
     virtual void render(RShaderProgram *shader);
 
+    void setSize(int width, int height);
     void setColor(int r, int g, int b, int a = 255);
     void setPosition(int x, int y);
     void setPosition(glm::vec2 pos);
@@ -119,6 +120,11 @@ inline void RObject::move(glm::vec2 direction, int step)
         return;
     glm::vec2 velocity = glm::normalize(direction) * static_cast<float>(step);
     _pos += velocity;
+}
+
+inline void RObject::setSize(int width, int height)
+{
+    updataSizeMat();
 }
 
 inline void RObject::setColor(int r, int g, int b, int a)
