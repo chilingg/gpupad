@@ -6,6 +6,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
+#include <RVolume.h>
 
 class RDebug
 {
@@ -35,6 +36,7 @@ public:
     const RDebug& operator<<(const glm::vec2 &v) const;
     const RDebug& operator<<(const glm::vec4 &v) const;
     const RDebug& operator<<(const glm::mat4 &mat) const;
+    const RDebug& operator<<(const RVolume &volume) const;
 
 private:
     static int count;

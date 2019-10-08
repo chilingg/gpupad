@@ -159,7 +159,7 @@ const RDebug &RDebug::operator<<(void *p) const
 const RDebug &RDebug::operator<<(bool b) const
 {
 #ifndef RO_NO_DEBUGE
-    const char *str = b ? "true" : "fales";
+    const char *str = b ? "true " : "fales ";
     std::cout << str;
 #endif
     return *this;
@@ -168,7 +168,7 @@ const RDebug &RDebug::operator<<(bool b) const
 const RDebug &RDebug::operator<<(const glm::vec2 &v) const
 {
 #ifndef RO_NO_DEBUGE
-    std::cout << '(' << v.x << ", " << v.y << ')';
+    std::cout << '(' << v.x << ", " << v.y << " ";
 #endif
     return *this;
 }
@@ -179,7 +179,7 @@ const RDebug &RDebug::operator<<(const glm::vec4 &v) const
     std::cout << '(' << v.x << ", "
               << v.y << ", "
               << v.z << ", "
-              << v.w << ')';
+              << v.w << ") ";
 #endif
     return *this;
 }
@@ -192,6 +192,12 @@ const RDebug &RDebug::operator<<(const glm::mat4 &mat) const
     std::cout << "    (" << mat[0][2] << ' ' <<  mat[1][2] << ' ' <<  mat[2][2] << ' ' <<  mat[3][2] << ")\n";
     std::cout << "    (" << mat[0][3] << ' ' <<  mat[1][3] << ' ' <<  mat[2][3] << ' ' <<  mat[3][3] << ")";
 #endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const RVolume &volume) const
+{
+    std::cout << "(" << volume.left() << ", " << volume.bottom() << ")W:" << volume.width() << " H:" << volume.height() << ' ';
     return *this;
 }
 

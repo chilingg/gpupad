@@ -124,6 +124,8 @@ inline void RObject::move(glm::vec2 direction, int step)
 
 inline void RObject::setSize(int width, int height)
 {
+    _width= width;
+    _height = height;
     updataSizeMat();
 }
 

@@ -1,3 +1,5 @@
+//字体纹理映射窗口像素时，若坐标值刚好为x.5，则一个纹理像素映射两个屏幕像素，产生模糊现象
+
 #ifndef RTEXTLINE_H
 #define RTEXTLINE_H
 
@@ -25,7 +27,7 @@ protected:
 
     bool loadFontTextures();
 
-    std::vector<float> fontPosOffset;
+    std::vector<int> fontPosOffset;
     std::map<wchar_t, RFontTexture> textTexs;
     std::wstring texts_;
     glm::vec4 backgroundColor_;

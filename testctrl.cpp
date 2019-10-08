@@ -10,7 +10,7 @@ TestCtrl::TestCtrl(RController *parent):
     VIEW_PROT_WIDTH(1600.0f),
     VIEW_PROT_HEIGHT(900.0f),
     viewProt({0.0f, 0.0f}, VIEW_PROT_WIDTH, VIEW_PROT_HEIGHT),
-    charBox({0.0f, 0.0f}, 1, 1),
+    charBox({0.0f, 0.0f}, 256, 84),
     identitymat(1),
     _move(0.0f, 0.0f),
     step(0.1f),
@@ -45,6 +45,34 @@ void TestCtrl::paintEvent()
 
     //projection = glm::ortho(viewProt.leftF(), viewProt.rightF(), viewProt.bottomF(), viewProt.topF(), -1.0f, 1.0f);
     projection = glm::ortho(0.0f, VIEW_PROT_WIDTH, 0.0f, VIEW_PROT_HEIGHT, -1.0f, 1.0f);
+    //视图移动
+    charBox.setPos({ob.x() + (ob.width()/2 - charBox.width()/2), ob.y() + (ob.height()/2 - charBox.height()/2)});
+    if(!viewProt.contains(charBox))
+    {
+        //RDebug() << charBox << viewProt;
+        glm::vec2 vp = viewProt.getPos();
+        if(!viewProt.contains(charBox, true, false, false, false))
+        {
+            //RDebug() << "T " << charBox.topF() << viewProt.topF();
+            vp.y += charBox.topF() - viewProt.topF();
+        }
+        if(!viewProt.contains(charBox, false, true, false, false))
+        {
+            //RDebug() << "B ";
+            vp.y += charBox.bottomF() - viewProt.bottomF();
+        }
+        if(!viewProt.contains(charBox, false, false, true, false))
+        {
+            //RDebug() << "L ";
+            vp.x += charBox.leftF() - viewProt.leftF();
+        }
+        if(!viewProt.contains(charBox, false, false, false, true))
+        {
+            //RDebug() << "R ";
+            vp.x += charBox.rightF() - viewProt.rightF();
+        }
+        viewProt.setPos(vp);
+    }
     view = identitymat;
     view = glm::translate(view, {-viewProt.getPos(), 0.0f});
 
@@ -112,33 +140,6 @@ void TestCtrl::paintEvent()
         }
         //platformCllision(ob, *p);
     }
-    //视图移动
-    charBox.setPos({ob.x()-(charBox.width()/2), ob.y()-(charBox.height()/2)});
-    if(!viewProt.contains(charBox))
-    {
-        glm::vec2 vp = viewProt.getPos();
-        if(!viewProt.contains(charBox, true, false, false, false))
-        {
-            //RDebug() << "T " << charBox.topF() << viewProt.topF();
-            vp.y += charBox.topF() - viewProt.topF();
-        }
-        if(!viewProt.contains(charBox, false, true, false, false))
-        {
-            //RDebug() << "B ";
-            vp.y += charBox.bottomF() - viewProt.bottomF();
-        }
-        if(!viewProt.contains(charBox, false, false, true, false))
-        {
-            //RDebug() << "L ";
-            vp.x += charBox.leftF() - viewProt.leftF();
-        }
-        if(!viewProt.contains(charBox, false, false, false, true))
-        {
-            //RDebug() << "R ";
-            vp.x += charBox.rightF() - viewProt.rightF();
-        }
-        viewProt.setPos(vp);
-    }
 
     if(velocity == glm::vec2{0.0f, 0.0f} && ob.state() == Character::moved)
         ob.setState(Character::quiet);
@@ -149,6 +150,7 @@ void TestCtrl::paintEvent()
     //moveAnimation.displayVolume(projection, view);
 
     //projection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
+    projection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
     texProgram.use();
     texProgram.setUniformMatrix4fv("view", glm::value_ptr(identitymat));
     texProgram.setUniformMatrix4fv("projection", glm::value_ptr(projection));
@@ -206,8 +208,9 @@ void TestCtrl::resizeEvent(RResizeEvent *event)
     width = event->width();
     height = event->height();
 
-    textOb.setFontSizeRatio(height, VIEW_PROT_HEIGHT);
-    //textOb.setPosition(1, height-textOb.outerHeight());
+    //textOb.setFontSizeRatio(height, VIEW_PROT_HEIGHT);
+    textOb.setPosition(150, 150);
+    //textOb.setPosition(1, height-textOb.outerHeight()-1);
 }
 
 void TestCtrl::joystickPresentEvent(RJoystickEvent *event)
@@ -290,13 +293,17 @@ void TestCtrl::initEvent()
     platform.back()->setPosition(-50, -91);
 
     //textOb.setMargin(10);
-    textOb.setPadding(0);10xxxxxx
-    textOb.setPosition(1, 400);//VIEW_PROT_HEIGHT-textOb.outerHeight());
-    textOb.setAlignment(RTexObject::Align_Top, RTexObject::Align_Mind);
+    textOb.setPadding(5, 0, 0, 0);
+    //textOb.setPosition(1, height-textOb.outerHeight()-1);
+    textOb.setPosition(50, 50);
+    textOb.setAlignment(RTexObject::Align_Mind, RTexObject::Align_Mind);
     //textOb.setTextureSizePattern(RTexObject::Length);
     textOb.setColor(255, 100, 0);
-    textOb.setTexts(L"行文本^测.试a1, 完毕。-_-（)");
+    //textOb.setTexts(L"行文本^测.试a1, 完毕。-_-（)1234567890");
+    textOb.setTexts(L"行文本测试试试1 完毕毕毕毕毕毕毕123456");
+    //textOb.setTexts(L"12345678901234567890123456789012345678901234567890");
     textOb.setFontSize(24);
+    textOb.setSize(200, 200);
     textOb.setFont(RE_PATH+"fonts/SourceHanSerifSC_EL-M/SourceHanSerifSC-Regular.otf");
 }
 
