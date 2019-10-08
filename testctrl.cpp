@@ -10,7 +10,7 @@ TestCtrl::TestCtrl(RController *parent):
     VIEW_PROT_WIDTH(1600.0f),
     VIEW_PROT_HEIGHT(900.0f),
     viewProt({0.0f, 0.0f}, VIEW_PROT_WIDTH, VIEW_PROT_HEIGHT),
-    charBox({0.0f, 0.0f}, 256, 84),
+    charBox({0.0f, 0.0f}, 256, 256),
     identitymat(1),
     _move(0.0f, 0.0f),
     step(0.1f),
@@ -209,8 +209,8 @@ void TestCtrl::resizeEvent(RResizeEvent *event)
     height = event->height();
 
     //textOb.setFontSizeRatio(height, VIEW_PROT_HEIGHT);
-    textOb.setPosition(150, 150);
-    //textOb.setPosition(1, height-textOb.outerHeight()-1);
+    //textOb.setPosition(150, 150);
+    textOb.setPosition(1, height-textOb.outerHeight()-1);
 }
 
 void TestCtrl::joystickPresentEvent(RJoystickEvent *event)
@@ -294,16 +294,17 @@ void TestCtrl::initEvent()
 
     //textOb.setMargin(10);
     textOb.setPadding(5, 0, 0, 0);
-    //textOb.setPosition(1, height-textOb.outerHeight()-1);
-    textOb.setPosition(50, 50);
-    textOb.setAlignment(RTexObject::Align_Mind, RTexObject::Align_Mind);
+    textOb.setPosition(1, height-textOb.outerHeight()-1);
+    //textOb.setPosition(50, 50);
+    textOb.setAlignment(RTexObject::Align_Top, RTexObject::Align_Mind);
     //textOb.setTextureSizePattern(RTexObject::Length);
     textOb.setColor(255, 100, 0);
     //textOb.setTexts(L"行文本^测.试a1, 完毕。-_-（)1234567890");
-    textOb.setTexts(L"行文本测试试试1 完毕毕毕毕毕毕毕123456");
+    textOb.setTexts(L"abcdefghijklmnopqrstuvwxyz");
     //textOb.setTexts(L"12345678901234567890123456789012345678901234567890");
     textOb.setFontSize(24);
-    textOb.setSize(200, 200);
+    textOb.setRowSpacing(1.0f);
+    //textOb.setSize(200, 200);
     textOb.setFont(RE_PATH+"fonts/SourceHanSerifSC_EL-M/SourceHanSerifSC-Regular.otf");
 }
 

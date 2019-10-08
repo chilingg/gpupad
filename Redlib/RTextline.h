@@ -14,13 +14,10 @@ public:
     static RShaderProgram *textProgram;
     void render(RShaderProgram *shader) override;
 
-    void setFontSizeRatio(float windowH, float viewProH);
     void setTexts(std::wstring texts);
     void setFontSize(int size);
     bool setFont(std::string path);
-
-    int realityFontSize() const;
-    float realityFontSizeF() const;
+    void setRowSpacing(float value);
 
 protected:
     void updataSizeMat() override;
@@ -34,17 +31,9 @@ protected:
     RFont font_;
 
     int fontSize_ = 32;
-    float fontSizeRatio_ = 1.0;
+    //float fontSizeRatio_ = 1.0;//废弃
     float rowSpacing = 1.2f;
 };
-
-inline void RTextline::setFontSizeRatio(float windowH, float viewProH)
-{
-    int realSize = static_cast<int>(windowH/viewProH*fontSize_);
-    fontSizeRatio_ = realSize*1.0f/fontSize_;
-    //RDebug() << realSize << fontSize_ << fontSizeRatio_;
-    loadFontTextures();
-}
 
 inline void RTextline::setTexts(std::wstring texts)
 {
@@ -65,14 +54,9 @@ inline bool RTextline::setFont(std::string path)
     return b;
 }
 
-inline int RTextline::realityFontSize() const
+inline void RTextline::setRowSpacing(float value)
 {
-    return fontSize_ * fontSizeRatio_ + 0.5f;//四舍五入
-}
-
-inline float RTextline::realityFontSizeF() const
-{
-    return fontSize_ * fontSizeRatio_;
+    rowSpacing = value;
 }
 
 #endif // RTEXTLINE_H

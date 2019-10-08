@@ -1,5 +1,4 @@
 #include "RTextline.h"
-
 #include <constant.h>
 
 RShaderProgram *RTextline::textProgram(nullptr);
@@ -39,21 +38,23 @@ void RTextline::updataSizeMat()
 
     sizeMat = glm::mat4(1);
     int fontTexW = 0;
-    int fontTexH = fontSize_;
+    int fontTexH = 0;
     int columnW = 0;
+    int lineFeed = 0;
     int line = 0;
     for(const auto &t : texts_)
     {
-        columnW += textTexs[t].advance()/fontSizeRatio_;
+        columnW += textTexs[t].advance();
         if(columnW > innerWidth())
         {
-            if(line == 0)
-                fontTexW = columnW - textTexs[t].advance()/fontSizeRatio_;
-            ++line;
-            columnW = textTexs[t].advance()/fontSizeRatio_;
+            if(lineFeed == 0)
+                fontTexW = columnW - textTexs[t].advance();
+            ++lineFeed;
+            columnW = textTexs[t].advance();
         }
     }
-    //fontTexH *= line;
+    line = lineFeed + 1;
+    fontTexH = fontSize_ + lineFeed * fontSize_ * rowSpacing;
 
     if(_hAlign == Align_Left)
         sizeMat[3][0] = _paddingLeft;
@@ -61,32 +62,29 @@ void RTextline::updataSizeMat()
         sizeMat[3][0] = _width/2 - fontTexW/2;
     else if(_hAlign == Align_Right)
         sizeMat[3][0] = _width - fontTexW - _paddingRight;
+
     if(_vAlign == Align_Bottom)
-        sizeMat[3][1] = _paddingBottom + line*fontSize_*rowSpacing;
+        sizeMat[3][1] = _paddingBottom + fontTexH - fontSize_;
     else if(_vAlign == Align_Mind)
-        sizeMat[3][1] = _height/2 + ((line+1)*fontSize_*rowSpacing)/2 - fontSize_*rowSpacing;
+        sizeMat[3][1] = _height/2 + fontTexH/2 - fontSize_;
     else if(_vAlign == Align_Top)
-        sizeMat[3][1] = _height - fontTexH - _paddingTop;
+        sizeMat[3][1] = _height - fontSize_;
 
     sizeMat[3][0] += _marginLeft;
     sizeMat[3][1] += _marginBottom;
 
-    RDebug() << _height << (line+1)*fontSize_*rowSpacing << sizeMat[3][1];
-    glm::mat4 flipMat(1);
-    flipMat[3][1] = 1;
-    flipMat[1][1] = -1;
-    sizeMat *= flipMat;
-
+    RDebug() << _paddingBottom << fontSize_ << fontTexH;
+    RDebug() << sizeMat;
     std::vector<int> temp(1, 0);
     //RDebug() << temp.front();
     for(const auto &t : texts_)
     {
-        temp.back() += textTexs[t].advance()/fontSizeRatio_;
+        temp.back() += textTexs[t].advance();
         if(temp.back() > innerWidth())
         {
             //RDebug() << t << "u";
-            temp.back() -= textTexs[t].advance()/fontSizeRatio_;
-            temp.push_back(textTexs[t].advance()/fontSizeRatio_);
+            temp.back() -= textTexs[t].advance();
+            temp.push_back(textTexs[t].advance());
         }
     }
     //RDebug() << "line" << temp.size() << _width << fontTexW << texts_.size();
@@ -110,7 +108,7 @@ bool RTextline::loadFontTextures()
     if(!font_.isValid())
         return false;
 
-    font_.setFontSize(fontSize_ * fontSizeRatio_);
+    font_.setFontSize(fontSize_);
 
     //加载字符的字形
     for(const auto &t : texts_)
@@ -160,8 +158,8 @@ void RTextline::render(RShaderProgram *shader)
     int linePoint= innerWidth();
     for(const auto &t : texts_)
     {
-        int tw = textTexs[t].width() / fontSizeRatio_;
-        int th = textTexs[t].height() / fontSizeRatio_;
+        int tw = textTexs[t].width();
+        int th = textTexs[t].height();
         if(textTexs[t].advance() + intervalX > linePoint)
         {
             //RDebug() << intervalX << t;
@@ -171,10 +169,17 @@ void RTextline::render(RShaderProgram *shader)
             //RDebug() << fontSize_ << th;
         }
         model = glm::mat4(1.0f);
+        model = glm::translate(model, {_pos.x + intervalX + textTexs[t].bearingX(),
+                                       _pos.y + intervalY - textTexs[t].height() + textTexs[t].bearingY(), 0});
+        model = glm::scale(model, {tw, th, 0});
+        model = glm::translate(model, {0, 1, 0});
+        model = glm::scale(model, {1, -1, 1});
+        model = sizeMat * model;
+        /*
         model[3][0] = _pos.x + intervalX + sizeMat[3][0];
         model[3][1] = _pos.y + sizeMat[3][1] + th + intervalY;
         model[0][0] = tw;
-        model[1][1] = th * -1;
+        model[1][1] = th * -1;*/
 
         //位移model[3][0]&model[3][1] value = 0.5的时候会出现诡异的纹理模糊
         textProgram->setUniformMatrix4fv("model", glm::value_ptr(model));
