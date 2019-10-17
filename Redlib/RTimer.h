@@ -26,7 +26,7 @@ inline double RTimer::elapsed(double time)
     while(glfwGetTime() - startTime <= time)
         ;
 
-    return glfwGetTime() - startTime >= time;
+    return glfwGetTime() - startTime;
 }
 
 inline void RTimer::start()
