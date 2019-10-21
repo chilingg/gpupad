@@ -73,8 +73,8 @@ void RTextline::updataSizeMat()
     sizeMat[3][0] += _marginLeft;
     sizeMat[3][1] += _marginBottom;
 
-    RDebug() << _paddingBottom << fontSize_ << fontTexH;
-    RDebug() << sizeMat;
+    //RDebug() << _paddingBottom << fontSize_ << fontTexH;
+    //RDebug() << sizeMat;
     std::vector<int> temp(1, 0);
     //RDebug() << temp.front();
     for(const auto &t : texts_)

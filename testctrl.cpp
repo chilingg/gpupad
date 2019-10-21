@@ -31,6 +31,7 @@ TestCtrl::~TestCtrl()
 
 void TestCtrl::control()
 {
+    //RDebug() << timer.elapsed(0.05);
     timer.elapsed(1.0/60.0);
     update();
     timer.start();

@@ -3,11 +3,18 @@
 
 #include <GLFW/glfw3.h>
 
+#ifdef win32
+#include <windows.h>
+#elif linux
+#include <unistd.h>
+#endif
+
 class RTimer
 {
 public:
     double elapsed();
     double elapsed(double time);
+    void rsleep(double seconds);
     void start();
 
 private:
@@ -23,10 +30,23 @@ inline double RTimer::elapsed()
 
 inline double RTimer::elapsed(double time)
 {
-    while(glfwGetTime() - startTime <= time)
-        ;
+    double elp = glfwGetTime() - startTime;
+
+    if(elp <= time)
+        rsleep(time - elp);
 
     return glfwGetTime() - startTime;
+}
+
+inline void RTimer::rsleep(double seconds)
+{
+#ifdef win32
+    unsigned ms = seconds * 1000;
+    sleep(ms);
+#elif linux
+    unsigned us = seconds * 1000000;
+    usleep(us);
+#endif
 }
 
 inline void RTimer::start()
