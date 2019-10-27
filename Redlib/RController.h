@@ -1,63 +1,95 @@
-#ifndef RCONTROLLER_H
-#define RCONTROLLER_H
+/*
+ * sigslot优点
+ * 不用担心空回调，当回调对象析构时会自动disconnect
+ * 支持多线程，线程安全，有锁
+ *
+ * sigslot缺点
+ * 只能回调void类型函数，不支持返回值
+ * slot没有优先级，不能动态调整回调队列中的先后顺序
+ ×
+ * slot函数（被回调的函数）就是普通的成员函数，但有以下限制：
+ * 返回值必须为void
+ * slot参数个数范围为0-8个
+ * 实现slot的类必须继承自has_slots<>
+ *
+ * Sigslot库用法
+ * signal0<> sig1;//没有参数的信号
+ * signal2<char *, int> sig2;//发送两个参数
+ * sig.sg1.conncent(&slt, &mySlot::on_func1);//连接信号
+ * sig.sg1.disconnect(&slt);//断开信号
+ * sig.sg1.disconnect_all();//断开全部信号
+ * sig.sg1();//发送信号
+ * sig.sg1.emit();
+ × sig.sg2("str",0.1);
+*/
 
-#include "RJoystickEvent.h"
-#include "RKeyEvent.h"
-#include "RMouseEvent.h"
-#include "RWheelEvent.h"
-#include "RResizeEvent.h"
+#ifndef RCONTRLLER_H
+#define RCONTRLLER_H
+
+#include "Extern/sigslot.h"
+#include "RNotifyEvent.h"
+#include "RInputEvent.h"
+
+#include <string>
 #include <list>
 
-class RController
+class RController: public sigslot::has_slots<>
 {
-    using RControllers = std::list<RController*>;
-
 public:
-    enum Event {
-        KeyPressEvent,
-        KeyReleaseEvent,
-        MouseMoveEvent,
-        MousePressEvent,
-        MouseReleaseEvent,
-        WheelEvent,
-        JoystickPresentEvent,
-        JoystickInput
-    };
+    RController(const std::string &name = "", RController *parent = nullptr);
+    ~RController();
 
-    RController(RController *parent = nullptr);
-    virtual ~RController();
-    virtual void control() = 0;
+    static RController *getFreeTree();
 
-    void setPatent(RController *parent);
-    void addChildren(RController *child);
-    void deleteChildren(RController *child);
-
-    void close();
-    void update();
-    void initialization();
-    void dispatcherResizeEvent(RResizeEvent *event);
-    void dispatcherjoystickEvent(RJoystickEvent *event, Event name);
-
-    void dispatcherInputEvent(RKeyEvent *event, Event name);
-    void dispatcherInputEvent(RMouseEvent *event, Event name);
-    void dispatcherInputEvent(RWheelEvent *event, Event name);
+    void addChild(RController *child);
+    void deleteChild(RController *child);
+    void deleteAllChild();
+    bool isChild(RController *child) const;
+    void changeParent(RController *parent);
+    void rename(std::string name);
+    void exec();
+    void inactive();
+    bool isActive();
 
 protected:
-    virtual void initEvent();
-    virtual void paintEvent();
+    //事件响应
+    virtual void contrl() = 0;
+    virtual void inputEvent(RInputEvent *event);
+    virtual void joystickPresentEvent(RjoystickPresentEvent *event);
+    virtual void updataEvent(RUpdataEvent *event);
+    virtual void initEvent(RInitEvent *event);
+    virtual void enteredTreeEvent(REnteredTreeEvent *event);
+    virtual void exitedTreeEvent(RExitedTreeEvent *event);
     virtual void resizeEvent(RResizeEvent *event);
-    virtual void joystickPresentEvent(RJoystickEvent *event);
-    virtual void joystickInputEvent(RJoystickEvent *event);
-    virtual void keyPressEvent(RKeyEvent *event);
-    virtual void keyReleaseEvent(RKeyEvent *event);
-    virtual void mouseMoveEvent(RMouseEvent *event);
-    virtual void mousePressEvent(RMouseEvent *event);
-    virtual void mouseReleaseEvent(RMouseEvent *event);
-    virtual void wheelEvent(RWheelEvent *event);
-    virtual void closeEvent();
+    //事件发布接口
+    void allAction();
+    void createInputEventToDspt();
+    void createJoystickPresentEventToDspt();
+    void createUpdataEventToDspt();
+    void createInitEventToDspt();
+    void createEnteredTreeEventToDspt(const std::string &name);
+    void createExitedTreeEventToDspt(const std::string &name);
+    void createResizeEventToDspt();
 
-    RController *parent;
-    RControllers children;
+    //信号
+    sigslot::signal0<> treeEntered;
+    sigslot::signal0<> treeExited;
+
+private:
+    static const std::string FREE_TREE_NAME;
+    //分发事件 PS:深度优先、由下至上
+    void dispatchEvent(RInputEvent *event);
+    void dispatchEvent(RjoystickPresentEvent *event);
+    void dispatchEvent(RUpdataEvent *event);
+    void dispatchEvent(RInitEvent *event);
+    void dispatchEvent(REnteredTreeEvent *event);
+    void dispatchEvent(RExitedTreeEvent *event);
+    void dispatchEvent(RResizeEvent *event);
+
+    std::string name_;
+    std::list<RController*> children_;
+    RController *parent_ = nullptr;
+    bool active_ = true;
 };
 
-#endif // RCONTROLLER_H
+#endif // RCONTRLLER_H

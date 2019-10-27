@@ -1,231 +1,253 @@
 #include "RController.h"
-#include "RDebug.h"
 
-RController::RController(RController *parent):
-    parent(nullptr),
-    children()
+const std::string RController::FREE_TREE_NAME = "_FreeTree_";
+
+RController::RController(const std::string &name, RController *parent):
+    name_(),
+    children_()
 {
-    //setPatent(parent);
+    //所有未指定父节点且名非FREE_TREE_NAME的，都挂在自由树下
+    if(parent == nullptr && name != FREE_TREE_NAME)
+        parent = getFreeTree();
+
+    rename(name);
+    if(parent != nullptr)
+        parent->addChild(this);
 }
 
 RController::~RController()
 {
-    setPatent(nullptr);
-    close();
+    deleteAllChild();
 }
 
-void RController::control()
+RController *RController::getFreeTree()
 {
-
+    static RController freeTree(FREE_TREE_NAME);
+    return &freeTree;
 }
 
-void RController::setPatent(RController *parent)
+void RController::addChild(RController *child)
 {
-    if(this->parent != nullptr)
+    if(child == this)
+        return;
+    child->changeParent(this);
+}
+
+void RController::deleteChild(RController *child)
+{
+    auto c = children_.begin();
+    for(; c != children_.end(); ++c)
     {
-        this->parent->deleteChildren(this);
+        if(*c == child)
+            break;
+    }
+    if(c != children_.end())
+    {
+        child->changeParent(getFreeTree());
+    }
+}
+
+void RController::deleteAllChild()
+{
+    std::list<RController*> empty;
+    for(auto c : children_)
+    {
+        c->changeParent(getFreeTree());
+    }
+    children_.swap(empty);
+}
+
+bool RController::isChild(RController *child) const
+{
+    //预想中第一代同辈子结点不是很多，so 手写
+    for(auto c : children_)
+    {
+        if(child == c)
+            return true;
+    }
+    return false;
+}
+
+void RController::changeParent(RController *parent)
+{
+    if(parent_)
+    {
+        for(auto c = parent_->children_.begin(); c != parent_->children_.end(); ++c)
+        {
+            if(*c == this)
+            {
+                parent_->children_.erase(c);
+                break;
+            }
+        }
+        createExitedTreeEventToDspt(parent_->name_);
     }
 
-    this->parent = parent;
-    if(parent != nullptr)
-        parent->addChildren(this);
+    if(!parent)
+        parent = getFreeTree();
+
+    parent_ = parent;
+    createEnteredTreeEventToDspt(parent_->name_);
 }
 
-void RController::addChildren(RController *child)
+void RController::rename(std::string name)
 {
-    for(auto it = children.begin(); it != children.end(); ++it)
+    int num = 1;
+    if(name.empty())
+        name = "Contrller" + std::to_string(num);
+
+    if(parent_)
     {
-        if(*it == child)
+        for(auto sibling = parent_->children_.cbegin(); sibling != parent_->children_.cend(); ++sibling)
         {
-            return;
+            if(name == (*sibling)->name_ && this != *sibling)
+            {
+                name = "Contrller" + std::to_string(++num);
+                sibling = parent_->children_.cbegin();
+            }
         }
     }
-    children.push_back(child);
+
+    name_.swap(name);
 }
 
-void RController::deleteChildren(RController *child)
+void RController::exec()
 {
-    for(auto it = children.begin(); it != children.end(); ++it)
+    active_ = true;
+
+    while(active_)
     {
-        if(*it == child)
-        {
-            children.erase(it);
-            return;
-        }
+        allAction();
     }
-    printErro("Delete child do not exist!");
 }
 
-void RController::close()
+void RController::inactive()
 {
-    for(auto child : children)
+    active_ = false;
+}
+
+bool RController::isActive()
+{
+    return active_;
+}
+
+void RController::inputEvent(RInputEvent *)
+{
+
+}
+
+void RController::joystickPresentEvent(RjoystickPresentEvent *)
+{
+
+}
+
+void RController::updataEvent(RUpdataEvent *)
+{
+
+}
+
+void RController::initEvent(RInitEvent *)
+{
+
+}
+
+void RController::enteredTreeEvent(REnteredTreeEvent *)
+{
+
+}
+
+void RController::exitedTreeEvent(RExitedTreeEvent *)
+{
+
+}
+
+void RController::resizeEvent(RResizeEvent *)
+{
+
+}
+
+void RController::allAction()
+{
+    for(auto child : children_)
     {
-        child->close();
+        child->contrl();
     }
-    RControllers().swap(children);
-    closeEvent();
+    contrl();
 }
 
-void RController::update()
+void RController::createEnteredTreeEventToDspt(const std::string &name)
 {
-    for(auto child : children)
+    REnteredTreeEvent e{name};
+    dispatchEvent(&e);
+}
+
+void RController::createExitedTreeEventToDspt(const std::string &name)
+{
+    REnteredTreeEvent e{name};
+    dispatchEvent(&e);
+}
+
+void RController::dispatchEvent(RInputEvent *event)
+{
+    for(auto child : children_)
     {
-        child->update();
+        child->dispatchEvent(event);
     }
-    paintEvent();
+    inputEvent(event);
 }
 
-void RController::initialization()
+void RController::dispatchEvent(RjoystickPresentEvent *event)
 {
-    for(auto child : children)
+    for(auto child : children_)
     {
-        child->initialization();
+        child->dispatchEvent(event);
     }
-    initEvent();
+    joystickPresentEvent(event);
 }
 
-void RController::dispatcherResizeEvent(RResizeEvent *event)
+void RController::dispatchEvent(RUpdataEvent *event)
 {
-    for(auto child : children)
+    for(auto child : children_)
     {
-        child->dispatcherResizeEvent(event);
+        child->dispatchEvent(event);
+    }
+    updataEvent(event);
+}
+
+void RController::dispatchEvent(RInitEvent *event)
+{
+    for(auto child : children_)
+    {
+        child->dispatchEvent(event);
+    }
+    initEvent(event);
+}
+
+void RController::dispatchEvent(REnteredTreeEvent *event)
+{
+    for(auto child : children_)
+    {
+        child->dispatchEvent(event);
+    }
+    enteredTreeEvent(event);
+    treeEntered.emit();//入树信号
+}
+
+void RController::dispatchEvent(RExitedTreeEvent *event)
+{
+    for(auto child : children_)
+    {
+        child->dispatchEvent(event);
+    }
+    exitedTreeEvent(event);
+    treeExited.emit();//出树信号
+}
+
+void RController::dispatchEvent(RResizeEvent *event)
+{
+    for(auto child : children_)
+    {
+        child->dispatchEvent(event);
     }
     resizeEvent(event);
-}
-
-void RController::dispatcherjoystickEvent(RJoystickEvent *event, Event name)
-{
-    for(auto child : children)
-    {
-        child->dispatcherjoystickEvent(event, name);
-    }
-
-
-    switch(name)
-    {
-    case JoystickPresentEvent:
-        joystickPresentEvent(event);
-        break;
-    case JoystickInput:
-        joystickInputEvent(event);
-        break;
-    default:
-        printErro("Error jostick event call");
-    }
-}
-
-void RController::dispatcherInputEvent(RKeyEvent *event, RController::Event name)
-{
-    for(auto child : children)
-    {
-        child->dispatcherInputEvent(event, name);
-    }
-
-    switch(name)
-    {
-    case KeyPressEvent:
-        keyPressEvent(event);
-        break;
-    case KeyReleaseEvent:
-        keyReleaseEvent(event);
-        break;
-    default:
-        printErro("Error key event call");
-    }
-}
-
-void RController::dispatcherInputEvent(RMouseEvent *event, RController::Event name)
-{
-    for(auto child : children)
-    {
-        child->dispatcherInputEvent(event, name);
-    }
-
-    switch(name)
-    {
-    case MouseMoveEvent:
-        mouseMoveEvent(event);
-        break;
-    case MousePressEvent:
-        mousePressEvent(event);
-        break;
-    case MouseReleaseEvent:
-        mouseReleaseEvent(event);
-        break;
-    default:
-        printErro("Error mouse event call");
-    }
-}
-
-void RController::dispatcherInputEvent(RWheelEvent *event, RController::Event name)
-{
-    for(auto child : children)
-    {
-        child->dispatcherInputEvent(event, name);
-    }
-
-    if(name == WheelEvent)
-        wheelEvent(event);
-    else
-        printf("Error wheel event call");
-}
-
-void RController::initEvent()
-{
-
-}
-
-void RController::paintEvent()
-{
-
-}
-
-void RController::resizeEvent(RResizeEvent *event)
-{
-
-}
-
-void RController::joystickPresentEvent(RJoystickEvent *)
-{
-
-}
-
-void RController::joystickInputEvent(RJoystickEvent *event)
-{
-
-}
-
-void RController::keyPressEvent(RKeyEvent *)
-{
-
-}
-
-void RController::keyReleaseEvent(RKeyEvent *)
-{
-
-}
-
-void RController::mouseMoveEvent(RMouseEvent *)
-{
-
-}
-
-void RController::mousePressEvent(RMouseEvent *)
-{
-
-}
-
-void RController::mouseReleaseEvent(RMouseEvent *)
-{
-
-}
-
-void RController::wheelEvent(RWheelEvent *)
-{
-
-}
-
-void RController::closeEvent()
-{
-
 }

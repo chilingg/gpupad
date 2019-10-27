@@ -2,29 +2,20 @@
 
 RDebug::RDebug()
 {
-#ifndef RO_NO_DEBUGE
-    if(++count != 1)
-    {
-        std::cout << std::endl;
-        --count;
-    }
+#ifdef R_DEBUG
 #endif
 }
 
 RDebug::~RDebug()
 {
-#ifndef RO_NO_DEBUGE
-    if(count == 1)
-    {
-        std::cout << std::endl;
-        --count;
-    }
+#ifdef R_DEBUG
+    std::cout << std::endl;
 #endif
 }
 
 const RDebug &RDebug::operator<<(int value) const
 {
-#ifndef RO_NO_DEBUGE
+#ifdef R_DEBUG
     std::cout << value << ' ';
 #endif
     return *this;
@@ -32,7 +23,7 @@ const RDebug &RDebug::operator<<(int value) const
 
 const RDebug &RDebug::operator<<(long value) const
 {
-#ifndef RO_NO_DEBUGE
+#ifdef R_DEBUG
     std::cout << value << ' ';
 #endif
     return *this;
@@ -40,7 +31,7 @@ const RDebug &RDebug::operator<<(long value) const
 
 const RDebug &RDebug::operator<<(long long value) const
 {
-#ifndef RO_NO_DEBUGE
+#ifdef R_DEBUG
     std::cout << value << ' ';
 #endif
     return *this;
@@ -48,7 +39,7 @@ const RDebug &RDebug::operator<<(long long value) const
 
 const RDebug &RDebug::operator<<(unsigned value) const
 {
-#ifndef RO_NO_DEBUGE
+#ifdef R_DEBUG
     std::cout << value << ' ';
 #endif
     return *this;
@@ -56,7 +47,7 @@ const RDebug &RDebug::operator<<(unsigned value) const
 
 const RDebug &RDebug::operator<<(unsigned long value) const
 {
-#ifndef RO_NO_DEBUGE
+#ifdef R_DEBUG
     std::cout << value << ' ';
 #endif
     return *this;
@@ -64,7 +55,7 @@ const RDebug &RDebug::operator<<(unsigned long value) const
 
 const RDebug &RDebug::operator<<(unsigned long long value) const
 {
-#ifndef RO_NO_DEBUGE
+#ifdef R_DEBUG
     std::cout << value << ' ';
 #endif
     return *this;
@@ -72,7 +63,7 @@ const RDebug &RDebug::operator<<(unsigned long long value) const
 
 const RDebug &RDebug::operator<<(double value) const
 {
-#ifndef RO_NO_DEBUGE
+#ifdef R_DEBUG
     std::cout << value << ' ';
 #endif
     return *this;
@@ -80,125 +71,89 @@ const RDebug &RDebug::operator<<(double value) const
 
 const RDebug &RDebug::operator<<(float value) const
 {
-#ifndef RO_NO_DEBUGE
+#ifdef R_DEBUG
     std::cout << value << ' ';
-#endif
-    return *this;
-}
-
-const RDebug &RDebug::operator<<(const char *str) const
-{
-#ifndef RO_NO_DEBUGE
-    std::cout << str;
-#endif
-    return *this;
-}
-
-const RDebug &RDebug::operator<<(const unsigned char *str) const
-{
-#ifndef RO_NO_DEBUGE
-    std::cout << str;
-#endif
-    return *this;
-}
-
-const RDebug &RDebug::operator<<(char s) const
-{
-#ifndef RO_NO_DEBUGE
-    std::cout << s;
-#endif
-    return *this;
-}
-
-const RDebug &RDebug::operator<<(wchar_t s) const
-{
-#ifndef RO_NO_DEBUGE
-    setlocale(LC_CTYPE, "");
-    printf("%C", s);
-    setlocale(LC_CTYPE, "C");
-#endif
-    return *this;
-}
-
-const RDebug &RDebug::operator<<(const wchar_t *str) const
-{
-#ifndef RO_NO_DEBUGE
-    setlocale(LC_CTYPE, "");
-    printf("%S", str);
-    setlocale(LC_CTYPE, "C");
-#endif
-    return *this;
-}
-
-const RDebug &RDebug::operator<<(const std::string &s) const
-{
-#ifndef RO_NO_DEBUGE
-    std::cout << s;
-#endif
-    return *this;
-}
-
-const RDebug &RDebug::operator<<(const std::wstring &s) const
-{
-#ifndef RO_NO_DEBUGE
-    setlocale(LC_CTYPE, "");
-    printf("%S", s.c_str());
-    setlocale(LC_CTYPE, "C");
 #endif
     return *this;
 }
 
 const RDebug &RDebug::operator<<(void *p) const
 {
-#ifndef RO_NO_DEBUGE
-    std::cout << p;
+#ifdef R_DEBUG
+    std::cout << p << ' ';
 #endif
     return *this;
 }
 
 const RDebug &RDebug::operator<<(bool b) const
 {
-#ifndef RO_NO_DEBUGE
+#ifdef R_DEBUG
     const char *str = b ? "true " : "fales ";
     std::cout << str;
 #endif
     return *this;
 }
 
-const RDebug &RDebug::operator<<(const glm::vec2 &v) const
+const RDebug &RDebug::operator<<(char c) const
 {
-#ifndef RO_NO_DEBUGE
-    std::cout << '(' << v.x << ", " << v.y << " ";
+#ifdef R_DEBUG
+    std::cout << c;
 #endif
     return *this;
 }
 
-const RDebug &RDebug::operator<<(const glm::vec4 &v) const
+const RDebug &RDebug::operator<<(unsigned char c) const
 {
-#ifndef RO_NO_DEBUGE
-    std::cout << '(' << v.x << ", "
-              << v.y << ", "
-              << v.z << ", "
-              << v.w << ") ";
+#ifdef R_DEBUG
+    std::cout << c;
 #endif
     return *this;
 }
 
-const RDebug &RDebug::operator<<(const glm::mat4 &mat) const
+const RDebug &RDebug::operator<<(const char *str) const
 {
-#ifndef RO_NO_DEBUGE
-    std::cout << "mat:(" << mat[0][0] << ' ' <<  mat[1][0] << ' ' <<  mat[2][0] << ' ' <<  mat[3][0] << ")\n";
-    std::cout << "    (" << mat[0][1] << ' ' <<  mat[1][1] << ' ' <<  mat[2][1] << ' ' <<  mat[3][1] << ")\n";
-    std::cout << "    (" << mat[0][2] << ' ' <<  mat[1][2] << ' ' <<  mat[2][2] << ' ' <<  mat[3][2] << ")\n";
-    std::cout << "    (" << mat[0][3] << ' ' <<  mat[1][3] << ' ' <<  mat[2][3] << ' ' <<  mat[3][3] << ")";
+#ifdef R_DEBUG
+    std::cout << str;
 #endif
     return *this;
 }
 
-const RDebug &RDebug::operator<<(const RVolume &volume) const
+const RDebug &RDebug::operator<<(const unsigned char *c) const
 {
-    std::cout << "(" << volume.left() << ", " << volume.bottom() << ")W:" << volume.width() << " H:" << volume.height() << ' ';
+#ifdef R_DEBUG
+    std::cout << c;
+#endif
     return *this;
 }
 
-int RDebug::count = 0;
+const RDebug &RDebug::operator<<(const std::string &str) const
+{
+#ifdef R_DEBUG
+    std::cout << str;
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(wchar_t c) const
+{
+#ifdef R_DEBUG
+    std::cout << c;
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const wchar_t *str) const
+{
+#ifdef R_DEBUG
+    std::cout << str;
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const std::wstring &str) const
+{
+#ifdef R_DEBUG
+    std::wcout << str;
+#endif
+    return *this;
+}
