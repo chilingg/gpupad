@@ -36,24 +36,33 @@
 class RController: public sigslot::has_slots<>
 {
 public:
+    //构造参数指定的parent不会触发入树事件
     RController(const std::string &name = "", RController *parent = nullptr);
     ~RController();
 
     static RController *getFreeTree();
 
+    //设置函数
     void addChild(RController *child);
+    void freeChild(RController *child);
+    void freeAllChild();
     void deleteChild(RController *child);
-    void deleteAllChild();
-    bool isChild(RController *child) const;
     void changeParent(RController *parent);
     void rename(std::string name);
-    void exec();
     void inactive();
-    bool isActive();
+    //查询函数
+    bool isActive() const;
+    bool isChild(RController *child) const;
+    bool isAncestor(RController *node) const;
+    const std::string& getName() const;
+    std::string getPathName() const;
+    int getChildrenSize() const;
+    //执行函数
+    void exec();
 
 protected:
     //事件响应
-    virtual void contrl() = 0;
+    virtual void contrl();
     virtual void inputEvent(RInputEvent *event);
     virtual void joystickPresentEvent(RjoystickPresentEvent *event);
     virtual void updataEvent(RUpdataEvent *event);
@@ -89,7 +98,7 @@ private:
     std::string name_;
     std::list<RController*> children_;
     RController *parent_ = nullptr;
-    bool active_ = true;
+    bool active_ = false;
 };
 
 #endif // RCONTRLLER_H

@@ -1,5 +1,7 @@
 #include "RController.h"
 
+#include "RDebug.h"
+
 const std::string RController::FREE_TREE_NAME = "_FreeTree_";
 
 RController::RController(const std::string &name, RController *parent):
@@ -17,7 +19,10 @@ RController::RController(const std::string &name, RController *parent):
 
 RController::~RController()
 {
-    deleteAllChild();
+    //RDebug() << "Delete with the " << name_ << ". Children size: " << children_.size();
+    if(parent_)
+        parent_->deleteChild(this);
+    freeAllChild();
 }
 
 RController *RController::getFreeTree()
@@ -28,33 +33,48 @@ RController *RController::getFreeTree()
 
 void RController::addChild(RController *child)
 {
-    if(child == this)
+    if(child == this || isAncestor(child))
         return;
     child->changeParent(this);
 }
 
-void RController::deleteChild(RController *child)
+void RController::freeChild(RController *child)
 {
     auto c = children_.begin();
     for(; c != children_.end(); ++c)
     {
         if(*c == child)
+        {
+            child->changeParent(getFreeTree());
             break;
-    }
-    if(c != children_.end())
-    {
-        child->changeParent(getFreeTree());
+        }
     }
 }
 
-void RController::deleteAllChild()
+void RController::freeAllChild()
 {
     std::list<RController*> empty;
-    for(auto c : children_)
+    while(!children_.empty())
     {
+        auto c = children_.back();
         c->changeParent(getFreeTree());
     }
     children_.swap(empty);
+}
+
+void RController::deleteChild(RController *child)
+{
+    for(auto c = children_.begin(); c != children_.end(); ++c)
+    {
+        if(*c == child)
+        {
+            //RDebug() << "Deleting " << child->name_ << " in " << name_;
+            children_.erase(c);
+            break;
+        }
+    }
+    child->parent_ = nullptr;
+    child->createExitedTreeEventToDspt(name_);
 }
 
 bool RController::isChild(RController *child) const
@@ -68,10 +88,49 @@ bool RController::isChild(RController *child) const
     return false;
 }
 
+bool RController::isAncestor(RController *node) const
+{
+    bool b = false;
+    RController *parent = parent_;
+    while(parent)
+    {
+        if(parent == node)
+        {
+            b = true;
+            break;
+        }
+        parent = parent->parent_;
+    }
+    return b;
+}
+
+const std::string &RController::getName() const
+{
+    return name_;
+}
+
+std::string RController::getPathName() const
+{
+    std::string name(name_);
+    RController *parent = parent_;
+    while(parent != nullptr)
+    {
+        name = parent->name_ + '/' + name;
+        parent = parent->parent_;
+    }
+    return name;
+}
+
+int RController::getChildrenSize() const
+{
+    return static_cast<int>(children_.size());
+}
+
 void RController::changeParent(RController *parent)
 {
     if(parent_)
     {
+        //从父节点的子结点集中删除自己
         for(auto c = parent_->children_.begin(); c != parent_->children_.end(); ++c)
         {
             if(*c == this)
@@ -87,14 +146,18 @@ void RController::changeParent(RController *parent)
         parent = getFreeTree();
 
     parent_ = parent;
+    rename(name_);
+    parent_->children_.push_back(this);
+
     createEnteredTreeEventToDspt(parent_->name_);
 }
 
 void RController::rename(std::string name)
 {
-    int num = 1;
+    //RDebug() << name_ << " to " << name;
+    int num = 0;
     if(name.empty())
-        name = "Contrller" + std::to_string(num);
+        name = "Contrller";
 
     if(parent_)
     {
@@ -102,7 +165,7 @@ void RController::rename(std::string name)
         {
             if(name == (*sibling)->name_ && this != *sibling)
             {
-                name = "Contrller" + std::to_string(++num);
+                name = name + std::to_string(num++);
                 sibling = parent_->children_.cbegin();
             }
         }
@@ -126,9 +189,14 @@ void RController::inactive()
     active_ = false;
 }
 
-bool RController::isActive()
+bool RController::isActive() const
 {
     return active_;
+}
+
+void RController::contrl()
+{
+
 }
 
 void RController::inputEvent(RInputEvent *)
@@ -183,7 +251,7 @@ void RController::createEnteredTreeEventToDspt(const std::string &name)
 
 void RController::createExitedTreeEventToDspt(const std::string &name)
 {
-    REnteredTreeEvent e{name};
+    RExitedTreeEvent e{name};
     dispatchEvent(&e);
 }
 

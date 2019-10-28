@@ -18,6 +18,7 @@ SOURCES += \
         Redlib/RDebug.cpp \
         Redlib/RInputEvent.cpp \
         Redlib/RNotifyEvent.cpp \
+        Testctr.cpp \
         main.cpp
 
 HEADERS += \
@@ -25,7 +26,8 @@ HEADERS += \
     Redlib/RController.h \
     Redlib/RDebug.h \
     Redlib/RInputEvent.h \
-    Redlib/RNotifyEvent.h
+    Redlib/RNotifyEvent.h \
+    Testctr.h
 
 DISTFILES += \
     StackList.txt
