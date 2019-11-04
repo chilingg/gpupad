@@ -3,13 +3,14 @@
 #ifndef RDEBUG_H
 #define RDEBUG_H
 
-#ifndef R_DEBUG
+#ifdef R_NO_DEBUG
 #define NDEBUG
 #endif
 #include <assert.h>
 
 #include <iostream>
 #include <string>
+#include "RPoint.h"
 
 class RDebug
 {
@@ -39,7 +40,21 @@ public:
     const RDebug& operator<<(const wchar_t *str) const;
     const RDebug& operator<<(const std::wstring &str) const;
 
+    const RDebug& operator<<(const RPoint &p) const;
+
 private:
 };
+
+inline void printError(const std::string &err)
+{
+    std::cerr << err << std::endl;
+}
+
+inline bool printError(bool b, const std::string &err)
+{
+    if(b)
+        std::cerr << err << std::endl;
+    return b;
+}
 
 #endif // RDEBUG_H

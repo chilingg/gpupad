@@ -2,33 +2,60 @@
 #define REVENT_H
 
 #include <string>
+#include "RInputEvent.h"
+
+class RController;
 
 //通知事件 ************************
 
-struct RjoystickPresentEvent
+class RjoystickPresentEvent
 {
+public:
+    RjoystickPresentEvent(RInputEvent::JoystickID jid, bool connected):
+        jid(jid),
+        connected(connected) {}
+    RInputEvent::JoystickID jid;
+    const bool connected;
 };
 
-struct RUpdataEvent
+class RInitEvent
 {
+public:
+    RInitEvent(RController *looper):
+        looper(looper) {}
+    RController *looper;
 };
 
-struct RInitEvent
+class RCloseEvent
 {
+public:
+    RCloseEvent(RController *looper):
+        looper(looper) {}
+    RController *looper;
 };
 
-struct REnteredTreeEvent
+class REnteredTreeEvent
 {
+public:
+    REnteredTreeEvent(const std::string &name): treeNodeName(name) {}
     const std::string &treeNodeName;
 };
 
-struct RExitedTreeEvent
+class RExitedTreeEvent
 {
+public:
+    RExitedTreeEvent(const std::string &name): treeNodeName(name) {}
     const std::string &treeNodeName;
 };
 
-struct RResizeEvent
+class RResizeEvent
 {
+public:
+    RResizeEvent(int width, int height):
+        width(width),
+        height(height) {}
+    const int width;
+    const int height;
 };
 
 #endif // REVENT_H
