@@ -27,6 +27,7 @@ SOURCES += \
         Redlib/RPoint.cpp \
         Redlib/RResource/RResource.cpp \
         Redlib/RWindowCtrl.cpp \
+        Redlib/Redopera.cpp \
         Testctr.cpp \
         main.cpp
 
@@ -40,6 +41,7 @@ HEADERS += \
     Redlib/RPoint.h \
     Redlib/RResource/RResource.h \
     Redlib/RWindowCtrl.h \
+    Redlib/Redopera.h \
     Testctr.h
 
 DISTFILES += \ \

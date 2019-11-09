@@ -3,11 +3,8 @@
 
 #include "RDebug.h"
 
-std::vector<RWindowCtrl*> RWindowCtrl::windowCtrls_;
 int RWindowCtrl::count = 0;
-bool RWindowCtrl::gamepadModule_ = false;
 bool RWindowCtrl::vSync_ = true;
-std::set<RInputEvent::JoystickID> RWindowCtrl::gamepads;
 
 RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     RController(name, parent),
@@ -21,13 +18,27 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
             parentToNull();
             exit(EXIT_FAILURE);
         }
-        if(gamepadModule_)
-            enableGamepad();
+        //加载手柄映射
+        updataGamepadMappings(":/data/gamecontrollerdb.txt");
+        //手柄连接回调
+        glfwSetJoystickCallback(joystickPresentCallback);
+        //glfw错误回调
+        glfwSetErrorCallback(errorCallback);
+
+        //需手动检测一次手柄连接，检测之前已连接的手柄
+        for(int i = RInputEvent::joystick1; i <= RInputEvent::joystickMaxNum; ++i)
+        {
+            if(glfwJoystickIsGamepad(i))
+                gamepads.insert(RInputEvent::toJoystickID(i));
+        }
     }
 
-    glfwDefaultWindowHints();
-    //glfwWindowHint(GLFW_DECORATED, GL_FALSE);//取消边框与标题栏
-    window_ = glfwCreateWindow(width_, height_, "Redopera", nullptr, nullptr);
+    //同线程窗口统一共享上下文
+    GLFWwindow *share = glfwGetCurrentContext();
+    width_ = 960;
+    height_ = 540;
+    window_ = glfwCreateWindow(width_, height_, "Redopera", nullptr, share);
+
     if(!window_)
     {
         printError("Fainled to create GLFW window!");
@@ -35,54 +46,42 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
+    //绑定上下文与this指针
+    glfwSetWindowUserPointer(window_, this);
 
-    windowCtrls_.push_back(this);
-    if(glfwGetCurrentContext())
+    if(!share)//如果当前线程之前没有窗口创建，则将该context设置为当前线程主context
     {
-        printError("Creating multiple windows on the same thread is not allowed!");
-        parentToNull();
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-    //GLFW将该context设置为当前线程主context
-    glfwMakeContextCurrent(window_);
-    hideWindow();
-
-    //初始化glad
-    if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
-    {
-        printError("Failed to initialize GLAD");
-        parentToNull();
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
+        glfwMakeContextCurrent(window_);
+        //初始化glad
+        if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+        {
+            printError("Failed to initialize GLAD");
+            parentToNull();
+            glfwTerminate();
+            exit(EXIT_FAILURE);
+        }
 #ifndef R_NO_DEBUG
-    RDebug() << glGetString(GL_VERSION);
+        RDebug() << glGetString(GL_VERSION);
 #endif
+        //设置混合函数 Ps:混合需另外开启
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //默认开启垂直同步
+        glfwSwapInterval(true);
+    }
 
-    //垂直同步，参数为1锁60帧
-    glfwSwapInterval(vSync_);
-    glfwSetErrorCallback(errorCallback);//错误回调
     glfwSetFramebufferSizeCallback(window_, resizeCallback);
     glfwSetKeyCallback(window_, keyboardCollback);
     glfwSetMouseButtonCallback(window_, mouseButtonCallback);
-    glfwSetScrollCallback(window_, mouseWheelCallback);
+    glfwSetScrollCallback(window_, mouseScrollCallback);
+    glfwSetCursorPosCallback(window_, mouseMoveCallback);
 
-    //设置混合函数 Ps:混合需另外开启
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    hideWindow();
 }
 
 RWindowCtrl::~RWindowCtrl()
 {
+    RDebug() << getName() << ' ' << glfwGetCurrentContext();
     assert(window_);
-    for(auto w = windowCtrls_.begin(); w != windowCtrls_.end(); ++w)
-    {
-        if(*w == this)
-        {
-            windowCtrls_.erase(w);
-            break;
-        }
-    }
     glfwDestroyWindow(window_);
 
     if(--count == 0)
@@ -134,8 +133,41 @@ void RWindowCtrl::setViewportPattern(RWindowCtrl::ViewportPattern pattern)
 
 void RWindowCtrl::setVSync(bool enable)
 {
-    vSync_ = enable ? 1 : 0;
+    vSync_ = enable ? 1 : 0;//参数为1锁60帧
     glfwSwapInterval(vSync_);
+}
+
+bool RWindowCtrl::setAsMainWindow()
+{
+    if(!glfwGetCurrentContext())
+    {
+        glfwMakeContextCurrent(window_);
+        return true;
+    }
+    return false;
+}
+
+double RWindowCtrl::getViewportRatio() const
+{
+    return viewportRatio_;
+}
+
+bool RWindowCtrl::isInitilazation()
+{
+    return count > 0;
+}
+
+void RWindowCtrl::DefaultWindow()
+{
+    glfwDefaultWindowHints();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);//set主版本号
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);//set副版本号
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);//use核心模式
+}
+
+void RWindowCtrl::WindowDecorate(bool enable)
+{
+    glfwWindowHint(GLFW_DECORATED, enable ? GLFW_TRUE : GLFW_FALSE);
 }
 
 void RWindowCtrl::closeWindow()
@@ -143,50 +175,7 @@ void RWindowCtrl::closeWindow()
     glfwSetWindowShouldClose(window_, GLFW_TRUE);
 }
 
-void RWindowCtrl::enableGamepad()
-{
-    gamepadModule_ = true;
-
-    if(count > 0)
-    {
-        //加载手柄映射
-        if(updataGamepadMappings(":/data/gamecontrollerdb.txt"))
-        {
-            std::string mappingCode = std::string() + RInputEvent::gamepadMappingCode0
-                    + RInputEvent::gamepadMappingCode1 + RInputEvent::gamepadMappingCode2;
-            glfwUpdateGamepadMappings(mappingCode.c_str());
-        }
-        glfwSetJoystickCallback(joystickPresentCallback);
-
-        //需手动检测一次手柄连接，检测之前的连接
-        for(int i = RInputEvent::joystick1; i <= RInputEvent::joystickMaxNum; ++i)
-        {
-            if(glfwJoystickIsGamepad(i))
-                gamepads.insert(RInputEvent::toJoystickID(i));
-        }
-    }
-}
-
-void RWindowCtrl::disableGamepad()
-{
-    if(!gamepadModule_)
-        return;
-
-    if(!windowCtrls_.empty())
-    {
-        for(int i = RInputEvent::joystick1; i <= RInputEvent::joystickMaxNum; ++i)
-        {
-            if(glfwJoystickIsGamepad(i))
-            {
-                joystickPresentCallback(i, RInputEvent::joystickDisconnected);
-            }
-        }
-        gamepadModule_ = false;
-        glfwSetJoystickCallback([](int , int){});
-    }
-}
-
-bool RWindowCtrl::updataGamepadMappings(std::string path)
+void RWindowCtrl::updataGamepadMappings(std::string path)
 {
     try{
         std::string mappingCode = RResource::getTextFileContent(path);
@@ -196,9 +185,11 @@ bool RWindowCtrl::updataGamepadMappings(std::string path)
     {
         printError("Failed to updata gamepad mapping! In path: " + path + '\n' +
                    "To https://github.com/gabomdq/SDL_GameControllerDB download gamecontrollerdb.txt file.");
-        return false;
+        //加载内置的手柄映射
+        std::string mappingCode = std::string() + RInputEvent::gamepadMappingCode0
+                + RInputEvent::gamepadMappingCode1 + RInputEvent::gamepadMappingCode2;
+        glfwUpdateGamepadMappings(mappingCode.c_str());
     }
-    return true;
 }
 
 void RWindowCtrl::trackCursor()
@@ -229,14 +220,6 @@ std::string RWindowCtrl::getDefaultName() const
 void RWindowCtrl::initEvent(RInitEvent *)
 {
     showWindow();
-    for(int i = RInputEvent::joystick1; i <= RInputEvent::joystickMaxNum; ++i)
-    {
-        if(glfwJoystickIsGamepad(i))
-        {
-            RjoystickPresentEvent e(RInputEvent::toJoystickID(i), true);
-            dispatchEvent(&e);
-        }
-    }
 }
 
 void RWindowCtrl::closeEvent(RCloseEvent *)
@@ -244,14 +227,19 @@ void RWindowCtrl::closeEvent(RCloseEvent *)
     hideWindow();
 }
 
+RWindowCtrl *RWindowCtrl::getWindowUserCtrl(GLFWwindow *window)
+{
+    return static_cast<RWindowCtrl*>(glfwGetWindowUserPointer(window));
+}
+
 void RWindowCtrl::errorCallback(int error, const char *description)
 {
-    printError(std::to_string(error) + '\n' + description);
+    printError("Error " + std::to_string(error) + ": " + description);
 }
 
 void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
 {
-    RWindowCtrl *wctrl = getWindowCtrl(window);
+    RWindowCtrl *wctrl = getWindowUserCtrl(window);
 
     if(wctrl->viewportPattern == FullWindow)
     {
@@ -263,7 +251,7 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
     }
     else if(wctrl->viewportPattern == KeepScale)
     {
-        double ratio = wctrl->width_ / wctrl->height_;
+        double ratio = static_cast<double>(width) / height;
         int newW = width;
         int newH = height;
         if(ratio > wctrl->viewportRatio_)
@@ -285,19 +273,19 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
 
 void RWindowCtrl::mouseMoveCallback(GLFWwindow *window, double xpos, double ypos)
 {
-    RWindowCtrl *wctrl = getWindowCtrl(window);
+    RWindowCtrl *wctrl = getWindowUserCtrl(window);
     wctrl->inputEvent.updateMouseInput(RInputEvent::Mouse_None, RPoint(xpos, ypos));
 }
 
 void RWindowCtrl::keyboardCollback(GLFWwindow *window, int key, int , int action, int )
 {
-    RWindowCtrl *wctrl = getWindowCtrl(window);
+    RWindowCtrl *wctrl = getWindowUserCtrl(window);
     wctrl->inputEvent.updateKeyboardInput(RInputEvent::toKeyboards(key), RInputEvent::toButtonAction(action));
 }
 
 void RWindowCtrl::mouseButtonCallback(GLFWwindow *window, int button, int action, int )
 {
-    RWindowCtrl *wctrl = getWindowCtrl(window);
+    RWindowCtrl *wctrl = getWindowUserCtrl(window);
     RPoint p;
     if(action != RInputEvent::RELEASE)
     {
@@ -308,47 +296,33 @@ void RWindowCtrl::mouseButtonCallback(GLFWwindow *window, int button, int action
     wctrl->inputEvent.updateMouseInput(RInputEvent::toMouseButtons(button), p);
 }
 
-void RWindowCtrl::mouseWheelCallback(GLFWwindow *window, double x, double y)
+void RWindowCtrl::mouseScrollCallback(GLFWwindow *window, double x, double y)
 {
-    RWindowCtrl *wctrl = getWindowCtrl(window);
-    RPoint p;
-    p.setX(x > 0 ? 1 : -1);
-    p.setY(y > 0 ? 1 : -1);
-    wctrl->inputEvent.updateMouseInput(RInputEvent::Mouse_Wheel, p);
+    RWindowCtrl *wctrl = getWindowUserCtrl(window);
+    wctrl->scrolled.emit(y);
 }
 
 void RWindowCtrl::joystickPresentCallback(int jid, int event)
 {
-    RDebug() << "J present";
+    RInputEvent::JoystickID J = RInputEvent::toJoystickID(jid);
     bool isConnected = event == RInputEvent::joystickConnected ? true : false;
-    if(glfwJoystickIsGamepad(jid))
+
+    if(glfwJoystickIsGamepad(jid))//断开的JID无法通过
     {
-        if(isConnected)
-            gamepads.insert(RInputEvent::toJoystickID(jid));
-        else
-            gamepads.insert(RInputEvent::toJoystickID(jid));
+        gamepads.insert(RInputEvent::toJoystickID(jid));
+        if(RWindowCtrl *wctrl = getWindowUserCtrl(glfwGetCurrentContext()))
+        {
+            RjoystickPresentEvent e(RInputEvent::toJoystickID(jid), isConnected);
+            wctrl->dispatchEvent(&e);
+        }
     }
-
-    for(const auto wctrl : windowCtrls_)
+    else if(gamepads.find(J) != gamepads.end())
     {
-        RjoystickPresentEvent e(RInputEvent::toJoystickID(jid), isConnected);
-        wctrl->dispatchEvent(&e);
+        gamepads.erase(RInputEvent::toJoystickID(jid));
+        if(RWindowCtrl *wctrl = getWindowUserCtrl(glfwGetCurrentContext()))
+        {
+            RjoystickPresentEvent e(RInputEvent::toJoystickID(jid), isConnected);
+            wctrl->dispatchEvent(&e);
+        }
     }
-}
-
-RWindowCtrl *RWindowCtrl::getWindowCtrl(const GLFWwindow *window)
-{
-#ifndef R_NO_DEBUG
-    if(printError(!window, "No corresponding window found!"))
-        exit(EXIT_FAILURE);
-#endif
-
-    for(const auto wctrl : windowCtrls_)
-    {
-        if(wctrl->window_ == window)
-            return wctrl;
-    }
-
-    printError("No corresponding window found!");
-    exit(EXIT_FAILURE);
 }

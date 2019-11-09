@@ -15,6 +15,7 @@ public:
     TestCtr(const std::string &name = "TestCtr", RController *parent = nullptr);
 
     void control() override;
+    void scrollNotify(double v);
 
 protected:
     void inputEvent(const RInputEvent *event) override;
@@ -25,7 +26,7 @@ protected:
     void initEvent(RInitEvent *event) override;
     void closeEvent(RCloseEvent *event) override;
 
-    sigslot::signal0<> closed;
+    Signal0 closed;
 
 private:
     Gamepad gamepad_ { RInputEvent::joystick1, false };

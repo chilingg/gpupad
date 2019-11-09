@@ -67,7 +67,27 @@ public:
     void allChildrenActive();//调用所有子节点的contral()
 
 protected:
-    virtual std::string getDefaultName() const;//建议重写
+    using Signal0 = sigslot::signal0<>;
+    template<typename T1>
+    using Signal1 = sigslot::signal1<T1>;
+    template<typename T1, typename T2>
+    using Signal2 = sigslot::signal2<T1, T2>;
+    template<typename T1, typename T2, typename T3>
+    using Signal3 = sigslot::signal3<T1, T2, T3>;
+    template<typename T1, typename T2, typename T3, typename T4>
+    using Signal4 = sigslot::signal4<T1, T2, T3, T4>;
+    template<typename T1, typename T2, typename T3, typename T4, typename T5>
+    using Signal5 = sigslot::signal5<T1, T2, T3, T4, T5>;
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+    using Signal6 = sigslot::signal6<T1, T2, T3, T4, T5, T6>;
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+    using Signal7 = sigslot::signal7<T1, T2, T3, T4, T5, T6, T7>;
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
+    using Signal8 = sigslot::signal8<T1, T2, T3, T4, T5, T6, T7, T8>;
+
+    static std::set<RInputEvent::JoystickID> gamepads;
+
+    virtual std::string getDefaultName() const;//建议子类重写
     //事件响应。感兴趣的子类负责重写
     virtual void inputEvent(const RInputEvent *event);
     virtual void joystickPresentEvent(RjoystickPresentEvent *event);
@@ -92,9 +112,11 @@ protected:
     void deleteChild(RController *child);
 
     //信号
-    sigslot::signal0<> treeEntered;
-    sigslot::signal0<> treeExited;
+    Signal0 treeEntered;
+    Signal0 treeExited;
 
+    int width_ = 0;
+    int height_ = 0;
 private:
     static const std::string FREE_TREE_NAME;
 

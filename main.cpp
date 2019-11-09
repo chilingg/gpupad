@@ -5,8 +5,15 @@
 
 int main()
 {
+    RWindowCtrl *w2;
+    {
     RWindowCtrl window;
-    window.enableGamepad();
+    //RWindowCtrl::WindowDecorate(false);
+    w2 = new RWindowCtrl;
+    w2->showWindow();
     TestCtr ctrl("Test", &window);
-    return window.exec();
+    window.exec();
+    }
+    delete w2;
+    return 0;
 }

@@ -1,5 +1,7 @@
 #include "RPoint.h"
 
+#include "RDebug.h"
+
 RPoint::RPoint(int x, int y):
     x_(x),
     y_(y)
@@ -29,7 +31,7 @@ int &RPoint::ry()
 
 bool RPoint::isValid() const
 {
-    return x_ == INVALID_POINT_VALUE && y_ == INVALID_POINT_VALUE;
+    return x_ != INVALID_POINT_VALUE && y_ != INVALID_POINT_VALUE;
 }
 
 void RPoint::setPoint(int x, int y)

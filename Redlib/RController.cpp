@@ -3,6 +3,7 @@
 #include "RDebug.h"
 
 const std::string RController::FREE_TREE_NAME = "_FreeTree_";
+std::set<RInputEvent::JoystickID> RController::gamepads;
 
 RController::RController(const std::string &name, RController *parent)
 {
@@ -152,7 +153,7 @@ void RController::changeParent(RController *parent)
                 break;
             }
         }
-        RExitedTreeEvent e(parent_->name_);
+        RExitedTreeEvent e(parent_);
         dispatchEvent(&e);
     }
 
@@ -163,7 +164,7 @@ void RController::changeParent(RController *parent)
     rename(name_);
     parent_->children_.push_back(this);
 
-    REnteredTreeEvent e(parent_->name_);
+    REnteredTreeEvent e(this);
     dispatchEvent(&e);
 }
 

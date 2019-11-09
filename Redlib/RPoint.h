@@ -4,7 +4,7 @@
 
 class RPoint
 {
-    constexpr static int INVALID_POINT_VALUE = ~0;
+    constexpr static int INVALID_POINT_VALUE = ~0u >> 1;
 public:
     explicit RPoint(int x = INVALID_POINT_VALUE, int y = INVALID_POINT_VALUE);
 

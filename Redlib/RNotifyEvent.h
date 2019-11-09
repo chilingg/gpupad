@@ -37,15 +37,17 @@ public:
 class REnteredTreeEvent
 {
 public:
-    REnteredTreeEvent(const std::string &name): treeNodeName(name) {}
-    const std::string &treeNodeName;
+    REnteredTreeEvent(RController *spawner):
+        spawner(spawner) {}
+    RController *spawner;
 };
 
 class RExitedTreeEvent
 {
 public:
-    RExitedTreeEvent(const std::string &name): treeNodeName(name) {}
-    const std::string &treeNodeName;
+    RExitedTreeEvent(RController *spawner):
+        spawner(spawner) {}
+    RController *spawner;
 };
 
 class RResizeEvent

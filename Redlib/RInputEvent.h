@@ -169,8 +169,7 @@ public:
     };
     enum MouseButtons
     {
-        Mouse_None = -2,
-        Mouse_Wheel = -1,
+        Mouse_None = -1,
         Mouse_Button_Left = GLFW_MOUSE_BUTTON_LEFT,
         Mouse_Button_Right,
         Mouse_Button_Middle,
