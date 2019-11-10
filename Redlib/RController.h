@@ -54,7 +54,7 @@ public:
     void changeParent(RController *parent);
     void rename(std::string name);
     //查询函数
-    bool isLoop() const;
+    bool isActive() const;
     bool isChild(RController *child) const;
     bool isAncestor(RController *node) const;//祖辈
     bool isFree() const;
@@ -64,7 +64,6 @@ public:
     //执行函数
     int exec();//调用allAction()循环调用子孙节点的control()
     void inactive();//退出exec循环
-    void allChildrenActive();//调用所有子节点的contral()
 
 protected:
     using Signal0 = sigslot::signal0<>;
@@ -108,22 +107,24 @@ protected:
     void dispatchEvent(REnteredTreeEvent *event);
     void dispatchEvent(RExitedTreeEvent *event);
 
+    void allChildrenActive();//调用所有子节点的contral()
     void parentToNull();
     void deleteChild(RController *child);
+
+    RInputEvent inputs;
+    void (*poolEvent)();//exec循环中调用的一个零参无返函数
 
     //信号
     Signal0 treeEntered;
     Signal0 treeExited;
 
-    int width_ = 0;
-    int height_ = 0;
 private:
     static const std::string FREE_TREE_NAME;
 
     std::string name_;
     std::list<RController*> children_;
     RController *parent_ = nullptr;
-    bool loop_ = false;
+    bool activityState = false;
 };
 
 #endif // RCONTRLLER_H

@@ -5,7 +5,8 @@
 const std::string RController::FREE_TREE_NAME = "_FreeTree_";
 std::set<RInputEvent::JoystickID> RController::gamepads;
 
-RController::RController(const std::string &name, RController *parent)
+RController::RController(const std::string &name, RController *parent):
+    poolEvent([](){})
 {
     //所有未指定父节点且名非FREE_TREE_NAME的，都挂在自由树下
     if(parent == nullptr && name != FREE_TREE_NAME)
@@ -25,7 +26,7 @@ RController::~RController()
     while(!children_.empty())
     {
         auto c = children_.front();
-        c->parentToNull();
+        c->changeParent(getFreeTree());
     }
 }
 
@@ -142,6 +143,9 @@ void RController::changeParent(RController *parent)
     if(parent_ == parent)
         return;
 
+    if(!parent)
+        parent = getFreeTree();
+
     if(parent_)
     {
         //从父节点的子结点集中删除自己
@@ -155,10 +159,13 @@ void RController::changeParent(RController *parent)
         }
         RExitedTreeEvent e(parent_);
         dispatchEvent(&e);
+        if(parent_->activityState != parent->activityState)
+        {
+            RInitEvent initEvent(parent);
+            RCloseEvent closeEvent(parent);
+            parent->activityState ? this->dispatchEvent(&initEvent) : this->dispatchEvent(&closeEvent);
+        }
     }
-
-    if(!parent)
-        parent = getFreeTree();
 
     parent_ = parent;
     rename(name_);
@@ -192,12 +199,18 @@ void RController::rename(std::string name)
 
 int RController::exec()
 {
-    loop_ = true;
-
+    assert(!activityState);
     RInitEvent initEvent(this);
     dispatchEvent(&initEvent);
-    while(loop_)
+    while(activityState)
     {
+        //需要的子类负责此函数指针的赋值
+        poolEvent();
+        //更新手柄输入
+        for(auto jid : gamepads)
+            inputs.updateGamepadButtonInput(jid);
+        //发布输入事件
+        dispatchEvent(&inputs);
         control();
     }
     RCloseEvent closeEvent(this);
@@ -208,18 +221,28 @@ int RController::exec()
 
 void RController::inactive()
 {
-    loop_ = false;
+    activityState = false;
 }
 
 void RController::allChildrenActive()
 {
-    for(auto child : children_)
-        child->control();
+    auto child = children_.begin();
+    while(child != children_.end())
+    {
+        if((*child)->isActive())
+        {
+            (*child)->control();
+            ++child;
+        }
+        else {
+            freeChild(*child++);
+        }
+    }
 }
 
-bool RController::isLoop() const
+bool RController::isActive() const
 {
-    return loop_;
+    return activityState;
 }
 
 void RController::control()
@@ -286,13 +309,17 @@ void RController::dispatchEvent(RInitEvent *event)
     {
         child->dispatchEvent(event);
     }
+    assert(!activityState);
+    activityState = true;
     initEvent(event);
 }
 
 void RController::dispatchEvent(RCloseEvent *event)
 {
+    assert(!activityState);
     for(auto child : children_)
     {
+        child->activityState = false;
         child->dispatchEvent(event);
     }
     closeEvent(event);

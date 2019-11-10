@@ -8,9 +8,10 @@ int main()
     RWindowCtrl *w2;
     {
     RWindowCtrl window;
+    w2 = new RWindowCtrl("W2");
     //RWindowCtrl::WindowDecorate(false);
-    w2 = new RWindowCtrl;
-    w2->showWindow();
+    w2->changeParent(&window);
+    w2->setWindowTitle("W2");
     TestCtr ctrl("Test", &window);
     window.exec();
     }
