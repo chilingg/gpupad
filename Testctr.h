@@ -30,6 +30,8 @@ protected:
 
 private:
     Gamepad gamepad_ { RInputEvent::joystick1, false };
+    RInputEvent::ButtonAction fullScreen_ = RInputEvent::RELEASE;
+    bool fullScreenB_ = false;
 };
 
 #endif // TESTCTR_H

@@ -391,10 +391,7 @@ void RInputEvent::updateMouseInput(RInputEvent::MouseButtons key, RPoint point)
 void RInputEvent::updateGamepadButtonInput(RInputEvent::JoystickID jid)
 {
     if(!glfwGetGamepadState(jid, &gamepadInputs_[jid]))
-    {
-        printError("Failed to update JID status: " + std::to_string(jid));
-        gamepadInputs_.erase(jid);
-    }
+        deleteJoystick(jid);
 }
 
 void RInputEvent::deleteJoystick(RInputEvent::JoystickID jid)

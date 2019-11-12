@@ -11,7 +11,6 @@ class RWindowCtrl : public RController
 {
 public:
     static void DefaultWindow();
-    static void WindowDecorate(bool enable);//取消边框与标题栏
     static void updataGamepadMappings(std::string path);
 
     enum ViewportPattern
@@ -32,6 +31,9 @@ public:
     void setViewportRatio(double ratio);//视口比例，窗口KeepScale时用
     void setViewportPattern(ViewportPattern pattern);
     void setVSync(bool enable);//垂直同步
+    void setFullScreenWindow(bool b);
+    void setWindowSizeLimits(int minW, int minH, int maxW, int maxH);
+    void setWindowSizeFixed(bool b);
     //查询函数
     double getViewportRatio() const;
     //执行函数
@@ -45,14 +47,15 @@ public:
 
 protected:
     std::string getDefaultName() const override;
-    void initEvent(RInitEvent *event) override;
     void closeEvent(RCloseEvent *event) override;
     //获取与窗口绑定的WindowCtrl
     static RWindowCtrl* getWindowUserCtrl(GLFWwindow *window);
 
 private:
     //与窗口绑定的回调
-    static void errorCallback(int error, const char* description);
+    static void glfwErrorCallback(int error, const char* description);
+    static void openglDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                                           GLsizei length, const GLchar *message, const void *userParam);
     static void joystickPresentCallback(int jid, int event);
     static void resizeCallback(GLFWwindow *window, int width, int height);
     static void mouseMoveCallback(GLFWwindow *window, double xpos, double ypos);
@@ -61,6 +64,7 @@ private:
     static void keyboardCollback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
     static void mouseScrollCallback(GLFWwindow *window, double x, double y);
+    static void windowFocusCallback(GLFWwindow *window, int focused);
 
     static int count;
     static bool vSync_;//默认锁60FPS
@@ -73,6 +77,7 @@ private:
     ViewportPattern viewportPattern = KeepScale;
     int width_ = 960;
     int height_ = 540;
+    bool focused_ = true;
 };
 
 #endif // RWINDOW_H

@@ -13,7 +13,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     if(++count == 1)
     {
         //glfw错误回调
-        glfwSetErrorCallback(errorCallback);
+        glfwSetErrorCallback(glfwErrorCallback);
         //初始化GLFW
         if(!glfwInit())
         {
@@ -21,6 +21,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
             parentToNull();
             exit(EXIT_FAILURE);
         }
+        DefaultWindow();
         //加载手柄映射
         updataGamepadMappings(":/data/gamecontrollerdb.txt");
         //手柄连接回调
@@ -46,6 +47,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     }
     //绑定上下文与this指针
     glfwSetWindowUserPointer(window_, this);
+    glfwGetWindowSize(window_, &width_, &height_);
 
     //如果当前线程之前没有窗口创建，则将该context设置为当前线程主context
     if(!share)
@@ -63,13 +65,22 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
             }
 #ifndef R_NO_DEBUG
             RDebug() << glGetString(GL_VERSION);
+            //若启用OpenGL Debug
+            GLint flags;
+            glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+            if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+            {
+                RDebug() << "Enable OpenGL debug output";
+                glEnable(GL_DEBUG_OUTPUT);
+                glDebugMessageCallback(openglDebugMessageCallback, nullptr);
+            }
 #endif
         }
-        glViewport(0, 0, width_, height_);
+        //glViewport(0, 0, width_, height_);
         //设置混合函数 Ps:混合需另外开启
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         //默认开启垂直同步
-        glfwSwapInterval(true);
+        glfwSwapInterval(1);
     }
 
     glfwSetFramebufferSizeCallback(window_, resizeCallback);
@@ -77,6 +88,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     glfwSetMouseButtonCallback(window_, mouseButtonCallback);
     glfwSetScrollCallback(window_, mouseScrollCallback);
     glfwSetCursorPosCallback(window_, mouseMoveCallback);
+    glfwSetWindowFocusCallback(window_, windowFocusCallback);
 
     //GLFW事件触发
     poolEvent = &glfwPollEvents;
@@ -92,6 +104,15 @@ void RWindowCtrl::control()
 {
     GLFWwindow *before = glfwGetCurrentContext();
     glfwMakeContextCurrent(window_);
+
+    if(focused_)
+    {
+        //更新手柄输入
+        for(auto jid = gamepads.begin(); jid != gamepads.end();)
+            inputs.updateGamepadButtonInput(*jid++);
+        //发布输入事件
+        dispatchEvent(&inputs);
+    }
 
     //清除颜色缓存
     glClearBufferfv(GL_COLOR, 0, backgroundColor);
@@ -139,6 +160,42 @@ void RWindowCtrl::setVSync(bool enable)
     glfwSwapInterval(vSync_);
 }
 
+void RWindowCtrl::setFullScreenWindow(bool b)
+{
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode *vidmode = glfwGetVideoMode(monitor);
+    if(b)
+    {
+        glfwSetWindowMonitor(window_, monitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
+    } else
+    {
+        glfwSetWindowMonitor(window_, nullptr, (vidmode->width-960)/2, (vidmode->height-540)/2,
+                             960, 540, vidmode->refreshRate);
+    }
+}
+
+void RWindowCtrl::setWindowSizeLimits(int minW, int minH, int maxW, int maxH)
+{
+    if(minW < 1) minW = GLFW_DONT_CARE;
+    if(minH < 1) minH = GLFW_DONT_CARE;
+    if(maxW < 1) maxW = GLFW_DONT_CARE;
+    if(maxH < 1) maxH = GLFW_DONT_CARE;
+
+    glfwSetWindowSizeLimits(window_, minW, minH, maxW, maxH);
+}
+
+void RWindowCtrl::setWindowSizeFixed(bool b)
+{
+    if(b)
+    {
+        int w, h;
+        glfwGetWindowSize(window_, &w, &h);
+        glfwSetWindowSizeLimits(window_, w, h, w, h);
+    } else {
+        glfwSetWindowSizeLimits(window_, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    }
+}
+
 double RWindowCtrl::getViewportRatio() const
 {
     return viewportRatio_;
@@ -149,12 +206,12 @@ void RWindowCtrl::DefaultWindow()
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);//set主版本号
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);//set副版本号
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);//use核心模式
-}
-
-void RWindowCtrl::WindowDecorate(bool enable)
-{
-    glfwWindowHint(GLFW_DECORATED, enable ? GLFW_TRUE : GLFW_FALSE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);//删除当前版本不推荐使用的功能
+#ifndef R_NO_DEBUG
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);//删除当前版本不推荐使用的功能
+#endif
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);//use核心模式
+    //glfwWindowHint(GLFW_DECORATED, enable ? GLFW_TRUE : GLFW_FALSE);//边框与标题栏
 }
 
 void RWindowCtrl::updataGamepadMappings(std::string path)
@@ -204,12 +261,9 @@ std::string RWindowCtrl::getDefaultName() const
     return "WindowCtrl";
 }
 
-void RWindowCtrl::initEvent(RInitEvent *)
+void RWindowCtrl::closeEvent(RCloseEvent *event)
 {
-}
-
-void RWindowCtrl::closeEvent(RCloseEvent *)
-{
+    hideWindow();
 }
 
 RWindowCtrl *RWindowCtrl::getWindowUserCtrl(GLFWwindow *window)
@@ -217,15 +271,56 @@ RWindowCtrl *RWindowCtrl::getWindowUserCtrl(GLFWwindow *window)
     return static_cast<RWindowCtrl*>(glfwGetWindowUserPointer(window));
 }
 
-void RWindowCtrl::errorCallback(int error, const char *description)
+void RWindowCtrl::glfwErrorCallback(int error, const char *description)
 {
     printError("Error " + std::to_string(error) + ": " + description);
+}
+
+void RWindowCtrl::openglDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                                             GLsizei length, const GLchar *message, const void *userParam)
+{
+    std::string sourceStr;
+    switch (source)
+    {
+        case GL_DEBUG_SOURCE_API:             sourceStr = "Source: API "; break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   sourceStr = "Source: Window System "; break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: sourceStr = "Source: Shader Compiler "; break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY:     sourceStr = "Source: Third Party "; break;
+        case GL_DEBUG_SOURCE_APPLICATION:     sourceStr = "Source: Application "; break;
+        case GL_DEBUG_SOURCE_OTHER:           sourceStr = "Source: Other "; break;
+    }
+
+    std::string typeStr;
+    switch (type)
+    {
+        case GL_DEBUG_TYPE_ERROR:               typeStr = "Type: Error "; break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: typeStr = "Type: Deprecated Behaviour "; break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  typeStr = "Type: Undefined Behaviour "; break;
+        case GL_DEBUG_TYPE_PORTABILITY:         typeStr = "Type: Portability "; break;
+        case GL_DEBUG_TYPE_PERFORMANCE:         typeStr = "Type: Performance "; break;
+        case GL_DEBUG_TYPE_MARKER:              typeStr = "Type: Marker "; break;
+        case GL_DEBUG_TYPE_PUSH_GROUP:          typeStr = "Type: Push Group "; break;
+        case GL_DEBUG_TYPE_POP_GROUP:           typeStr = "Type: Pop Group "; break;
+        case GL_DEBUG_TYPE_OTHER:               typeStr = "Type: Other "; break;
+    }
+
+    std::string severityStr;
+    switch (severity)
+    {
+        case GL_DEBUG_SEVERITY_HIGH:         severityStr = "Severity: high "; break;
+        case GL_DEBUG_SEVERITY_MEDIUM:       severityStr = "Severity: medium "; break;
+        case GL_DEBUG_SEVERITY_LOW:          severityStr = "Severity: low "; break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION: severityStr = "Severity: notification "; break;
+    }
+    RDebug() << sourceStr << typeStr << severityStr;
+    RDebug() << "Debug message ID: " << id << ": " << message;
 }
 
 void RWindowCtrl::joystickPresentCallback(int jid, int event)
 {
     RInputEvent::JoystickID J = RInputEvent::toJoystickID(jid);
     bool isConnected = event == RInputEvent::joystickConnected ? true : false;
+    //必需转换为RWindowCtrl才能使用protected发布函数
     RWindowCtrl *wctrl = static_cast<RWindowCtrl*>(getFreeTree());
 
     if(glfwJoystickIsGamepad(jid))//断开的JID无法通过
@@ -242,6 +337,7 @@ void RWindowCtrl::joystickPresentCallback(int jid, int event)
     }
     //不是手柄的JID忽视
 }
+
 void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
@@ -262,7 +358,7 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
         if(ratio > wctrl->viewportRatio_)
         {
             newW = height * wctrl->viewportRatio_;
-            glViewport((width - newW) / 2.0, 0, newW, newH);
+            //glViewport((width - newW) / 2.0, 0, newW, newH);
         }
         else
         {
@@ -305,4 +401,10 @@ void RWindowCtrl::mouseScrollCallback(GLFWwindow *window, double x, double y)
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
     wctrl->scrolled.emit(y);
+}
+
+void RWindowCtrl::windowFocusCallback(GLFWwindow *window, int focused)
+{
+    RWindowCtrl *wctrl = getWindowUserCtrl(window);
+    wctrl->focused_ = focused;
 }

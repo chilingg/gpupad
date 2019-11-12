@@ -138,6 +138,11 @@ int RController::getChildrenSize() const
     return static_cast<int>(children_.size());
 }
 
+RController *RController::getParent()
+{
+    return parent_;
+}
+
 void RController::changeParent(RController *parent)
 {
     if(parent_ == parent)
@@ -206,11 +211,6 @@ int RController::exec()
     {
         //需要的子类负责此函数指针的赋值
         poolEvent();
-        //更新手柄输入
-        for(auto jid : gamepads)
-            inputs.updateGamepadButtonInput(jid);
-        //发布输入事件
-        dispatchEvent(&inputs);
         control();
     }
     RCloseEvent closeEvent(this);

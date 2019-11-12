@@ -61,6 +61,7 @@ public:
     const std::string& getName() const;
     std::string getPathName() const;
     int getChildrenSize() const;
+    RController* getParent();
     //执行函数
     int exec();//调用allAction()循环调用子孙节点的control()
     void inactive();//退出exec循环

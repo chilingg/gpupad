@@ -27,6 +27,13 @@ void TestCtr::inputEvent(const RInputEvent *event)
 {
     if(event->checkButton(RInputEvent::KEY_ESCAPE) == RInputEvent::PRESS)
         closed.emit();
+    if(event->checkButton(RInputEvent::KEY_F11) != fullScreen_)
+    {
+        if(fullScreen_ == RInputEvent::PRESS)
+            if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(getParent()))
+                window->setFullScreenWindow(fullScreenB_ = !fullScreenB_);
+        fullScreen_ = event->checkButton(RInputEvent::KEY_F11);
+    }
     if(event->checkMouseButton(RInputEvent::Mouse_Button_Right).isValid())
         RDebug() << event->checkMouseButton(RInputEvent::Mouse_None);
     if(gamepad_.connected)
