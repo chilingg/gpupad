@@ -34,8 +34,11 @@ public:
     void setFullScreenWindow(bool b);
     void setWindowSizeLimits(int minW, int minH, int maxW, int maxH);
     void setWindowSizeFixed(bool b);
+    void setWindowDecrate(bool b);
+    void setWindowFloatOnTop(bool b);
     //查询函数
     double getViewportRatio() const;
+    bool isShouldCloused() const;
     //执行函数
     void closeWindow();
     void trackCursor();
@@ -47,6 +50,7 @@ public:
 
 protected:
     std::string getDefaultName() const override;
+    void initEvent(RInitEvent *event) override;
     void closeEvent(RCloseEvent *event) override;
     //获取与窗口绑定的WindowCtrl
     static RWindowCtrl* getWindowUserCtrl(GLFWwindow *window);

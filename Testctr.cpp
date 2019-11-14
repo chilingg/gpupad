@@ -2,6 +2,7 @@
 
 #include <RDebug.h>
 #include <RWindowCtrl.h>
+#include <RResource/RImage.h>
 
 TestCtr::TestCtr(const std::string &name, RController *parent):
     RController(name, parent)
@@ -13,9 +14,21 @@ TestCtr::TestCtr(const std::string &name, RController *parent):
     }
 }
 
+TestCtr::~TestCtr()
+{
+    if(debugWindow_)
+        delete debugWindow_;
+}
+
 void TestCtr::control()
 {
-
+    allChildrenActive();
+    if(debugWindow_ && debugWindow_->isShouldCloused())
+    {
+        RDebug() << "Delete a Debug Window";
+        delete debugWindow_;
+        debugWindow_ = nullptr;
+    }
 }
 
 void TestCtr::scrollNotify(double v)
@@ -27,12 +40,27 @@ void TestCtr::inputEvent(const RInputEvent *event)
 {
     if(event->checkButton(RInputEvent::KEY_ESCAPE) == RInputEvent::PRESS)
         closed.emit();
-    if(event->checkButton(RInputEvent::KEY_F11) != fullScreen_)
+    if(event->checkButton(RInputEvent::KEY_F11) != fullScreenBtn_)
     {
-        if(fullScreen_ == RInputEvent::PRESS)
+        if(fullScreenBtn_ == RInputEvent::PRESS)
             if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(getParent()))
-                window->setFullScreenWindow(fullScreenB_ = !fullScreenB_);
-        fullScreen_ = event->checkButton(RInputEvent::KEY_F11);
+                window->setFullScreenWindow(fullScreen_ = !fullScreen_);
+        fullScreenBtn_ = event->checkButton(RInputEvent::KEY_F11);
+    }
+    if(event->checkButton(RInputEvent::KEY_F12) != debugWindowBtn_)
+    {
+        if(debugWindowBtn_ == RInputEvent::PRESS)
+        {
+            if(!debugWindow_)
+            {
+                debugWindow_ = new RWindowCtrl("Debug", this);
+                debugWindow_->setWindowTitle("Debug");
+                //debugWindow_->setWindowDecrate(false);
+                //debugWindow_->setWindowFloatOnTop(true);
+                debugWindow_->showWindow();
+            }
+        }
+        debugWindowBtn_ = event->checkButton(RInputEvent::KEY_F12);
     }
     if(event->checkMouseButton(RInputEvent::Mouse_Button_Right).isValid())
         RDebug() << event->checkMouseButton(RInputEvent::Mouse_None);

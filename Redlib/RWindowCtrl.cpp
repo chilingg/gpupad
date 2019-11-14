@@ -1,5 +1,6 @@
 #include "RWindowCtrl.h"
 #include "RResource/RResource.h"
+#include "RResource/RImage.h"
 
 #include "RDebug.h"
 
@@ -90,6 +91,9 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     glfwSetCursorPosCallback(window_, mouseMoveCallback);
     glfwSetWindowFocusCallback(window_, windowFocusCallback);
 
+    RImage img = RImage::getRedoperaIcon();
+    GLFWimage icon{ img.width(), img.height(), img.data() };
+    glfwSetWindowIcon(window_, 1, &icon);
     //GLFW事件触发
     poolEvent = &glfwPollEvents;
 }
@@ -186,19 +190,27 @@ void RWindowCtrl::setWindowSizeLimits(int minW, int minH, int maxW, int maxH)
 
 void RWindowCtrl::setWindowSizeFixed(bool b)
 {
-    if(b)
-    {
-        int w, h;
-        glfwGetWindowSize(window_, &w, &h);
-        glfwSetWindowSizeLimits(window_, w, h, w, h);
-    } else {
-        glfwSetWindowSizeLimits(window_, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE);
-    }
+    glfwSetWindowAttrib(window_, GLFW_RESIZABLE, b ? GLFW_FALSE : GLFW_TRUE);
+}
+
+void RWindowCtrl::setWindowDecrate(bool b)
+{
+    glfwSetWindowAttrib(window_, GLFW_DECORATED, b ? GLFW_TRUE: GLFW_FALSE);
+}
+
+void RWindowCtrl::setWindowFloatOnTop(bool b)
+{
+    glfwSetWindowAttrib(window_, GLFW_FLOATING, b ? GLFW_TRUE: GLFW_FALSE);
 }
 
 double RWindowCtrl::getViewportRatio() const
 {
     return viewportRatio_;
+}
+
+bool RWindowCtrl::isShouldCloused() const
+{
+    glfwWindowShouldClose(window_);
 }
 
 void RWindowCtrl::DefaultWindow()
@@ -208,8 +220,9 @@ void RWindowCtrl::DefaultWindow()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);//set副版本号
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);//删除当前版本不推荐使用的功能
 #ifndef R_NO_DEBUG
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);//删除当前版本不推荐使用的功能
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);//OpenGL的Debug输出
 #endif
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);//创建窗口时初始不可见
     //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);//use核心模式
     //glfwWindowHint(GLFW_DECORATED, enable ? GLFW_TRUE : GLFW_FALSE);//边框与标题栏
 }
@@ -261,9 +274,17 @@ std::string RWindowCtrl::getDefaultName() const
     return "WindowCtrl";
 }
 
+void RWindowCtrl::initEvent(RInitEvent *event)
+{
+#ifndef R_NO_DEBUG
+    if(!glfwGetWindowAttrib(window_, GLFW_VISIBLE))
+        RDebug() << getName() << "Window is hide!";
+#endif
+}
+
 void RWindowCtrl::closeEvent(RCloseEvent *event)
 {
-    hideWindow();
+    glfwSetWindowShouldClose(window_, GLFW_TRUE);
 }
 
 RWindowCtrl *RWindowCtrl::getWindowUserCtrl(GLFWwindow *window)

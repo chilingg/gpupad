@@ -40,6 +40,8 @@ public:
     const RDebug& operator<<(const wchar_t *str) const;
     const RDebug& operator<<(const std::wstring &str) const;
 
+    const RDebug& operator<<(std::ios_base &(*base)(std::ios_base &)) const;
+
     const RDebug& operator<<(const RPoint &p) const;
 
 private:

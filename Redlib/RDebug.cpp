@@ -158,6 +158,14 @@ const RDebug &RDebug::operator<<(const std::wstring &str) const
     return *this;
 }
 
+const RDebug &RDebug::operator<<(std::ios_base &(*base)(std::ios_base &)) const
+{
+#ifndef R_NO_DEBUG
+    std::cout << base;
+#endif
+    return *this;
+}
+
 const RDebug &RDebug::operator<<(const RPoint &p) const
 {
 #ifndef R_NO_DEBUG

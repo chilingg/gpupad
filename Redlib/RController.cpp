@@ -2,7 +2,7 @@
 
 #include "RDebug.h"
 
-const std::string RController::FREE_TREE_NAME = "_FreeTree_";
+const std::string RController::FREE_TREE_NAME = "FreeTree__";
 std::set<RInputEvent::JoystickID> RController::gamepads;
 
 RController::RController(const std::string &name, RController *parent):
@@ -11,9 +11,12 @@ RController::RController(const std::string &name, RController *parent):
     //所有未指定父节点且名非FREE_TREE_NAME的，都挂在自由树下
     if(parent == nullptr && name != FREE_TREE_NAME)
         parent = getFreeTree();
-
+    //排除FreeTree
     if(parent != nullptr)
+    {
         parent->children_.push_back(this);
+        activityState = parent->activityState;
+    }
     parent_ = parent;
     rename(name);
 }

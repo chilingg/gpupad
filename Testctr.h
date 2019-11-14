@@ -2,6 +2,7 @@
 #define TESTCTR_H
 
 #include <RController.h>
+#include <RWindowCtrl.h>
 
 class TestCtr : public RController
 {
@@ -13,6 +14,7 @@ class TestCtr : public RController
 
 public:
     TestCtr(const std::string &name = "TestCtr", RController *parent = nullptr);
+    ~TestCtr() override;
 
     void control() override;
     void scrollNotify(double v);
@@ -30,8 +32,10 @@ protected:
 
 private:
     Gamepad gamepad_ { RInputEvent::joystick1, false };
-    RInputEvent::ButtonAction fullScreen_ = RInputEvent::RELEASE;
-    bool fullScreenB_ = false;
+    RInputEvent::ButtonAction fullScreenBtn_ = RInputEvent::RELEASE;
+    bool fullScreen_ = false;
+    RInputEvent::ButtonAction debugWindowBtn_ = RInputEvent::RELEASE;
+    RWindowCtrl *debugWindow_ = nullptr;
 };
 
 #endif // TESTCTR_H

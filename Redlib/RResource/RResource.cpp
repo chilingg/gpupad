@@ -18,6 +18,8 @@ RResource::~RResource()
 
 std::string RResource::checkFilePath(std::string path)
 {
+    if(path.empty()) return "";
+
     static std::regex r("(:/|/|(../)+)?([-_a-z0-9]+/)*[-_a-z0-9]+\\.?[-_a-z0-9]+", std::regex::icase|std::regex::optimize);
     if(!std::regex_match(path, r))
     {
