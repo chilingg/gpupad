@@ -8,8 +8,8 @@ INCLUDEPATH += $$PWD/../Redopera/Redlib
 
 CONFIG(debug, debug|release){
     DESTDIR = $$PWD/bin_debug
+    DEFINES += R_DEBUG
 } else {
-    DEFINES += R_NO_DEBUG
     DESTDIR = bin_release
 }
 
@@ -28,6 +28,9 @@ SOURCES += \
         Redlib/RPoint.cpp \
         Redlib/RResource/RImage.cpp \
         Redlib/RResource/RResource.cpp \
+        Redlib/RResource/RShader.cpp \
+        Redlib/RResource/RShaderProgram.cpp \
+        Redlib/RResource/RTexture.cpp \
         Redlib/RWindowCtrl.cpp \
         Testctr.cpp \
         main.cpp
@@ -43,8 +46,13 @@ HEADERS += \
     Redlib/RPoint.h \
     Redlib/RResource/RImage.h \
     Redlib/RResource/RResource.h \
+    Redlib/RResource/RShader.h \
+    Redlib/RResource/RShaderProgram.h \
+    Redlib/RResource/RTexture.h \
     Redlib/RWindowCtrl.h \
     Testctr.h
 
 DISTFILES += \
-    Resource/StackList.txt
+    Resource/StackList.txt \
+    Resource/shader/Fragment.frag \
+    Resource/shader/Vertex.vert

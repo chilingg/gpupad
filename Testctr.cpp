@@ -3,6 +3,9 @@
 #include <RDebug.h>
 #include <RWindowCtrl.h>
 #include <RResource/RImage.h>
+#include <RResource/RTexture.h>
+#include <RResource/RShader.h>
+#include <RResource/RShaderProgram.h>
 
 TestCtr::TestCtr(const std::string &name, RController *parent):
     RController(name, parent)
@@ -12,6 +15,18 @@ TestCtr::TestCtr(const std::string &name, RController *parent):
         gamepad_.jid = *gamepads.begin();
         gamepad_.connected = true;
     }
+
+    RImage img(":/texture/Robot_idle.png");
+    RTexture tex(img);
+    tex.bind();
+    RDebug() << "Test texture is " << tex.isValid();
+
+    RShader vertex(":/shader/Vertex.vert", RShader::VertexShader);
+    RShader fragment(":/shader/Fragment.frag", RShader::FragmentShader);
+    RShaderProgram program(vertex, fragment);
+    program.use();
+    UniformLocation color = program.getUniformLocation("color");
+    program.setUniform(color, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 TestCtr::~TestCtr()
@@ -78,7 +93,7 @@ void TestCtr::inputEvent(const RInputEvent *event)
 void TestCtr::initEvent(RInitEvent *event)
 {
     RDebug() << "Initialization " << event->looper->getName() << " in " << getPathName();
-    closed.connect(event->looper, &RController::inactive);
+    closed.connect(event->looper, &RController::breakLoop);
     if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(event->looper))
         window->scrolled.connect(this, &TestCtr::scrollNotify);
 }

@@ -361,7 +361,7 @@ RInputEvent::ButtonAction RInputEvent::checkButton(RInputEvent::JoystickID jid, 
     auto b = gamepadInputs_.find(jid);
     if(b != gamepadInputs_.end())
         return toButtonAction(b->second.buttons[btn]);
-#ifndef R_NO_DEBUG
+#ifdef R_DEBUG
     printError("Access to a nonexistent JID: " + std::to_string(jid));
 #endif
     return RELEASE;
@@ -372,7 +372,7 @@ float RInputEvent::checkGamepadAxis(RInputEvent::JoystickID jid, RInputEvent::Ga
     auto b = gamepadInputs_.find(jid);
     if(b != gamepadInputs_.end())
         return b->second.axes[axis];
-#ifndef R_NO_DEBUG
+#ifdef R_DEBUG
     printError("Access to a nonexistent JID: " + std::to_string(jid));
 #endif
     return 0.0f;
@@ -397,7 +397,7 @@ void RInputEvent::updateGamepadButtonInput(RInputEvent::JoystickID jid)
 void RInputEvent::deleteJoystick(RInputEvent::JoystickID jid)
 {
     auto n = gamepadInputs_.erase(jid);
-#ifndef R_NO_DEBUG
+#ifdef R_DEBUG
     printError(n == 0, "Delete to a nonexistent JID: " + std::to_string(jid));
 #endif
 }

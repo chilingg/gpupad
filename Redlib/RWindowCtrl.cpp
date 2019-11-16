@@ -19,8 +19,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
         if(!glfwInit())
         {
             printError("Failed to initialize GLFW");
-            parentToNull();
-            exit(EXIT_FAILURE);
+            terminateFreeTree();
         }
         DefaultWindow();
         //加载手柄映射
@@ -42,9 +41,8 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     if(!window_)
     {
         printError("Fainled to create GLFW window!");
-        parentToNull();
         glfwTerminate();
-        exit(EXIT_FAILURE);
+        terminateFreeTree();
     }
     //绑定上下文与this指针
     glfwSetWindowUserPointer(window_, this);
@@ -60,18 +58,17 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
             if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
             {
                 printError("Failed to initialize GLAD");
-                parentToNull();
                 glfwTerminate();
-                exit(EXIT_FAILURE);
+                terminateFreeTree();
             }
-#ifndef R_NO_DEBUG
-            RDebug() << glGetString(GL_VERSION);
+#ifdef R_DEBUG
+            RDebug() << format::green << format::bold << glGetString(GL_VERSION) << format::non;
             //若启用OpenGL Debug
             GLint flags;
             glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-            if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+            if(flags & GL_CONTEXT_FLAG_DEBUG_BIT)
             {
-                RDebug() << "Enable OpenGL debug output";
+                RDebug() << format::green << format::bold << "Enable OpenGL debug output" << format::non;
                 glEnable(GL_DEBUG_OUTPUT);
                 glDebugMessageCallback(openglDebugMessageCallback, nullptr);
             }
@@ -128,7 +125,7 @@ void RWindowCtrl::control()
     glfwMakeContextCurrent(before);
 
     if(glfwWindowShouldClose(window_))
-        inactive();
+        breakLoop();
 }
 
 void RWindowCtrl::setWindowSize(int width, int height)
@@ -180,10 +177,28 @@ void RWindowCtrl::setFullScreenWindow(bool b)
 
 void RWindowCtrl::setWindowSizeLimits(int minW, int minH, int maxW, int maxH)
 {
-    if(minW < 1) minW = GLFW_DONT_CARE;
-    if(minH < 1) minH = GLFW_DONT_CARE;
-    if(maxW < 1) maxW = GLFW_DONT_CARE;
-    if(maxH < 1) maxH = GLFW_DONT_CARE;
+#ifdef R_DEBUG
+    if(minW < 1)
+    {
+        printError("Window size limit parameter error: minW = " + std::to_string(minW));
+        minW = GLFW_DONT_CARE;
+    }
+    if(minH < 1)
+    {
+        printError("Window size limit parameter error: minH = " + std::to_string(minH));
+        minH = GLFW_DONT_CARE;
+    }
+    if(maxW < 1)
+    {
+        printError("Window size limit parameter error: maxW = " + std::to_string(maxW));
+        maxW = GLFW_DONT_CARE;
+    }
+    if(maxH < 1)
+    {
+        printError("Window size limit parameter error: maxH = " + std::to_string(maxH));
+        maxH = GLFW_DONT_CARE;
+    }
+#endif
 
     glfwSetWindowSizeLimits(window_, minW, minH, maxW, maxH);
 }
@@ -219,7 +234,7 @@ void RWindowCtrl::DefaultWindow()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);//set主版本号
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);//set副版本号
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);//删除当前版本不推荐使用的功能
-#ifndef R_NO_DEBUG
+#ifdef R_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);//OpenGL的Debug输出
 #endif
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);//创建窗口时初始不可见
@@ -276,9 +291,8 @@ std::string RWindowCtrl::getDefaultName() const
 
 void RWindowCtrl::initEvent(RInitEvent *event)
 {
-#ifndef R_NO_DEBUG
-    if(!glfwGetWindowAttrib(window_, GLFW_VISIBLE))
-        RDebug() << getName() << "Window is hide!";
+#ifdef R_DEBUG
+    printError(!glfwGetWindowAttrib(window_, GLFW_VISIBLE), getName() + "Window is hide! in initialization Event");
 #endif
 }
 
@@ -303,38 +317,64 @@ void RWindowCtrl::openglDebugMessageCallback(GLenum source, GLenum type, GLuint 
     std::string sourceStr;
     switch (source)
     {
-        case GL_DEBUG_SOURCE_API:             sourceStr = "Source: API "; break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   sourceStr = "Source: Window System "; break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER: sourceStr = "Source: Shader Compiler "; break;
-        case GL_DEBUG_SOURCE_THIRD_PARTY:     sourceStr = "Source: Third Party "; break;
-        case GL_DEBUG_SOURCE_APPLICATION:     sourceStr = "Source: Application "; break;
-        case GL_DEBUG_SOURCE_OTHER:           sourceStr = "Source: Other "; break;
+    case GL_DEBUG_SOURCE_API:
+        sourceStr = " Source: API "; break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+        sourceStr = " Source: Window System "; break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+        sourceStr = " Source: Shader Compiler "; break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY:
+        sourceStr = " Source: Third Party "; break;
+    case GL_DEBUG_SOURCE_APPLICATION:
+        sourceStr = " Source: Application "; break;
+    case GL_DEBUG_SOURCE_OTHER:
+        sourceStr = " Source: Other "; break;
     }
 
     std::string typeStr;
     switch (type)
     {
-        case GL_DEBUG_TYPE_ERROR:               typeStr = "Type: Error "; break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: typeStr = "Type: Deprecated Behaviour "; break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  typeStr = "Type: Undefined Behaviour "; break;
-        case GL_DEBUG_TYPE_PORTABILITY:         typeStr = "Type: Portability "; break;
-        case GL_DEBUG_TYPE_PERFORMANCE:         typeStr = "Type: Performance "; break;
-        case GL_DEBUG_TYPE_MARKER:              typeStr = "Type: Marker "; break;
-        case GL_DEBUG_TYPE_PUSH_GROUP:          typeStr = "Type: Push Group "; break;
-        case GL_DEBUG_TYPE_POP_GROUP:           typeStr = "Type: Pop Group "; break;
-        case GL_DEBUG_TYPE_OTHER:               typeStr = "Type: Other "; break;
+    case GL_DEBUG_TYPE_ERROR:
+        typeStr = "Type: Error "; break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        typeStr = "Type: Deprecated Behaviour "; break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        typeStr = "Type: Undefined Behaviour "; break;
+    case GL_DEBUG_TYPE_PORTABILITY:
+        typeStr = "Type: Portability "; break;
+    case GL_DEBUG_TYPE_PERFORMANCE:
+        typeStr = "Type: Performance "; break;
+    case GL_DEBUG_TYPE_MARKER:
+        typeStr = "Type: Marker "; break;
+    case GL_DEBUG_TYPE_PUSH_GROUP:
+        typeStr = "Type: Push Group "; break;
+    case GL_DEBUG_TYPE_POP_GROUP:
+        typeStr = "Type: Pop Group "; break;
+    case GL_DEBUG_TYPE_OTHER:
+        typeStr = "Type: Other "; break;
     }
 
-    std::string severityStr;
     switch (severity)
     {
-        case GL_DEBUG_SEVERITY_HIGH:         severityStr = "Severity: high "; break;
-        case GL_DEBUG_SEVERITY_MEDIUM:       severityStr = "Severity: medium "; break;
-        case GL_DEBUG_SEVERITY_LOW:          severityStr = "Severity: low "; break;
-        case GL_DEBUG_SEVERITY_NOTIFICATION: severityStr = "Severity: notification "; break;
+    case GL_DEBUG_SEVERITY_HIGH:
+        std::cerr << "Debug ID: " << id << sourceStr << typeStr << "Severity: high " << '\n'
+                  << message << std::endl;
+        terminateFreeTree();
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        std::cerr << "Debug ID: " << id << sourceStr << typeStr << "Severity: medium " << '\n'
+                  << message << std::endl;
+        terminateFreeTree();
+        break;
+    case GL_DEBUG_SEVERITY_LOW:
+        std::cout << format::yellow << format::bold << "Debug ID: " << id << sourceStr << typeStr << "Severity: low "
+                  << '\n' << message << format::non << std::endl;
+        break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        std::cout << format::green << format::bold << "Debug ID: " << id << sourceStr << typeStr << "Severity: notification "
+                  << '\n' << message << format::non << std::endl;
+        break;
     }
-    RDebug() << sourceStr << typeStr << severityStr;
-    RDebug() << "Debug message ID: " << id << ": " << message;
 }
 
 void RWindowCtrl::joystickPresentCallback(int jid, int event)

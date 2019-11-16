@@ -8,7 +8,6 @@ RImage RImage::getRedoperaIcon()
     icon.width_ = 32;
     icon.height_ = 32;
     icon.channel_ = 4;
-    icon.setStatus();
 
     size_t size = 4096;
     unsigned char *data = static_cast<unsigned char*>(malloc(sizeof(unsigned char) * size));
@@ -19,8 +18,14 @@ RImage RImage::getRedoperaIcon()
     return icon;
 }
 
-RImage::RImage(const std::string &path, bool flip):
+RImage::RImage():
     RResource()
+{
+
+}
+
+RImage::RImage(const std::string &path, bool flip):
+    RImage()
 {
     load(path, flip);
 }
@@ -29,24 +34,32 @@ RImage::~RImage()
 {
 }
 
-bool RImage::load(const std::string &path, bool flip)
+bool RImage::load(std::string path, bool flip)
 {
-    std::string rePath = checkFilePath(path);
-    if(rePath.empty())
+    path = checkFilePath(path);
+    if(path.empty())
         return false;
 
     stbi_set_flip_vertically_on_load(flip);
-    data_.reset(stbi_load(rePath.c_str(), &width_, &height_, &channel_,0), stbi_image_free);
-    setStatus();
+    data_.reset(stbi_load(path.c_str(), &width_, &height_, &channel_,0), stbi_image_free);
 
     if(!data_)
     {
         printError("Image failed to load at path: " + path);
         data_.reset();
-        invalid();
     }
 
-    return isValid();
+    return data_ != nullptr;
+}
+
+void RImage::unLoad()
+{
+    data_.reset();
+}
+
+bool RImage::isValid() const
+{
+    return data_ != nullptr;
 }
 
 int RImage::width() const
@@ -71,6 +84,8 @@ const unsigned char *RImage::cdata() const
 
 unsigned char *RImage::data()
 {
+    if(!data_.unique())
+        copyOnWrite();
     return data_.get();
 }
 

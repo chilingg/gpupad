@@ -15,21 +15,30 @@ RController::RController(const std::string &name, RController *parent):
     if(parent != nullptr)
     {
         parent->children_.push_back(this);
-        activityState = parent->activityState;
+        state_ = parent->state_;
     }
     parent_ = parent;
     rename(name);
+    //RDebug() << "Node is Created: " << getPathName();
 }
 
 RController::~RController()
 {
     //RDebug() << "Delete with the " << name_ << " Children size: " << children_.size();
-    if(parent_)
-        parent_->deleteChild(this);
+    if(parent_) parent_->deleteChild(this);
     while(!children_.empty())
     {
         auto c = children_.front();
-        c->changeParent(getFreeTree());
+#ifdef R_DEBUG
+        if(this == getFreeTree())
+        {
+            printError("Unfree node in FreeTree: " + c->name_);
+            c->parentToNull();
+        }
+        else
+#endif
+            //若FreeTree析构之时有仍有子结点存活，则死循
+            c->changeParent(getFreeTree());
     }
 }
 
@@ -42,7 +51,12 @@ RController *RController::getFreeTree()
 void RController::addChild(RController *child)
 {
     if(child == this || isAncestor(child))
+    {
+#ifdef R_DEBUG
+        printError("Add " + child->getPathName() + " in " + this->getPathName());
+#endif
         return;
+    }
     child->changeParent(this);
 }
 
@@ -149,7 +163,12 @@ RController *RController::getParent()
 void RController::changeParent(RController *parent)
 {
     if(parent_ == parent)
+    {
+#ifdef R_DEBUG
+        printError("Changed parent" + parent_->getPathName() + " as " + parent->getPathName());
+#endif
         return;
+    }
 
     if(!parent)
         parent = getFreeTree();
@@ -167,12 +186,6 @@ void RController::changeParent(RController *parent)
         }
         RExitedTreeEvent e(parent_);
         dispatchEvent(&e);
-        if(parent_->activityState != parent->activityState)
-        {
-            RInitEvent initEvent(parent);
-            RCloseEvent closeEvent(parent);
-            parent->activityState ? this->dispatchEvent(&initEvent) : this->dispatchEvent(&closeEvent);
-        }
     }
 
     parent_ = parent;
@@ -181,6 +194,12 @@ void RController::changeParent(RController *parent)
 
     REnteredTreeEvent e(this);
     dispatchEvent(&e);
+    if(state_ != parent_->state_)
+    {
+        RInitEvent initEvent(parent);
+        RCloseEvent closeEvent(parent);
+        parent_->state_ == Looping ? this->dispatchEvent(&initEvent) : this->dispatchEvent(&closeEvent);
+    }
 }
 
 void RController::rename(std::string name)
@@ -207,10 +226,10 @@ void RController::rename(std::string name)
 
 int RController::exec()
 {
-    assert(!activityState);
+    assert(state_ != Looping);
     RInitEvent initEvent(this);
     dispatchEvent(&initEvent);
-    while(activityState)
+    while(state_ == Looping)
     {
         //需要的子类负责此函数指针的赋值
         poolEvent();
@@ -219,12 +238,12 @@ int RController::exec()
     RCloseEvent closeEvent(this);
     dispatchEvent(&closeEvent);
 
-    return EXIT_SUCCESS;
+    return state_;
 }
 
-void RController::inactive()
+void RController::breakLoop()
 {
-    activityState = false;
+    if(state_ == Looping) state_ = Success;
 }
 
 void RController::allChildrenActive()
@@ -232,7 +251,7 @@ void RController::allChildrenActive()
     auto child = children_.begin();
     while(child != children_.end())
     {
-        if((*child)->isActive())
+        if((*child)->isLooped())
         {
             (*child)->control();
             ++child;
@@ -243,9 +262,17 @@ void RController::allChildrenActive()
     }
 }
 
-bool RController::isActive() const
+void RController::terminateFreeTree()
 {
-    return activityState;
+    RController *freeTree = getFreeTree();
+    freeTree->state_ = Failure;
+    RCloseEvent e(freeTree);
+    freeTree->dispatchEvent(&e);
+}
+
+bool RController::isLooped() const
+{
+    return state_ == Looping;
 }
 
 void RController::control()
@@ -308,21 +335,23 @@ void RController::dispatchEvent(RjoystickPresentEvent *event)
 
 void RController::dispatchEvent(RInitEvent *event)
 {
+    assert(state_ != Looping);
+    if(state_ == Failure) return;//错误状态无法进入循环
+
+    state_ = Looping;
     for(auto child : children_)
     {
         child->dispatchEvent(event);
     }
-    assert(!activityState);
-    activityState = true;
     initEvent(event);
 }
 
 void RController::dispatchEvent(RCloseEvent *event)
 {
-    assert(!activityState);
+    assert(state_ != Looping);
     for(auto child : children_)
     {
-        child->activityState = false;
+        child->state_ = state_;
         child->dispatchEvent(event);
     }
     closeEvent(event);
@@ -350,19 +379,24 @@ void RController::dispatchEvent(RExitedTreeEvent *event)
 
 void RController::parentToNull()
 {
-    if(parent_)
+#ifdef R_DEBUG
+    if(!parent_)
     {
-        //从父节点的子结点集中删除自己
-        for(auto c = parent_->children_.begin(); c != parent_->children_.end(); ++c)
-        {
-            if(*c == this)
-            {
-                parent_->children_.erase(c);
-                break;
-            }
-        }
-        parent_ = nullptr;
+        printError("Null parent to null!");
+        return;
     }
+#endif
+
+    //从父节点的子结点集中删除自己
+    for(auto c = parent_->children_.begin(); c != parent_->children_.end(); ++c)
+    {
+        if(*c == this)
+        {
+            parent_->children_.erase(c);
+            break;
+        }
+    }
+    parent_ = nullptr;
 }
 
 void RController::dispatchEvent(RResizeEvent *event)

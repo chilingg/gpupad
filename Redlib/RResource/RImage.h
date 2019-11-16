@@ -11,10 +11,14 @@ class RImage : public RResource
 public:
     static RImage getRedoperaIcon();
 
-    RImage(const std::string &path = "", bool flip = false);
-    ~RImage() override;
+    RImage();
+    explicit RImage(const std::string &path, bool flip = false);
+    ~RImage();
 
-    bool load(const std::string &path, bool flip = false);
+    bool load(std::string path, bool flip = false);
+    void unLoad();
+
+    bool isValid() const;
     int width() const;
     int height() const;
     int channel() const;
@@ -22,7 +26,7 @@ public:
     const unsigned char* cdata() const;
 
 protected:
-    void copyOnWrite() override;
+    void copyOnWrite();
 
 private:
     static const unsigned char RIcon[];

@@ -3,7 +3,7 @@
 #ifndef RDEBUG_H
 #define RDEBUG_H
 
-#ifdef R_NO_DEBUG
+#ifndef R_DEBUG
 #define NDEBUG
 #endif
 #include <assert.h>
@@ -58,5 +58,31 @@ inline bool printError(bool b, const std::string &err)
         std::cerr << err << "\n";
     return b;
 }
+
+namespace format
+{
+static const char non[] = "\033[0m"; //关闭所有属性
+static const char bold[] = "\033[1m"; //高亮
+
+static const char black[] = "\033[30m"; //黑
+static const char red[] = "\033[31m"; //红
+static const char green[] = "\033[32m"; //绿
+static const char yellow[] = "\033[33m"; //黄
+static const char blue[] = "\033[34m"; //蓝色
+static const char purple[] = "\033[35m"; //紫色
+static const char cyan[] = "\033[36m"; //深绿
+static const char white[] = "\033[37m"; //白色
+
+static const char bblack[] = "\033[40m"; //黑色背景 //设置背景色
+static const char bred[] = "\033[41m"; //红色背景
+static const char bgreen[] = "\033[42m"; //绿色背景
+static const char bbrown[] = "\033[43m"; //棕色背景
+static const char bblue[] = "\033[44m"; //蓝色背景
+static const char bmagente[] = "\033[45m"; //品红背景
+static const char bcyan[] = "\033[46m"; //孔雀蓝背景
+static const char bwhite[] = "\033[47m"; //白色背景
+
+static const char clear[] = "\033[2J"; //清屏
+};//格式ESC
 
 #endif // RDEBUG_H

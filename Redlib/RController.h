@@ -36,7 +36,13 @@
 class RController: public sigslot::has_slots<>
 {
 public:
+    enum Status {
+        Success = EXIT_SUCCESS,
+        Failure = EXIT_FAILURE,
+        Looping,
+    };
     static RController *getFreeTree();
+    static void terminateFreeTree();
 
     //构造参数指定的parent不会触发入树事件，默认的节点名须与重写或继承的getDefaultName()版本一致
     RController(const std::string &name = "Controller", RController *parent = nullptr);
@@ -54,7 +60,7 @@ public:
     void changeParent(RController *parent);
     void rename(std::string name);
     //查询函数
-    bool isActive() const;
+    bool isLooped() const;
     bool isChild(RController *child) const;
     bool isAncestor(RController *node) const;//祖辈
     bool isFree() const;
@@ -64,7 +70,7 @@ public:
     RController* getParent();
     //执行函数
     int exec();//调用allAction()循环调用子孙节点的control()
-    void inactive();//退出exec循环
+    void breakLoop();//退出exec循环
 
 protected:
     using Signal0 = sigslot::signal0<>;
@@ -109,8 +115,6 @@ protected:
     void dispatchEvent(RExitedTreeEvent *event);
 
     void allChildrenActive();//调用所有子节点的contral()
-    void parentToNull();
-    void deleteChild(RController *child);
 
     RInputEvent inputs;
     void (*poolEvent)();//exec循环中调用的一个零参无返函数
@@ -122,10 +126,13 @@ protected:
 private:
     static const std::string FREE_TREE_NAME;
 
+    void parentToNull();
+    void deleteChild(RController *child);
+
     std::string name_;
     std::list<RController*> children_;
     RController *parent_ = nullptr;
-    bool activityState = false;
+    Status state_ = Success;
 };
 
 #endif // RCONTRLLER_H
