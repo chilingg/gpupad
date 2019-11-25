@@ -3,6 +3,7 @@
 
 #include <RController.h>
 #include <RWindowCtrl.h>
+#include <RPlant.h>
 
 class TestCtr : public RController
 {
@@ -36,6 +37,7 @@ private:
     bool fullScreen_ = false;
     RInputEvent::ButtonAction debugWindowBtn_ = RInputEvent::RELEASE;
     RWindowCtrl *debugWindow_ = nullptr;
+    RPlant plant;
 };
 
 #endif // TESTCTR_H

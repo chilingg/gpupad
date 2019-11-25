@@ -74,11 +74,18 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
             }
 #endif
         }
-        //glViewport(0, 0, width_, height_);
-        //设置混合函数 Ps:混合需另外开启
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         //默认开启垂直同步
         glfwSwapInterval(1);
+        //视口映射
+        glViewport(0, 0, width_, height_);
+        //设置混合
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //忽略不必要的Z轴片段
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);//小于或等于时通过
+        //默认背景色
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     }
 
     glfwSetFramebufferSizeCallback(window_, resizeCallback);
@@ -115,8 +122,8 @@ void RWindowCtrl::control()
         dispatchEvent(&inputs);
     }
 
-    //清除颜色缓存
-    glClearBufferfv(GL_COLOR, 0, backgroundColor);
+    //清屏 清除颜色缓冲和深度缓冲
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //调动子结点控制
     allChildrenActive();
     glfwSwapBuffers(window_);
@@ -138,11 +145,9 @@ void RWindowCtrl::setWindowTitle(const std::string &title)
     glfwSetWindowTitle(window_, title.c_str());
 }
 
-void RWindowCtrl::setBackground(int r, int g, int b)
+void RWindowCtrl::setBackground(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
-    backgroundColor[0] = r / 255.0f;
-    backgroundColor[1] = g / 255.0f;
-    backgroundColor[2] = b / 255.0f;
+    glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 }
 
 void RWindowCtrl::setViewportRatio(double ratio)
@@ -244,19 +249,18 @@ void RWindowCtrl::DefaultWindow()
 
 void RWindowCtrl::updataGamepadMappings(std::string path)
 {
-    try{
-        std::string mappingCode = RResource::getTextFileContent(path);
-        glfwUpdateGamepadMappings(mappingCode.c_str());
-    }
-    catch(...)
+    std::string mappingCode = RResource::getTextFileContent(path);
+
+    if(mappingCode.empty())
     {
         printError("Failed to updata gamepad mapping! In path: " + path + '\n' +
                    "To https://github.com/gabomdq/SDL_GameControllerDB download gamecontrollerdb.txt file.");
         //加载内置的手柄映射
-        std::string mappingCode = std::string() + RInputEvent::gamepadMappingCode0
+        mappingCode = std::string() + RInputEvent::gamepadMappingCode0
                 + RInputEvent::gamepadMappingCode1 + RInputEvent::gamepadMappingCode2;
-        glfwUpdateGamepadMappings(mappingCode.c_str());
     }
+
+    glfwUpdateGamepadMappings(mappingCode.c_str());
 }
 
 void RWindowCtrl::closeWindow()
@@ -318,61 +322,61 @@ void RWindowCtrl::openglDebugMessageCallback(GLenum source, GLenum type, GLuint 
     switch (source)
     {
     case GL_DEBUG_SOURCE_API:
-        sourceStr = " Source: API "; break;
+        sourceStr = "API"; break;
     case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-        sourceStr = " Source: Window System "; break;
+        sourceStr = "Window System"; break;
     case GL_DEBUG_SOURCE_SHADER_COMPILER:
-        sourceStr = " Source: Shader Compiler "; break;
+        sourceStr = "Shader Compiler"; break;
     case GL_DEBUG_SOURCE_THIRD_PARTY:
-        sourceStr = " Source: Third Party "; break;
+        sourceStr = "Third Party"; break;
     case GL_DEBUG_SOURCE_APPLICATION:
-        sourceStr = " Source: Application "; break;
+        sourceStr = "Application"; break;
     case GL_DEBUG_SOURCE_OTHER:
-        sourceStr = " Source: Other "; break;
+        sourceStr = "Other"; break;
     }
 
     std::string typeStr;
     switch (type)
     {
     case GL_DEBUG_TYPE_ERROR:
-        typeStr = "Type: Error "; break;
+        typeStr = "-Error"; break;
     case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-        typeStr = "Type: Deprecated Behaviour "; break;
+        typeStr = "-Deprecated Behaviour"; break;
     case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-        typeStr = "Type: Undefined Behaviour "; break;
+        typeStr = "-Undefined Behaviour"; break;
     case GL_DEBUG_TYPE_PORTABILITY:
-        typeStr = "Type: Portability "; break;
+        typeStr = "-Portability"; break;
     case GL_DEBUG_TYPE_PERFORMANCE:
-        typeStr = "Type: Performance "; break;
+        typeStr = "-Performance"; break;
     case GL_DEBUG_TYPE_MARKER:
-        typeStr = "Type: Marker "; break;
+        typeStr = "-Marker"; break;
     case GL_DEBUG_TYPE_PUSH_GROUP:
-        typeStr = "Type: Push Group "; break;
+        typeStr = "-Push Group"; break;
     case GL_DEBUG_TYPE_POP_GROUP:
-        typeStr = "Type: Pop Group "; break;
+        typeStr = "-Pop Group"; break;
     case GL_DEBUG_TYPE_OTHER:
-        typeStr = "Type: Other "; break;
+        typeStr = "-Other"; break;
     }
 
     switch (severity)
     {
     case GL_DEBUG_SEVERITY_HIGH:
-        std::cerr << "Debug ID: " << id << sourceStr << typeStr << "Severity: high " << '\n'
+        std::cerr << '(' << id << ')' << sourceStr << typeStr << "-high " << ">> "
                   << message << std::endl;
         terminateFreeTree();
         break;
     case GL_DEBUG_SEVERITY_MEDIUM:
-        std::cerr << "Debug ID: " << id << sourceStr << typeStr << "Severity: medium " << '\n'
+        std::cerr << '(' << id << ')' << sourceStr << typeStr << "-medium " << ">> "
                   << message << std::endl;
         terminateFreeTree();
         break;
     case GL_DEBUG_SEVERITY_LOW:
-        std::cout << format::yellow << format::bold << "Debug ID: " << id << sourceStr << typeStr << "Severity: low "
-                  << '\n' << message << format::non << std::endl;
+        std::cout << format::yellow << format::bold << '(' << id << ')' << sourceStr << typeStr << "-low "
+                  << ">> " << message << format::non << std::endl;
         break;
     case GL_DEBUG_SEVERITY_NOTIFICATION:
-        std::cout << format::green << format::bold << "Debug ID: " << id << sourceStr << typeStr << "Severity: notification "
-                  << '\n' << message << format::non << std::endl;
+        std::cout << format::green << format::bold << '(' << id << ')' << sourceStr << typeStr << "-notification "
+                  << ">> " << message << format::non << std::endl;
         break;
     }
 }
@@ -401,6 +405,7 @@ void RWindowCtrl::joystickPresentCallback(int jid, int event)
 
 void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
 {
+    RDebug() << width << height;
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
 
     if(wctrl->viewportPattern == FullWindow)
@@ -436,7 +441,7 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
 void RWindowCtrl::mouseMoveCallback(GLFWwindow *window, double xpos, double ypos)
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
-    wctrl->inputs.updateMouseInput(RInputEvent::Mouse_None, RPoint(xpos, ypos));
+    wctrl->inputs.updateMouseInput(RInputEvent::Mouse_None, RPoint2(xpos, ypos));
 }
 
 void RWindowCtrl::keyboardCollback(GLFWwindow *window, int key, int , int action, int )
@@ -448,7 +453,7 @@ void RWindowCtrl::keyboardCollback(GLFWwindow *window, int key, int , int action
 void RWindowCtrl::mouseButtonCallback(GLFWwindow *window, int button, int action, int )
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
-    RPoint p;
+    RPoint2 p;
     if(action != RInputEvent::RELEASE)
     {
         double x, y;

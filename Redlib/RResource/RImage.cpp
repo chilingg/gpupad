@@ -2,6 +2,11 @@
 
 #include "RDebug.h"
 
+void swap(RImage &img1, RImage &img2)
+{
+    img1.swap(img2);
+}
+
 RImage RImage::getRedoperaIcon()
 {
     RImage icon;
@@ -19,19 +24,54 @@ RImage RImage::getRedoperaIcon()
 }
 
 RImage::RImage():
-    RResource()
+    RResource("UnknowImage")
 {
 
 }
 
-RImage::RImage(const std::string &path, bool flip):
-    RImage()
+RImage::RImage(const std::string &path, const std::string &name, bool flip):
+    RResource(name)
 {
     load(path, flip);
 }
 
+RImage::RImage(const RImage &img):
+    RResource(img),
+    data_(img.data_),
+    width_(img.width_),
+    height_(img.height_),
+    channel_(img.channel_)
+{
+
+}
+
+RImage::RImage(const RImage &&img):
+    RResource(img),
+    data_(img.data_),
+    width_(img.width_),
+    height_(img.height_),
+    channel_(img.channel_)
+{
+}
+
+RImage &RImage::operator=(RImage img)
+{
+    swap(img);
+    return *this;
+}
+
 RImage::~RImage()
 {
+}
+
+void RImage::swap(RImage &img)
+{
+    RResource::swap(img);
+    using std::swap;
+    swap(data_, img.data_);
+    swap(width_, img.width_);
+    swap(height_, img.height_);
+    swap(channel_, img.channel_);
 }
 
 bool RImage::load(std::string path, bool flip)
@@ -45,11 +85,14 @@ bool RImage::load(std::string path, bool flip)
 
     if(!data_)
     {
-        printError("Image failed to load at path: " + path);
+#ifdef R_DEBUG
+        printError(nameID() + ": Image failed to load at path: " + path);
+#endif
         data_.reset();
+        return false;
     }
 
-    return data_ != nullptr;
+    return true;
 }
 
 void RImage::unLoad()

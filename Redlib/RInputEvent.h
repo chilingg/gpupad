@@ -219,19 +219,19 @@ public:
 
     RInputEvent();
 
-    RPoint checkMouseButton(const MouseButtons key) const;
+    RPoint2 checkMouseButton(const MouseButtons key) const;
     ButtonAction checkButton(Keyboards key) const;
     ButtonAction checkButton(JoystickID jid, GamepadButtons btn) const;
     float checkGamepadAxis(JoystickID jid, GamepadAxes axis) const;
 
     void updateKeyboardInput(Keyboards key, ButtonAction action_);
-    void updateMouseInput(MouseButtons key, RPoint point);
+    void updateMouseInput(MouseButtons key, RPoint2 point);
     void updateGamepadButtonInput(JoystickID jid);
     void deleteJoystick(JoystickID jid);
 
 private:
     std::map<Keyboards, ButtonAction> keyboardInputs_;
-    std::map<MouseButtons, RPoint> mouseInputs_;
+    std::map<MouseButtons, RPoint2> mouseInputs_;
     std::map<JoystickID, GLFWgamepadstate> gamepadInputs_;
 };
 

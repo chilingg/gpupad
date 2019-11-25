@@ -9,6 +9,8 @@
 
 class RTexture : public RResource
 {
+    friend void swap(RTexture &texture1, RTexture &texture2);
+
 public:
     enum Format {
         R8 = GL_R8,
@@ -22,7 +24,7 @@ public:
         RG = GL_RG,
         RGB = GL_RGB,
         RGBA = GL_RGBA,
-        UKNOW_E_FORMAT
+        UKNOW_EFORMAT
     };
     enum TextureWrap {
         Repeat = GL_REPEAT,
@@ -35,8 +37,12 @@ public:
         Linear = GL_LINEAR
     };
 
-    RTexture();
-    RTexture(const RImage &img);
+    explicit RTexture();
+    RTexture(const RImage &img, const std::string &name);
+    RTexture(const RTexture &texture);
+    RTexture(const RTexture &&texture);
+    RTexture& operator=(RTexture texture);
+    void swap(RTexture &texture);
     ~RTexture();
 
     void setWrapPattern(TextureWrap s, TextureWrap t);
@@ -56,14 +62,16 @@ private:
     static void deleteTexture(GLuint *ID);
     static constexpr GLenum TEXTURE_UNIT = GL_TEXTURE0;
 
-    std::shared_ptr<GLuint> ID_;
+    std::shared_ptr<GLuint> textureID_;
     GLint wrapS_ = GL_CLAMP_TO_BORDER;
     GLint wrapT_ = GL_CLAMP_TO_BORDER;
     GLint filterMin_ = GL_NEAREST;
     GLint filterMax_ = GL_LINEAR;
-    GLuint borderColor[4]{ 0, 0, 0, 0 };
+    GLuint borderColor[4]{ 0, 0, 0, 255 };
     int width_ = 0;
     int height_ = 0;
 };
+
+void swap(RTexture &texture1, RTexture &texture2);
 
 #endif // RTEXTURE_H

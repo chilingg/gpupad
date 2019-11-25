@@ -340,12 +340,12 @@ RInputEvent::RInputEvent()
 
 }
 
-RPoint RInputEvent::checkMouseButton(const RInputEvent::MouseButtons key) const
+RPoint2 RInputEvent::checkMouseButton(const RInputEvent::MouseButtons key) const
 {
     auto b = mouseInputs_.find(key);
     if(b != mouseInputs_.end())
         return b->second;
-    return RPoint();
+    return RPoint2();
 }
 
 RInputEvent::ButtonAction RInputEvent::checkButton(RInputEvent::Keyboards key) const
@@ -383,7 +383,7 @@ void RInputEvent::updateKeyboardInput(RInputEvent::Keyboards key, RInputEvent::B
     keyboardInputs_[key] = action_;
 }
 
-void RInputEvent::updateMouseInput(RInputEvent::MouseButtons key, RPoint point)
+void RInputEvent::updateMouseInput(RInputEvent::MouseButtons key, RPoint2 point)
 {
     mouseInputs_[key] = point;
 }

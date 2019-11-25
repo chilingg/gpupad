@@ -135,7 +135,7 @@ const RDebug &RDebug::operator<<(const std::string &str) const
 const RDebug &RDebug::operator<<(wchar_t c) const
 {
 #ifdef R_DEBUG
-    std::cout << c;
+    std::wcout << c;
 #endif
     return *this;
 }
@@ -143,7 +143,7 @@ const RDebug &RDebug::operator<<(wchar_t c) const
 const RDebug &RDebug::operator<<(const wchar_t *str) const
 {
 #ifdef R_DEBUG
-    std::cout << str;
+    std::wcout << str;
 #endif
     return *this;
 }
@@ -164,10 +164,26 @@ const RDebug &RDebug::operator<<(std::ios_base &(*base)(std::ios_base &)) const
     return *this;
 }
 
-const RDebug &RDebug::operator<<(const RPoint &p) const
+const RDebug &RDebug::operator<<(const RPoint2 &p) const
 {
 #ifdef R_DEBUG
-    std::wcout << '(' << p.x() << ", " << p.y() << ')';
+    std::cout << '(' << p.x() << ", " << p.y() << ") ";
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const RPoint3 &p) const
+{
+#ifdef R_DEBUG
+    std::cout << '(' << p.x() << ", " << p.y() << ", " << p.z() << ") ";
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const RColor &color) const
+{
+#ifdef R_DEBUG
+    std::cout << "RGBA:(" << color.r() << ", " << color.g() << ", " << color.b() << ", " << color.a() << ") ";
 #endif
     return *this;
 }

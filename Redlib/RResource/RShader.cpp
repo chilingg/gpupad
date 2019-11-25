@@ -2,31 +2,36 @@
 
 #include "RDebug.h"
 
+void swap(RShader &shader1, RShader &shader2)
+{
+    shader1.swap(shader2);
+}
+
 std::string RShader::shaderTypeName(RShader shader)
 {
     return shaderTypeName(shader.type());
 }
 
-std::string RShader::shaderTypeName(RShader::ShaderType type)
+std::string RShader::shaderTypeName(ShaderType type)
 {
     std::string shaderType;
     switch(type) {
-    case VertexShader:
+    case ShaderType::VertexShader:
         shaderType = "VertexShader";
         break;
-    case FragmentShader:
+    case ShaderType::FragmentShader:
         shaderType = "FragmentShader";
         break;
-    case TessContolShader:
+    case ShaderType::TessContolShader:
         shaderType = "TessContolShader";
         break;
-    case TessEvaluationShader:
+    case ShaderType::TessEvaluationShader:
         shaderType = "TessEvaluationShader";
         break;
-    case GeometryShader:
+    case ShaderType::GeometryShader:
         shaderType = "GeometryShader";
         break;
-    case ComputeShader:
+    case ShaderType::ComputeShader:
         shaderType = "ComputeShader";
         break;
     }
@@ -34,14 +39,45 @@ std::string RShader::shaderTypeName(RShader::ShaderType type)
 }
 
 RShader::RShader():
-    RResource()
+    RResource("UnknowShader")
 {
 
 }
 
-RShader::RShader(const std::string &path, ShaderType type)
+RShader::RShader(const std::string &path, ShaderType type, const std::string &name):
+    RResource(name)
 {
     compileShader(path, type);
+}
+
+RShader::RShader(const RShader &shader):
+    RResource(shader),
+    shaderID_(shader.shaderID_),
+    type_(shader.type_)
+{
+
+}
+
+RShader::RShader(const RShader &&shader):
+    RResource(shader),
+    shaderID_(shader.shaderID_),
+    type_(shader.type_)
+{
+
+}
+
+RShader &RShader::operator=(RShader shader)
+{
+    swap(shader);
+    return *this;
+}
+
+void RShader::swap(RShader &shader)
+{
+    RResource::swap(shader);
+    using std::swap;
+    swap(shaderID_, shader.shaderID_);
+    swap(type_, shader.type_);
 }
 
 RShader::~RShader()
@@ -51,17 +87,22 @@ RShader::~RShader()
 
 bool RShader::isValid() const
 {
-    return ID_ != nullptr;
+    return shaderID_ != nullptr;
 }
 
-GLuint RShader::ID() const
+GLuint RShader::shaderID() const
 {
-    return *ID_;
+    return *shaderID_;
 }
 
-RShader::ShaderType RShader::type() const
+ShaderType RShader::type() const
 {
     return type_;
+}
+
+std::string RShader::typeName() const
+{
+    return shaderTypeName(type_);
 }
 
 bool RShader::compileShader(std::string path, ShaderType type)
@@ -71,30 +112,31 @@ bool RShader::compileShader(std::string path, ShaderType type)
         return false;
 
     std::string code = getTextFileContent(path);
+    if(code.empty())
+        return false;
 
     return compileShaderCode(code.c_str(), type);
 }
 
 bool RShader::compileShaderCode(const GLchar *code, ShaderType type)
 {
-    ID_.reset(new GLuint(glCreateShader(type)), deleteShader);
+    shaderID_.reset(new GLuint(glCreateShader(static_cast<GLenum>(type))), deleteShader);
     type_ = type;
-    glShaderSource(*ID_, 1, &code, nullptr);
-    glCompileShader(*ID_);
+    glShaderSource(*shaderID_, 1, &code, nullptr);
+    glCompileShader(*shaderID_);
 
     int success;
-    char infoLog[512];
-    //若有错误，则打印
-    glGetShaderiv(*ID_, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(*shaderID_, GL_COMPILE_STATUS, &success);
     if(!success)
     {
-        glGetShaderInfoLog(*ID_, 512, nullptr, infoLog);
-
-        printError("Eroor: " + shaderTypeName(type) + "shader compilation failed:\n" + infoLog);
-        ID_.reset();
+#ifdef R_DEBUG
+        printError(nameID() + ": " + shaderTypeName(type) + "shader compilation failed!\n");
+#endif
+        shaderID_.reset();
+        return false;
     }
 
-    return ID_ != nullptr;
+    return true;
 }
 
 void RShader::deleteShader(GLuint *ID)

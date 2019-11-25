@@ -21,7 +21,7 @@ public:
 class RInitEvent
 {
 public:
-    RInitEvent(RController *looper):
+    explicit RInitEvent(RController *looper):
         looper(looper) {}
     RController *looper;
 };
@@ -29,7 +29,7 @@ public:
 class RCloseEvent
 {
 public:
-    RCloseEvent(RController *looper):
+    explicit RCloseEvent(RController *looper):
         looper(looper) {}
     RController *looper;
 };
@@ -37,7 +37,7 @@ public:
 class REnteredTreeEvent
 {
 public:
-    REnteredTreeEvent(RController *spawner):
+    explicit REnteredTreeEvent(RController *spawner):
         spawner(spawner) {}
     RController *spawner;
 };
@@ -45,7 +45,7 @@ public:
 class RExitedTreeEvent
 {
 public:
-    RExitedTreeEvent(RController *spawner):
+    explicit RExitedTreeEvent(RController *spawner):
         spawner(spawner) {}
     RController *spawner;
 };

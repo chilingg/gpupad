@@ -238,6 +238,7 @@ int RController::exec()
     RCloseEvent closeEvent(this);
     dispatchEvent(&closeEvent);
 
+    printError(state_ == Failure, "The Loop has unexpectedly finished");
     return state_;
 }
 

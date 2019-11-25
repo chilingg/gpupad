@@ -9,10 +9,15 @@
 class RImage : public RResource
 {
 public:
+    friend void swap(RImage &img1, RImage &img2);
     static RImage getRedoperaIcon();
 
-    RImage();
-    explicit RImage(const std::string &path, bool flip = false);
+    explicit RImage();
+    RImage(const std::string &path, const std::string &name, bool flip = false);
+    RImage(const RImage &img);
+    RImage(const RImage &&img);
+    RImage& operator=(RImage img);
+    void swap(RImage &rc);
     ~RImage();
 
     bool load(std::string path, bool flip = false);
@@ -36,5 +41,7 @@ private:
     int height_ = 0;
     int channel_ = 0;
 };
+
+void swap(RImage &img1, RImage &img2);
 
 #endif // RIMAGE_H

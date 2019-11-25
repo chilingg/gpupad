@@ -7,10 +7,11 @@
 #define NDEBUG
 #endif
 #include <assert.h>
-
 #include <iostream>
 #include <string>
+
 #include "RPoint.h"
+#include "RColor.h"
 
 class RDebug
 {
@@ -42,20 +43,22 @@ public:
 
     const RDebug& operator<<(std::ios_base &(*base)(std::ios_base &)) const;
 
-    const RDebug& operator<<(const RPoint &p) const;
+    const RDebug& operator<<(const RPoint2 &p) const;
+    const RDebug& operator<<(const RPoint3 &p) const;
+    const RDebug& operator<<(const RColor &color) const;
 
 private:
 };
 
 inline void printError(const std::string &err)
 {
-    std::cerr << err << "\n";
+    std::cerr << err << '\n';
 }
 
 inline bool printError(bool b, const std::string &err)
 {
     if(b)
-        std::cerr << err << "\n";
+        std::cerr << err << '\n';
     return b;
 }
 

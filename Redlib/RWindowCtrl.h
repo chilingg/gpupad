@@ -19,7 +19,7 @@ public:
         KeepScale
     };
 
-    RWindowCtrl(const std::string &name = "WindowCtrl", RController *parent = nullptr);
+    explicit RWindowCtrl(const std::string &name = "WindowCtrl", RController *parent = nullptr);
     ~RWindowCtrl() override;
 
     void control() override;
@@ -27,7 +27,7 @@ public:
     //设置函数
     void setWindowSize(int width, int height);
     void setWindowTitle(const std::string &title);
-    void setBackground(int r, int g, int b);
+    void setBackground(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255);
     void setViewportRatio(double ratio);//视口比例，窗口KeepScale时用
     void setViewportPattern(ViewportPattern pattern);
     void setVSync(bool enable);//垂直同步
@@ -70,13 +70,12 @@ private:
     static void mouseScrollCallback(GLFWwindow *window, double x, double y);
     static void windowFocusCallback(GLFWwindow *window, int focused);
 
-    static int count;
     static bool vSync_;//默认锁60FPS
+    static int count;
 
     GLFWwindow *window_;
     //RInputEvent inputEvent;
 
-    float backgroundColor[4] = {0.1f, 0.1f, 0.1f, 1.0f};
     double viewportRatio_ = 16.0/9.0;
     ViewportPattern viewportPattern = KeepScale;
     int width_ = 960;

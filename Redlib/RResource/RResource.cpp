@@ -5,15 +5,44 @@
 #include "RDebug.h"
 
 std::string RResource::RESOURCE_PATH = "../Resource/";
+std::vector<RResource*> RResource::resources(128, nullptr) ;
 
-RResource::RResource()
+RResource::RResource(const std::string &name):
+    name_(name),
+    resourceID_(generaterResourceID(this))
 {
 
+}
+
+RResource::RResource(const RResource &rc):
+    name_(rc.name_),
+    resourceID_(generaterResourceID(this))
+{
+
+}
+
+RResource::RResource(const RResource &&rc):
+    name_(rc.name_),
+    resourceID_(rc.resourceID_)
+{
+    resources[resourceID_] = this;
+}
+
+RResource &RResource::operator=(RResource rc)
+{
+    name_.swap(rc.name_);
+
+    return *this;
 }
 
 RResource::~RResource()
 {
 
+}
+
+void RResource::swap(RResource &rc)
+{
+    name_.swap(rc.name_);
 }
 
 std::string RResource::checkFilePath(std::string path)
@@ -53,7 +82,7 @@ std::string RResource::getTextFileContent(std::string path)
     catch(...)
     {
         printError("Text file done not exist: " + path);
-        throw ;
+        return "";
     }
 
     return text;
@@ -69,4 +98,50 @@ void RResource::setResourcePath(std::string path)
     }
 
     RESOURCE_PATH = path;
+}
+
+void swap(RResource &rc1, RResource &rc2)
+{
+    rc1.name_.swap(rc2.name_);
+}
+
+RResource::ResourceID RResource::resourceID() const
+{
+    return resourceID_;
+}
+
+const std::string &RResource::name() const
+{
+    return name_;
+}
+
+std::string RResource::nameID() const
+{
+    return name() + '(' + std::to_string(resourceID_) + ')';
+}
+
+void RResource::rename(const std::string &name)
+{
+#ifdef R_DEBUG
+    if(printError(name.empty(), "The resource name set is empty!"))
+        return;
+#endif
+    name_ = name;
+}
+
+RResource::ResourceID RResource::generaterResourceID(RResource *rc)
+{
+    ResourceID i = 0;
+    while(i < resources.size())
+    {
+        if(!resources[i])
+        {
+            resources[i] = rc;
+            return i;
+        }
+        ++i;
+    }
+    resources.push_back(rc);
+    //返回的是递增了的i
+    return i;
 }

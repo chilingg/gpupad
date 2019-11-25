@@ -3,15 +3,69 @@
 #include "RDebug.h"
 
 RTexture::RTexture():
-    RResource()
+    RResource("UnknowTexture")
 {
 
 }
 
-RTexture::RTexture(const RImage &img):
-    RTexture()
+RTexture::RTexture(const RImage &img, const std::string &name):
+    RResource(name)
 {
     generate(img.width(), img.height(), img.channel(), img.cdata(), img.channel());
+}
+
+RTexture::RTexture(const RTexture &texture):
+    RResource(texture),
+    textureID_(texture.textureID_),
+    wrapS_(texture.wrapS_),
+    wrapT_(texture.wrapT_),
+    filterMin_(texture.filterMin_),
+    filterMax_(texture.filterMax_),
+    borderColor{texture.borderColor[0],
+                texture.borderColor[1],
+                texture.borderColor[2],
+                texture.borderColor[3],},
+    width_(texture.width_),
+    height_(texture.height_)
+{
+
+}
+
+RTexture::RTexture(const RTexture &&texture):
+    RResource(texture),
+    textureID_(texture.textureID_),
+    wrapS_(texture.wrapS_),
+    wrapT_(texture.wrapT_),
+    filterMin_(texture.filterMin_),
+    filterMax_(texture.filterMax_),
+    borderColor{texture.borderColor[0],
+                texture.borderColor[1],
+                texture.borderColor[2],
+                texture.borderColor[3],},
+    width_(texture.width_),
+    height_(texture.height_)
+{
+
+}
+
+RTexture &RTexture::operator=(RTexture texture)
+{
+    swap(texture);
+    return *this;
+}
+
+void RTexture::swap(RTexture &texture)
+{
+    RResource::swap(texture);
+    using std::swap;
+    swap(textureID_, texture.textureID_);
+    swap(wrapS_, texture.wrapS_);
+    swap(wrapT_, texture.wrapT_);
+    swap(filterMin_, texture.filterMin_);
+    swap(filterMax_, texture.filterMax_);
+    swap(borderColor, texture.borderColor);
+    swap(width_, texture.width_);
+    swap(height_, texture.height_);
 }
 
 RTexture::~RTexture()
@@ -25,12 +79,18 @@ void RTexture::setWrapPattern(RTexture::TextureWrap s, RTexture::TextureWrap t)
     wrapT_ = t;
 }
 
+void RTexture::setTexFilter(RTexture::TextureFilter mag, RTexture::TextureFilter min)
+{
+    filterMax_ = mag;
+    filterMin_ = min;
+}
+
 bool RTexture::generate(int width, int height, int echannel, const unsigned char *data, int ichannel)
 {
 #ifdef R_DEBUG
     if(!data)
     {
-        printError("Generate Texture data from nullptr!");
+        printError("Generate Texture data from nullptr! In " + nameID());
         return false;
     }
 #endif
@@ -46,7 +106,7 @@ bool RTexture::generate(int width, int height, int echannel, const unsigned char
     case 1:
         eformat = RED; break;
     default:
-        printError("Invalid of image channels!");
+        printError("Invalid of image channels! In " + nameID());
         return false;
     }
     GLuint iformat = RGBA8;
@@ -60,13 +120,13 @@ bool RTexture::generate(int width, int height, int echannel, const unsigned char
     case 1:
         iformat = R8; break;
     default:
-        printError("Invalid of texture channels!");
+        printError("Invalid of texture channels! In " + nameID());
         return false;
     }
 
     GLuint *ID = new GLuint;
     glGenTextures(1, ID);
-    ID_.reset(ID, deleteTexture);
+    textureID_.reset(ID, deleteTexture);
 
     glBindTexture(GL_TEXTURE_2D, *ID);
     glTexParameterIuiv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
@@ -89,7 +149,7 @@ bool RTexture::generate(const RImage &img)
 #ifdef R_DEBUG
     if(!img.isValid())
     {
-        printError("Generate Texture data from invalid image!");
+        printError("Generate Texture data from invalid image! In " + nameID());
         return false;
     }
 #endif
@@ -98,21 +158,21 @@ bool RTexture::generate(const RImage &img)
 
 void RTexture::freeTexture()
 {
-    ID_.reset();
+    textureID_.reset();
 }
 
 void RTexture::bind(GLenum unit)
 {
 #ifdef R_DEBUG
-    if(!ID_)
+    if(!textureID_)
     {
-        printError("Binding invalid texture!");
+        printError("Binding invalid texture for " + nameID());
         return;
     }
 #endif
 
     glActiveTexture(unit + TEXTURE_UNIT);
-    glBindTexture(GL_TEXTURE_2D, *ID_);
+    glBindTexture(GL_TEXTURE_2D, *textureID_);
 }
 
 void RTexture::unbind()
@@ -122,7 +182,7 @@ void RTexture::unbind()
 
 bool RTexture::isValid() const
 {
-    return ID_ != nullptr;
+    return textureID_ != nullptr;
 }
 
 int RTexture::width() const
@@ -139,4 +199,9 @@ void RTexture::deleteTexture(GLuint *ID)
 {
     glDeleteTextures(1, ID);
     delete ID;
+}
+
+void swap(RTexture &texture1, RTexture &texture2)
+{
+    texture1.swap(texture2);
 }
