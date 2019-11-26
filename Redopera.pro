@@ -25,7 +25,7 @@ SOURCES += \
         Redlib/RController.cpp \
         Redlib/RDebug.cpp \
         Redlib/RInputEvent.cpp \
-        Redlib/RPlant.cpp \
+        Redlib/RPlane.cpp \
         Redlib/RResource/RImage.cpp \
         Redlib/RResource/RResource.cpp \
         Redlib/RResource/RShader.cpp \
@@ -45,7 +45,7 @@ HEADERS += \
     Redlib/RMaths.h \
     Redlib/RNotifyEvent.h \
     Redlib/ROpenGL.h \
-    Redlib/RPlant.h \
+    Redlib/RPlane.h \
     Redlib/RPoint.h \
     Redlib/RResource/RImage.h \
     Redlib/RResource/RResource.h \

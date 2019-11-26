@@ -9,4 +9,8 @@ namespace Rglm {
     using namespace::glm;
 }
 
+using RMatrix4 = Rglm::mat4;
+using RVector4 = Rglm::vec4;
+using RVector3 = Rglm::vec3;
+
 #endif // RMATHS_H

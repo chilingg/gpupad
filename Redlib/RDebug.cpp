@@ -1,4 +1,5 @@
 #include "RDebug.h"
+#include <iomanip>
 
 RDebug::RDebug()
 {
@@ -184,6 +185,38 @@ const RDebug &RDebug::operator<<(const RColor &color) const
 {
 #ifdef R_DEBUG
     std::cout << "RGBA:(" << color.r() << ", " << color.g() << ", " << color.b() << ", " << color.a() << ") ";
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const RVector3 &vec) const
+{
+#ifdef R_DEBUG
+    std::cout << '(' << vec.x << ", " << vec.y << ", " << vec.z << ") ";
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const RVector4 &vec) const
+{
+#ifdef R_DEBUG
+    std::cout << '(' << vec.x << ", " << vec.y << ", " << vec.z << ") ";
+#endif
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const RMatrix4 &mat) const
+{
+#ifdef R_DEBUG
+    //std::cout << std::setw(6);
+    std::cout << "mat:(" << std::setw(6) << mat[0][0] << ',' << std::setw(6) <<  mat[1][0] << ','
+                         << std::setw(6) << mat[2][0] << ',' << std::setw(6) <<  mat[3][0] << ")\n";
+    std::cout << "    (" << std::setw(6) << mat[0][1] << ',' << std::setw(6) <<  mat[1][1] << ','
+                         << std::setw(6) << mat[2][1] << ',' << std::setw(6) <<  mat[3][1] << ")\n";
+    std::cout << "    (" << std::setw(6) << mat[0][2] << ',' << std::setw(6) <<  mat[1][2] << ','
+                         << std::setw(6) << mat[2][2] << ',' << std::setw(6) <<  mat[3][2] << ")\n";
+    std::cout << "    (" << std::setw(6) << mat[0][3] << ',' << std::setw(6) <<  mat[1][3] << ','
+                         << std::setw(6) << mat[2][3] << ',' << std::setw(6) <<  mat[3][3] << ").";
 #endif
     return *this;
 }

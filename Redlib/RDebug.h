@@ -12,6 +12,7 @@
 
 #include "RPoint.h"
 #include "RColor.h"
+#include "RMaths.h"
 
 class RDebug
 {
@@ -46,6 +47,9 @@ public:
     const RDebug& operator<<(const RPoint2 &p) const;
     const RDebug& operator<<(const RPoint3 &p) const;
     const RDebug& operator<<(const RColor &color) const;
+    const RDebug& operator<<(const RVector3 &vec) const;
+    const RDebug& operator<<(const RVector4 &vec) const;
+    const RDebug& operator<<(const RMatrix4 &mat) const;
 
 private:
 };

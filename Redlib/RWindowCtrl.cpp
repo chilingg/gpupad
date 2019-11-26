@@ -230,7 +230,7 @@ double RWindowCtrl::getViewportRatio() const
 
 bool RWindowCtrl::isShouldCloused() const
 {
-    glfwWindowShouldClose(window_);
+    return glfwWindowShouldClose(window_);
 }
 
 void RWindowCtrl::DefaultWindow()
@@ -293,14 +293,14 @@ std::string RWindowCtrl::getDefaultName() const
     return "WindowCtrl";
 }
 
-void RWindowCtrl::initEvent(RInitEvent *event)
+void RWindowCtrl::initEvent(RInitEvent *)
 {
 #ifdef R_DEBUG
     printError(!glfwGetWindowAttrib(window_, GLFW_VISIBLE), getName() + "Window is hide! in initialization Event");
 #endif
 }
 
-void RWindowCtrl::closeEvent(RCloseEvent *event)
+void RWindowCtrl::closeEvent(RCloseEvent *)
 {
     glfwSetWindowShouldClose(window_, GLFW_TRUE);
 }
@@ -316,7 +316,7 @@ void RWindowCtrl::glfwErrorCallback(int error, const char *description)
 }
 
 void RWindowCtrl::openglDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
-                                             GLsizei length, const GLchar *message, const void *userParam)
+                                             GLsizei , const GLchar *message, const void *)
 {
     std::string sourceStr;
     switch (source)
@@ -423,12 +423,12 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
         int newH = height;
         if(ratio > wctrl->viewportRatio_)
         {
-            newW = height * wctrl->viewportRatio_;
+            newW = static_cast<int>(height * wctrl->viewportRatio_);
             //glViewport((width - newW) / 2.0, 0, newW, newH);
         }
         else
         {
-            newH = width / wctrl->viewportRatio_;
+            newH = static_cast<int>(width / wctrl->viewportRatio_);
             glViewport(0, (height - newH) / 2.0, newW, newH);
         }
         wctrl->width_ = newW;
@@ -441,7 +441,7 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
 void RWindowCtrl::mouseMoveCallback(GLFWwindow *window, double xpos, double ypos)
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
-    wctrl->inputs.updateMouseInput(RInputEvent::Mouse_None, RPoint2(xpos, ypos));
+    wctrl->inputs.updateMouseInput(RInputEvent::Mouse_None, RPoint2(static_cast<int>(xpos),static_cast<int>(ypos)));
 }
 
 void RWindowCtrl::keyboardCollback(GLFWwindow *window, int key, int , int action, int )
@@ -458,12 +458,12 @@ void RWindowCtrl::mouseButtonCallback(GLFWwindow *window, int button, int action
     {
         double x, y;
         glfwGetCursorPos(window, &x, &y);
-        p.setPoint(x, y);
+        p.setPoint(static_cast<int>(x), static_cast<int>(y));
     }
     wctrl->inputs.updateMouseInput(RInputEvent::toMouseButtons(button), p);
 }
 
-void RWindowCtrl::mouseScrollCallback(GLFWwindow *window, double x, double y)
+void RWindowCtrl::mouseScrollCallback(GLFWwindow *window, double , double y)
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
     wctrl->scrolled.emit(y);

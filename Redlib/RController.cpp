@@ -266,6 +266,8 @@ void RController::allChildrenActive()
 void RController::terminateFreeTree()
 {
     RController *freeTree = getFreeTree();
+    if(freeTree->state_ == Failure)
+        return;
     freeTree->state_ = Failure;
     RCloseEvent e(freeTree);
     freeTree->dispatchEvent(&e);

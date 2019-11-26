@@ -48,6 +48,12 @@ RShaderProgram::RShaderProgram(const RShaderProgram &&program):
 
 }
 
+RShaderProgram &RShaderProgram::operator=(RShaderProgram program)
+{
+    swap(program);
+    return *this;
+}
+
 void RShaderProgram::swap(RShaderProgram &prog)
 {
     RResource::swap(prog);
@@ -169,8 +175,8 @@ UniformLocation RShaderProgram::getUniformLocation(const std::string &name) cons
     UniformLocation loc(glGetUniformLocation(*progID_, name.c_str()), name);
 
 #ifdef R_DEBUG
-    printError(!loc.isValid(), "No find uniform location of the " + name + " for " + nameID());
-    loc = UniformLocation();
+    if(printError(!loc.isValid(), "No find uniform location of the " + name + " for " + nameID()))
+        loc = UniformLocation();
 #endif
 
     return loc;
@@ -179,6 +185,8 @@ UniformLocation RShaderProgram::getUniformLocation(const std::string &name) cons
 void RShaderProgram::setUniform(UniformLocation location, GLfloat v1) const
 {
 #ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
@@ -191,6 +199,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLfloat v1, GLfloat v2
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
                   + " is invalid for " + nameID() + ", Its not have use!")) return;
@@ -201,6 +211,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLfloat v1, GLfloat v2
 void RShaderProgram::setUniform(UniformLocation location, GLfloat v1, GLfloat v2, GLfloat v3) const
 {
 #ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
@@ -213,6 +225,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLfloat v1, GLfloat v2
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
                   + " is invalid for " + nameID() + ", Its not have use!")) return;
@@ -223,6 +237,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLfloat v1, GLfloat v2
 void RShaderProgram::setUniform(UniformLocation location, GLint v1) const
 {
 #ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
@@ -235,6 +251,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLint v1, GLint v2) co
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
                   + " is invalid for " + nameID() + ", Its not have use!")) return;
@@ -245,6 +263,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLint v1, GLint v2) co
 void RShaderProgram::setUniform(UniformLocation location, GLint v1, GLint v2, GLint v3) const
 {
 #ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
@@ -257,6 +277,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLint v1, GLint v2, GL
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
                   + " is invalid for " + nameID() + ", Its not have use!")) return;
@@ -267,6 +289,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLint v1, GLint v2, GL
 void RShaderProgram::setUniform(UniformLocation location, GLuint v1) const
 {
 #ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
@@ -279,6 +303,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLuint v1, GLuint v2) 
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
                   + " is invalid for " + nameID() + ", Its not have use!")) return;
@@ -289,6 +315,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLuint v1, GLuint v2) 
 void RShaderProgram::setUniform(UniformLocation location, GLuint v1, GLuint v2, GLuint v3) const
 {
 #ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
@@ -301,6 +329,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLuint v1, GLuint v2, 
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
                   + " is invalid for " + nameID() + ", Its not have use!")) return;
@@ -311,6 +341,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLuint v1, GLuint v2, 
 void RShaderProgram::setUniform(UniformLocation location, GLsizei size, GLfloat *vp, GLsizei count) const
 {
 #ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
@@ -341,6 +373,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLsizei size, GLint *v
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
                   + " is invalid for " + nameID() + ", Its not have use!")) return;
@@ -368,6 +402,8 @@ void RShaderProgram::setUniform(UniformLocation location, GLsizei size, GLint *v
 void RShaderProgram::setUniform(UniformLocation location, GLsizei size, GLuint *vp, GLsizei count) const
 {
 #ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
@@ -397,6 +433,8 @@ void RShaderProgram::setUniformMatrix(UniformLocation location, GLsizei size, GL
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
                   + " is invalid for " + nameID() + ", Its not have use!")) return;
@@ -422,6 +460,8 @@ void RShaderProgram::setUniformMatrix(UniformLocation location, GLsizei size, GL
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
                   + " is invalid for " + nameID() + ", Its not have use!")) return;
@@ -446,6 +486,8 @@ void RShaderProgram::setUniformMatrix(UniformLocation location, GLsizei size, GL
 void RShaderProgram::setUniformMatrix(UniformLocation location, GLsizei column, GLsizei row, GLfloat *vp, GLsizei count, GLboolean transpose) const
 {
 #ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
@@ -475,6 +517,8 @@ void RShaderProgram::setUniformMatrix(UniformLocation location, GLsizei column, 
 void RShaderProgram::setUniformMatrix(UniformLocation location, GLsizei column, GLsizei row, GLdouble *vp, GLsizei count, GLboolean transpose) const
 {
 #ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return;
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
                   + nameID() + ", Its invalid shader program!")) return;
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_

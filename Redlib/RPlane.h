@@ -1,5 +1,5 @@
-#ifndef RPLANT_H
-#define RPLANT_H
+#ifndef RPLANE_H
+#define RPLANE_H
 
 #include "RResource/RShaderProgram.h"
 #include "RResource/RTexture.h"
@@ -10,12 +10,8 @@
 
 #define offsetBuffer(offset) ( reinterpret_cast<void*>(offset) )
 
-class RPlant
+class RPlane
 {
-    using RMatrix4 = Rglm::mat4;
-    using RVector4 = Rglm::vec4;
-    using RVector3 = Rglm::vec3;
-
 public:
     enum SizeMode {
         FIxed,
@@ -31,13 +27,13 @@ public:
         Align_Bottom
     };
 
-    static void setViewpro(int x, int y, int width, int height);
+    static void setViewpro(int x, int y, int width, int height, int near = -1, int far = 1);
     static void setViewproMove(int x, int y, int z = 0);
 
-    RPlant();
-    RPlant(const RPlant &plant);
-    RPlant(const std::string &name, int width, int height, RPoint pos = RPoint(0, 0, 0));
-    ~RPlant();
+    RPlane();
+    RPlane(const RPlane &plane);
+    RPlane(const std::string &name, int width, int height, RPoint pos = RPoint(0, 0, 0));
+    ~RPlane();
 
     void setSize(int width, int height);
     void setSize(RSize size);
@@ -52,6 +48,9 @@ public:
     void setPadding(int top, int bottom, int left, int right);
     void setPadding(int value);
 
+    void setColorTexture(RColor color);
+    void setColorTexture(R_RGBA rgba);
+    void setColorTexture(unsigned r, unsigned g, unsigned b, unsigned a = 0xffu);
     void setTexture(const RImage &image);
     void setTexture(const RTexture &texture);
     void setSizeMode(SizeMode mode);
@@ -79,7 +78,6 @@ public:
     bool isFlipH() const { return flipH_; }
 
     void render();
-    void render(const RShaderProgram &program);
 #ifdef R_DEBUG
     //渲染边距线框
     void displayLineBox(const RMatrix4 &projection, const RMatrix4 &view);
@@ -89,8 +87,8 @@ public:
 private:
     static RShaderProgram lineBoxsProgram;
     static GLuint lineBoxVAO;
-    static RShaderProgram plantSProgram;
-    static GLuint plantVAO, plantVBO;
+    static RShaderProgram planeSProgram;
+    static GLuint planeVAO, planeVBO;
     static RTexture whiteTex;
     static UniformLocation modelLoc;
     static UniformLocation viewLoc;
@@ -98,6 +96,7 @@ private:
     static int count;
 
     void updataModelMat();
+    void updataModelMatNow();
 
     std::string name_;
     int width_;
@@ -106,7 +105,9 @@ private:
     RMatrix4 rotateMat_;
     RMatrix4 modelMat_;
     RTexture texture_;
+    RShaderProgram shaders_;
 
+    bool dirty_ = false;
     bool flipH_ = false;
     bool flipV_ = false;
     //外边距
@@ -124,4 +125,4 @@ private:
     Alignment hAlign_ = Align_Left;
 };
 
-#endif // RPLANT_H
+#endif // RPLANE_H

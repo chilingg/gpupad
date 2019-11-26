@@ -12,7 +12,7 @@
 
 TestCtr::TestCtr(const std::string &name, RController *parent):
     RController(name, parent),
-    plant("text-plan", 32, 32, RPoint(20, 20))
+    plane("text-plan", 64, 64, RPoint(0, 0, 0))
 {
     if(!gamepads.empty())
     {
@@ -21,8 +21,13 @@ TestCtr::TestCtr(const std::string &name, RController *parent):
     }
 
     RImage img(":/texture/Robot_idle.png", "test-img");
-    RTexture tex(img, "test-img");
-    plant.setTexture(tex);
+    RTexture tex;
+    tex.setTexFilter(RTexture::Nearest);
+    tex.generate(img);
+    plane.setColorTexture(0, 200, 180);
+    plane.flipV();
+    plane.setMargin(10);
+    plane.setPadding(5);
 }
 
 TestCtr::~TestCtr()
@@ -41,7 +46,9 @@ void TestCtr::control()
         debugWindow_ = nullptr;
     }
 
-    plant.render();
+    plane.rotateX(static_cast<float>(glfwGetTime()*2));
+    plane.render();
+    plane.displayLineBox(0, 1600, 0, 900);
 }
 
 void TestCtr::scrollNotify(double v)

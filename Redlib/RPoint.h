@@ -4,13 +4,15 @@
 class RPoint2
 {
 public:
-    explicit RPoint2(int x = INVALID_POINT_VALUE, int y = INVALID_POINT_VALUE)
+    explicit RPoint2(int x, int y = 0)
         : x_(x), y_(y) {}
+    explicit RPoint2()
+        : x_(INVALID_POINT_VALUE), y_(INVALID_POINT_VALUE) {}
 
     int x() const { return x_; }
-    int y() const { return x_; }
+    int y() const { return y_; }
     int& rx() { return x_; }
-    int& ry() { return x_; }
+    int& ry() { return y_; }
     bool isValid() const { return x_ != INVALID_POINT_VALUE && y_ != INVALID_POINT_VALUE; }
 
     void setPoint(int x, int y) { x_ = x; y_ = y; }
@@ -27,8 +29,10 @@ protected:
 class RPoint3 : public RPoint2
 {
 public:
-    explicit RPoint3(int x = INVALID_POINT_VALUE, int y = INVALID_POINT_VALUE, int z = INVALID_POINT_VALUE)
+    explicit RPoint3(int x, int y = 0, int z = 0)
         : RPoint2(x, y), z_(z) {}
+    explicit RPoint3()
+        : RPoint2(), z_(INVALID_POINT_VALUE) {}
 
     int z() const { return z_; }
     int& rz() { return z_; }
