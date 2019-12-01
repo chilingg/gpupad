@@ -11,7 +11,7 @@ class RWindowCtrl : public RController
 {
 public:
     static void DefaultWindow();
-    static void updataGamepadMappings(std::string path);
+    static void updateGamepadMappings(std::string path);
 
     enum ViewportPattern
     {
@@ -24,6 +24,8 @@ public:
 
     void control() override;
 
+    int width() const { return width_; }
+    int height() const { return height_; }
     //设置函数
     void setWindowSize(int width, int height);
     void setWindowTitle(const std::string &title);

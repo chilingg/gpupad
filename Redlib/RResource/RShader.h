@@ -18,12 +18,12 @@ enum class ShaderType
 
 class RShader : public RResource
 {
-public:
     friend void swap(RShader &shader1, RShader &shader2);
+public:
     static std::string shaderTypeName(RShader shader);
     static std::string shaderTypeName(ShaderType type);
 
-    explicit RShader();
+    RShader();
     RShader(const std::string &path, ShaderType type, const std::string &name);
     RShader(const RShader &shader);
     RShader(const RShader &&shader);

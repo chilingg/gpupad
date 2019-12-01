@@ -14,7 +14,7 @@ class RPlane
 {
 public:
     enum SizeMode {
-        FIxed,
+        Fixed,
         Auto,
         Cover,
         Contain
@@ -27,13 +27,13 @@ public:
         Align_Bottom
     };
 
-    static void setViewpro(int x, int y, int width, int height, int near = -1, int far = 1);
-    static void setViewproMove(int x, int y, int z = 0);
+    static void setPlaneDefaultViewpro(int left, int right, int buttom, int top, int near= -1, int far = 1);
+    static void setPlaneDefaultCameraPos(int x, int y, int z = 0);
 
-    RPlane();
+    RPlane(RShaderProgram *program = nullptr);
     RPlane(const RPlane &plane);
-    RPlane(const std::string &name, int width, int height, RPoint pos = RPoint(0, 0, 0));
-    ~RPlane();
+    RPlane(int width, int height, const std::string &name, RPoint pos, RShaderProgram *program = nullptr);
+    virtual ~RPlane();
 
     void setSize(int width, int height);
     void setSize(RSize size);
@@ -55,6 +55,7 @@ public:
     void setTexture(const RTexture &texture);
     void setSizeMode(SizeMode mode);
     void setAlignment(Alignment hAlign, Alignment vAlign);
+    void setShaderProgram(const RShaderProgram &program);
 
     void rotateX(float x);
     void rotateY(float y);
@@ -69,45 +70,57 @@ public:
     int innerHeight() const { return height_ - paddingTop_ - paddingBottom_; }
     int outerWidth() const { return width_ + marginLeft_ + marginRight_; }
     int outerHeight() const { return height_ + marginTop_ + marginBottom_; }
+
+    int paddingLeft() const { return paddingLeft_; }
+    int paddingRight() const { return paddingRight_; }
+    int paddingTop() const { return paddingTop_; }
+    int paddingBottm() const { return paddingBottom_; }
+
     RPoint pos() const { return pos_; }
     int x() const { return pos_.x(); }
     int& rx() { return pos_.rx(); }
     int y() const { return pos_.y(); }
     int& ry() { return pos_.ry(); }
+
     bool isFlipV() const { return flipV_; }
     bool isFlipH() const { return flipH_; }
+
+    SizeMode sizeMode() const { return sizeMode_; }
+    Alignment vAlign() const { return vAlign_; }
+    Alignment hAlign() const { return hAlign_; }
 
     void render();
 #ifdef R_DEBUG
     //渲染边距线框
-    void displayLineBox(const RMatrix4 &projection, const RMatrix4 &view);
-    void displayLineBox(int left, int right, int buttom, int top, RPoint pos = RPoint(0, 0));
+    void RenderLineBox(const RMatrix4 &projection, const RMatrix4 &view);
+    void RenderLineBox(int left, int right, int buttom, int top, RPoint pos = RPoint(0, 0));
 #endif
+
+protected:
+    virtual void renderControl();
+    virtual void updateModelMatNow();
+    void updateModelMat();
+    void updateModelMatOver();
+
+    RMatrix4 rotateMat_;
+    RMatrix4 modelMat_;
+    RShaderProgram shaders_;
+    RTexture texture_;
+    RUniformLocation modelLoc_;
 
 private:
     static RShaderProgram lineBoxsProgram;
     static GLuint lineBoxVAO;
     static RShaderProgram planeSProgram;
     static GLuint planeVAO, planeVBO;
-    static RTexture whiteTex;
-    static UniformLocation modelLoc;
-    static UniformLocation viewLoc;
-    static UniformLocation projectionLoc;
-    static int count;
-
-    void updataModelMat();
-    void updataModelMatNow();
+    static unsigned long count;
 
     std::string name_;
     int width_;
     int height_;
     RPoint pos_;
-    RMatrix4 rotateMat_;
-    RMatrix4 modelMat_;
-    RTexture texture_;
-    RShaderProgram shaders_;
 
-    bool dirty_ = false;
+    bool dirty_ = true;
     bool flipH_ = false;
     bool flipV_ = false;
     //外边距
@@ -120,9 +133,9 @@ private:
     int paddingBottom_ = 0;
     int paddingLeft_ = 0;
     int paddingRight_ = 0;
-    SizeMode sizeMode_ = Auto;
-    Alignment vAlign_ = Align_Bottom;
-    Alignment hAlign_ = Align_Left;
+    SizeMode sizeMode_ = Auto;//RTextLabel依赖Auto初始值
+    Alignment vAlign_ = Align_Mind;
+    Alignment hAlign_ = Align_Mind;
 };
 
 #endif // RPLANE_H

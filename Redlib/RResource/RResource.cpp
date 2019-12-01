@@ -9,14 +9,14 @@ std::vector<RResource*> RResource::resources(128, nullptr) ;
 
 RResource::RResource(const std::string &name):
     name_(name),
-    resourceID_(generaterResourceID(this))
+    resourceID_(creatorResourceID(this))
 {
 
 }
 
 RResource::RResource(const RResource &rc):
     name_(rc.name_),
-    resourceID_(generaterResourceID(this))
+    resourceID_(creatorResourceID(this))
 {
 
 }
@@ -129,7 +129,7 @@ void RResource::rename(const std::string &name)
     name_ = name;
 }
 
-RResource::ResourceID RResource::generaterResourceID(RResource *rc)
+RResource::ResourceID RResource::creatorResourceID(RResource *rc)
 {
     ResourceID i = 0;
     while(i < resources.size())

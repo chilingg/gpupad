@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <iostream>
 #include <string>
+#include <iomanip>
 
 #include "RPoint.h"
 #include "RColor.h"

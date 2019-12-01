@@ -8,12 +8,13 @@
 
 class RImage : public RResource
 {
-public:
     friend void swap(RImage &img1, RImage &img2);
+public:
     static RImage getRedoperaIcon();
 
-    explicit RImage();
+    RImage();
     RImage(const std::string &path, const std::string &name, bool flip = false);
+    RImage(int width, int height, int channel, unsigned char *data, const std::string &name);
     RImage(const RImage &img);
     RImage(const RImage &&img);
     RImage& operator=(RImage img);
@@ -21,7 +22,9 @@ public:
     ~RImage();
 
     bool load(std::string path, bool flip = false);
-    void unLoad();
+    bool load(int width, int height, int channel, unsigned char *data);
+    void flipVertical();
+    void freeImage();
 
     bool isValid() const;
     int width() const;

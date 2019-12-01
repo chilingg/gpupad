@@ -8,7 +8,7 @@ using R_RGBA = uint32_t;
 class RColor
 {
 public:
-    explicit RColor(R_RGBA color = 0xffu) { color_ = color; }
+    explicit RColor(R_RGBA color = 0xff000000u) { color_ = color; }
     RColor(unsigned r, unsigned g, unsigned b, unsigned a = 0xffu) {
         color_ = r & 0xffu;
         color_ |= (0xffu & g) << 8;
@@ -21,12 +21,12 @@ public:
     unsigned g() const { return color_ >> 8 & 0xffu; }
     unsigned r() const { return color_ & 0xffu; }
     R_RGBA rgba() const { return color_; }
-    R_RGBA abgr() const { return (a() << 24) + (b() << 16) + (g() << 8) + r(); }
+    R_RGBA abgr() const { return (r() << 24) + (g() << 16) + (b() << 8) + a(); }
 
-    void setA(unsigned r) { color_ = (color_ & 0xffffff) | r << 24; }
-    void setB(unsigned g) { color_ = (color_ & 0xff00ffff) | (0xffu & g) << 16; }
-    void setG(unsigned b) { color_ = (color_ & 0xffff00ff) | (0xffu & b) << 8; }
-    void setR(unsigned a) { color_ = (color_ & 0xffffff00) | (a & 0xffu); }
+    void setA(unsigned a) { color_ = (color_ & 0xffffff) | a << 24; }
+    void setB(unsigned b) { color_ = (color_ & 0xff00ffff) | (0xffu & b) << 16; }
+    void setG(unsigned g) { color_ = (color_ & 0xffff00ff) | (0xffu & g) << 8; }
+    void setR(unsigned r) { color_ = (color_ & 0xffffff00) | (r & 0xffu); }
     void setRGB(R_RGBA rgba) { color_ = rgba; }
 
 private:

@@ -15,7 +15,7 @@ RImage RImage::getRedoperaIcon()
     icon.channel_ = 4;
 
     size_t size = 4096;
-    unsigned char *data = static_cast<unsigned char*>(malloc(sizeof(unsigned char) * size));
+    unsigned char *data = static_cast<unsigned char*>(calloc(size, sizeof(unsigned char)));
     for(size_t i = 0; i < size; ++i)
         data[i] = RIcon[i];
     icon.data_.reset(data, stbi_image_free);
@@ -33,6 +33,12 @@ RImage::RImage(const std::string &path, const std::string &name, bool flip):
     RResource(name)
 {
     load(path, flip);
+}
+
+RImage::RImage(int width, int height, int channel, unsigned char *data, const std::string &name):
+    RResource(name)
+{
+    load(width, height, channel, data);
 }
 
 RImage::RImage(const RImage &img):
@@ -95,7 +101,42 @@ bool RImage::load(std::string path, bool flip)
     return true;
 }
 
-void RImage::unLoad()
+bool RImage::load(int width, int height, int channel, unsigned char *data)
+{
+    size_t size = static_cast<size_t>(height) * static_cast<size_t>(width) * static_cast<size_t>(channel);
+    unsigned char *d = static_cast<unsigned char*>(calloc(size, sizeof(unsigned char)));
+    assert(d != nullptr);
+
+    data_.reset(d, stbi_image_free);
+    width_ = width;
+    height_ = height;
+    channel_ = channel;
+
+    if(!data) return true;
+
+    for(size_t i = 0; i < size; ++i)
+        d[i] = data[i];
+
+    return true;
+}
+
+void RImage::flipVertical()
+{
+    unsigned char *bitmap = data_.get();
+    using std::swap;
+
+    for(int h = 0, h2 = height_ - 1; h < height_/2; ++h, --h2)
+    {
+        for(int w = 0, w2 = width_ - 1; w < width_/2; ++w, --w2)
+        {
+            RDebug() << h << w << h2 << w2;
+            for(int c = 0; c < channel_; ++c)
+                swap(bitmap[(h*width_+w)*channel_+c], bitmap[(h2*width_+w2)*channel_+c]);
+        }
+    }
+}
+
+void RImage::freeImage()
 {
     data_.reset();
 }
@@ -127,17 +168,19 @@ const unsigned char *RImage::cdata() const
 
 unsigned char *RImage::data()
 {
-    if(!data_.unique())
-        copyOnWrite();
+    copyOnWrite();
     return data_.get();
 }
 
 void RImage::copyOnWrite()
 {
+    if(data_.unique() || data_ == nullptr) return;
+    RDebug() << data_.unique() << data_.use_count();
     assert(isValid());
-    size_t size = static_cast<size_t>(height_*width_*channel_);
+
+    size_t size = static_cast<size_t>(height_) * static_cast<size_t>(width_) * static_cast<size_t>(channel_);
     unsigned char *source = data_.get();
-    unsigned char *data = static_cast<unsigned char*>(malloc(sizeof(unsigned char) * size));
+    unsigned char *data = static_cast<unsigned char*>(calloc(size, sizeof(unsigned char)));
     for(size_t i = 0; i < size; ++i)
         data[i] = source[i];
     data_.reset(data, stbi_image_free);

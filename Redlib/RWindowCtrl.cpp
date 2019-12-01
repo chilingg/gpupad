@@ -23,7 +23,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
         }
         DefaultWindow();
         //加载手柄映射
-        updataGamepadMappings(":/data/gamecontrollerdb.txt");
+        updateGamepadMappings(":/data/gamecontrollerdb.txt");
         //手柄连接回调
         glfwSetJoystickCallback(joystickPresentCallback);
 
@@ -71,6 +71,9 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
                 RDebug() << format::green << format::bold << "Enable OpenGL debug output" << format::non;
                 glEnable(GL_DEBUG_OUTPUT);
                 glDebugMessageCallback(openglDebugMessageCallback, nullptr);
+                //过滤着色器编译成功消息通知
+                glDebugMessageControl(GL_DEBUG_SOURCE_SHADER_COMPILER, GL_DEBUG_TYPE_OTHER,
+                                      GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
             }
 #endif
         }
@@ -86,6 +89,8 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
         glDepthFunc(GL_LEQUAL);//小于或等于时通过
         //默认背景色
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        //禁用字节对齐限制
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     }
 
     glfwSetFramebufferSizeCallback(window_, resizeCallback);
@@ -106,6 +111,9 @@ RWindowCtrl::~RWindowCtrl()
 {
     assert(window_);
     glfwDestroyWindow(window_);
+
+    if(--count == 0)
+        glfwTerminate();
 }
 
 void RWindowCtrl::control()
@@ -247,13 +255,13 @@ void RWindowCtrl::DefaultWindow()
     //glfwWindowHint(GLFW_DECORATED, enable ? GLFW_TRUE : GLFW_FALSE);//边框与标题栏
 }
 
-void RWindowCtrl::updataGamepadMappings(std::string path)
+void RWindowCtrl::updateGamepadMappings(std::string path)
 {
     std::string mappingCode = RResource::getTextFileContent(path);
 
     if(mappingCode.empty())
     {
-        printError("Failed to updata gamepad mapping! In path: " + path + '\n' +
+        printError("Failed to update gamepad mapping! In path: " + path + '\n' +
                    "To https://github.com/gabomdq/SDL_GameControllerDB download gamecontrollerdb.txt file.");
         //加载内置的手柄映射
         mappingCode = std::string() + RInputEvent::gamepadMappingCode0
@@ -405,7 +413,6 @@ void RWindowCtrl::joystickPresentCallback(int jid, int event)
 
 void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
 {
-    RDebug() << width << height;
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
 
     if(wctrl->viewportPattern == FullWindow)

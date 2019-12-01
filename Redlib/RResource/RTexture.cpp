@@ -195,6 +195,11 @@ int RTexture::height() const
     return height_;
 }
 
+RSize RTexture::size() const
+{
+    return {width_, height_};
+}
+
 void RTexture::deleteTexture(GLuint *ID)
 {
     glDeleteTextures(1, ID);

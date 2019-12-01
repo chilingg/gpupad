@@ -2,43 +2,44 @@
 
 #include "RDebug.h"
 
-void RPlane::setViewpro(int left, int right, int buttom, int top, int near, int far)
+void RPlane::setPlaneDefaultViewpro(int left, int right, int buttom, int top, int near, int far)
 {
     planeSProgram.use();
-    RMatrix4 projection = Rglm::ortho(static_cast<float>(left),
+    RMatrix4 projection = RMath::ortho(static_cast<float>(left),
                                       static_cast<float>(right),
                                       static_cast<float>(buttom),
                                       static_cast<float>(top),
                                       static_cast<float>(near),
                                       static_cast<float>(far));
-    planeSProgram.setUniformMatrix(projectionLoc, 4, Rglm::value_ptr(projection));
+    planeSProgram.setUniformMatrix(planeSProgram.getUniformLocation("projection"), 4, RMath::value_ptr(projection));
     planeSProgram.nonuse();
     //RDebug() << projection << "projection";
 }
 
-void RPlane::setViewproMove(int x, int y, int z)
+void RPlane::setPlaneDefaultCameraPos(int x, int y, int z)
 {
     planeSProgram.use();
-    RMatrix4 view = Rglm::translate(RMatrix4(1), {-x, -y, -z});
-    planeSProgram.setUniformMatrix(viewLoc, 4, Rglm::value_ptr(view));
+    RMatrix4 view = RMath::translate(RMatrix4(1), {-x, -y, -z});
+    planeSProgram.setUniformMatrix(planeSProgram.getUniformLocation("view"), 4, RMath::value_ptr(view));
     planeSProgram.nonuse();
     //RDebug() << view << "view";
 }
 
-RPlane::RPlane(): RPlane("plane", 32, 32)
+RPlane::RPlane(RShaderProgram *program): RPlane(32, 32, "Plane", RPoint(0, 0), program)
 {
 
 }
 
 RPlane::RPlane(const RPlane &plane):
+    rotateMat_(plane.rotateMat_),
+    modelMat_(plane.modelMat_),
+    shaders_(plane.shaders_),
+    texture_(plane.texture_),
+    modelLoc_(plane.modelLoc_),
     name_(plane.name_),
     width_(plane.width_),
     height_(plane.height_),
     pos_(plane.pos_),
-    rotateMat_(plane.rotateMat_),
-    modelMat_(plane.modelMat_),
-    texture_(plane.texture_),
-    shaders_(plane.shaders_),
     dirty_(plane.dirty_),
     flipH_(plane.flipH_),
     flipV_(plane.flipV_),
@@ -57,15 +58,15 @@ RPlane::RPlane(const RPlane &plane):
     ++count;
 }
 
-RPlane::RPlane(const std::string &name, int width, int height, RPoint pos):
+RPlane::RPlane(int width, int height, const std::string &name, RPoint pos, RShaderProgram *program):
+    rotateMat_(1.0f),
+    modelMat_(1.0f),
+    shaders_(),
+    texture_(),
     name_(name),
     width_(width),
     height_(height),
-    pos_(pos),
-    rotateMat_(1.0f),
-    modelMat_(1.0f),
-    texture_(),
-    shaders_()
+    pos_(pos)
 {
     if(++count == 1)
     {
@@ -87,34 +88,52 @@ RPlane::RPlane(const std::string &name, int width, int height, RPoint pos):
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), offsetBuffer(3*sizeof(float)));
         glBindVertexArray(0);
 
-        planeSProgram.rename("DefaultPlanProgram");
-        planeSProgram.attachShader(":/shader/Vertex.vert", ShaderType::VertexShader);
-        planeSProgram.attachShader(":/shader/Fragment.frag", ShaderType::FragmentShader);
+        const GLchar *vertexCode = {
+            "#version 430 core\n"
+            "layout(location = 0) in vec3 aPos;\n"
+            "layout(location = 1) in vec2 aTexCoor;\n"
+            "uniform mat4 model;\n"
+            "uniform mat4 view;\n"
+            "uniform mat4 projection;\n"
+            "out vec2 TexCoor;\n"
+            "void main(void)\n"
+            "{\n"
+                "gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
+                "TexCoor = aTexCoor;\n"
+            "}\n"
+        };
+        const GLchar *fragCode = {
+            "#version 430 core\n"
+            "in vec2 TexCoor;\n"
+            "out vec4 outColor;\n"
+            "uniform sampler2D tex;\n"
+            "void main(void)\n"
+            "{\n"
+                "outColor = texture(tex, TexCoor);\n"
+            "}\n"
+        };
+        planeSProgram.rename("DefaultPlaneProgram");
+        planeSProgram.attachShaderCode(vertexCode, ShaderType::VertexShader);
+        planeSProgram.attachShaderCode(fragCode, ShaderType::FragmentShader);
         planeSProgram.linkProgram();
 
-        const unsigned char white[] = { 0xff, 0xff, 0xff };
-        whiteTex.rename("DefaultTexture");
-        whiteTex.setTexFilter(RTexture::Nearest);
-        whiteTex.generate(1, 1, 3, white);
-
         planeSProgram.use();
-        modelLoc = planeSProgram.getUniformLocation("model");
-        viewLoc = planeSProgram.getUniformLocation("view");
-        projectionLoc = planeSProgram.getUniformLocation("projection");
-        //setViewpro(0, 900, 0, 1600);
-        setViewpro(0, 1600, 0, 900, -127, 128);
-        setViewproMove(0, 0);
+        //默认视口
+        setPlaneDefaultViewpro(0, 960, 0, 540, -127, 128);
+        setPlaneDefaultCameraPos(0, 0);
     }
 
-    shaders_= planeSProgram;
-    texture_ = whiteTex;
+    if(program) shaders_ = *program;
+    else shaders_ = planeSProgram;
+
+    setColorTexture(0xffffffff);
+    setShaderProgram(planeSProgram);
 }
 
 RPlane::~RPlane()
 {
     if(--count == 0)
     {
-        whiteTex.freeTexture();
         planeSProgram.freeShaderProgram();
         glDeleteBuffers(1, &planeVBO);
         glDeleteVertexArrays(1, &planeVAO);
@@ -131,37 +150,37 @@ RPlane::~RPlane()
 void RPlane::setSize(int width, int height)
 {
     width_ = width; height_ = height;
-    updataModelMat();
+    updateModelMat();
 }
 
 void RPlane::setSize(RSize size)
 {
     width_ = size.width(); height_ = size.height();
-    updataModelMat();
+    updateModelMat();
 }
 
 void RPlane::setPosition(int x, int y, int z)
 {
     pos_ = RPoint(x, y, z);
-    updataModelMat();
+    updateModelMat();
 }
 
 void RPlane::setPositionX(int x)
 {
     pos_.setX(x);
-    updataModelMat();
+    updateModelMat();
 }
 
 void RPlane::setPositionY(int y)
 {
     pos_.setY(y);
-    updataModelMat();
+    updateModelMat();
 }
 
 void RPlane::setPositionZ(int z)
 {
     pos_.setZ(z);
-    updataModelMat();
+    updateModelMat();
 }
 
 void RPlane::setMargin(int top, int bottom, int left, int right)
@@ -177,13 +196,13 @@ void RPlane::setMargin(int value)
 void RPlane::setPadding(int top, int bottom, int left, int right)
 {
     paddingTop_ = top; paddingBottom_ = bottom; paddingLeft_ = left; paddingRight_ = right;
-    updataModelMat();
+    updateModelMat();
 }
 
 void RPlane::setPadding(int value)
 {
     paddingTop_ = value; paddingBottom_ = value; paddingLeft_ = value; paddingRight_ = value;
-    updataModelMat();
+    updateModelMat();
 }
 
 void RPlane::setColorTexture(RColor color)
@@ -199,7 +218,7 @@ void RPlane::setColorTexture(R_RGBA rgba)
     colorTex.rename("ColorTexture");
     colorTex.setTexFilter(RTexture::Nearest);
     colorTex.generate(1, 1, 4, colorData, 4);
-    texture_ = colorTex;
+    setTexture(colorTex);
 }
 
 void RPlane::setColorTexture(unsigned r, unsigned g, unsigned b, unsigned a)
@@ -211,39 +230,57 @@ void RPlane::setColorTexture(unsigned r, unsigned g, unsigned b, unsigned a)
 void RPlane::setTexture(const RImage &image)
 {
     texture_.generate(image);
+    if(sizeMode_ != Auto) updateModelMat();
 }
 
 void RPlane::setTexture(const RTexture &texture)
 {
     texture_ = texture;
+    if(sizeMode_ != Auto) updateModelMat();
 }
 
 void RPlane::setSizeMode(RPlane::SizeMode mode)
 {
     sizeMode_ = mode;
+    updateModelMat();
 }
 
 void RPlane::setAlignment(RPlane::Alignment hAlign, RPlane::Alignment vAlign)
 {
+#ifdef R_DEBUG
+    if(printError(hAlign == Align_Top || hAlign == Align_Bottom, "Wrong alignment! in " + name_))
+        return;
+    if(printError(vAlign == Align_Left || vAlign == Align_Right, "Wrong alignment! in " + name_))
+        return;
+#endif
     hAlign_ = hAlign; vAlign_ = vAlign;
+    updateModelMat();
+}
+
+void RPlane::setShaderProgram(const RShaderProgram &program)
+{
+    shaders_ = program;
+    shaders_.use();
+    modelLoc_ = shaders_.getUniformLocation("model");
+    shaders_.nonuse();
 }
 
 void RPlane::rotateX(float value)
 {
-    rotateMat_ = Rglm::rotate(RMatrix4(1), value, {1.0f, 0.0f, 0.0f});
-    updataModelMat();
+    rotateMat_ = RMath::rotate(RMatrix4(1), value, {1.0f, 0.0f, 0.0f});
+    updateModelMat();
 }
 
 void RPlane::rotateY(float value)
 {
-    rotateMat_ = Rglm::rotate(RMatrix4(1), value, {0.0f, 1.0f, 0.0f});
-    updataModelMat();
+    rotateMat_ = RMath::rotate(RMatrix4(1), value, {0.0f, 1.0f, 0.0f});
+    updateModelMat();
 }
 
 void RPlane::rotateZ(float value)
 {
-    rotateMat_ = Rglm::rotate(RMatrix4(1), value, {0.0f, 0.0f, 1.0f});
-    updataModelMat();
+    rotateMat_ = RMath::rotate(RMatrix4(1), value, {0.0f, 0.0f, 1.0f});
+    updateModelMat();
 }
 
 void RPlane::render()
@@ -251,36 +288,93 @@ void RPlane::render()
     glBindVertexArray(planeVAO);
     shaders_.use();
 
-    if(dirty_) updataModelMatNow();
+    if(dirty_) updateModelMatNow();
     texture_.bind();
 
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    renderControl();
     glBindVertexArray(0);
 }
 
 void RPlane::flipH()
 {
     flipH_ = true;
-    updataModelMat();
+    updateModelMat();
 }
 
 void RPlane::flipV()
 {
     flipV_ = true;
-    updataModelMat();
+    updateModelMat();
 }
 
 #ifdef R_DEBUG
-void RPlane::displayLineBox(const RMatrix4 &projection, const RMatrix4 &view)
+void RPlane::RenderLineBox(const RMatrix4 &projection, const RMatrix4 &view)
 {
-    static UniformLocation posLoc;
-    static UniformLocation sizeLoc;
+    static RUniformLocation posLoc;
+    static RUniformLocation sizeLoc;
 
     if(!lineBoxsProgram.isValid())
     {
-        RShader lineBoxV(":/shader/LineBox.vert", ShaderType::VertexShader, "LineBoxShaderVert");
-        RShader lineBoxF(":/shader/LineBox.frag", ShaderType::FragmentShader, "LineBoxShaderFrag");
-        RShader lineBoxG(":/shader/LineBox.geom", ShaderType::GeometryShader, "LineBoxShaderGeom");
+        const GLchar *vertexCode = {
+            "#version 430 core\n"
+            "uniform vec4 aPos[3];\n"
+            "uniform vec2 aSize[3];\n"
+            "out vec2 size;\n"
+            "out vec3 color;\n"
+            "void main(void)\n"
+            "{\n"
+                "color = vec3(0, 0, 0);\n"
+                "switch(gl_InstanceID)\n"
+                "{\n"
+                    "case 0: color.r = 1; break;\n"
+                    "case 1: color.g = 1; break;\n"
+                    "case 2: color.b = 1; break;\n"
+                "}\n"
+                "size = aSize[gl_InstanceID];\n"
+                "gl_Position = aPos[gl_InstanceID];\n"
+            "};\n"
+        };
+        const GLchar *geomCode = {
+            "#version 430 core\n"
+            "layout(points) in;\n"
+            "layout(line_strip, max_vertices = 5) out;\n"
+            "in vec2 size[1];\n"
+            "in vec3 color[1];\n"
+            "out vec3 lineColor;\n"
+            "void main(void)\n"
+            "{\n"
+                "lineColor = color[0];\n"
+                "vec4 position = gl_in[0].gl_Position;\n"
+            "\n"
+                "gl_Position = position;\n"
+                "EmitVertex();\n"
+                "gl_Position = position + vec4(0.0, size[0].y, 0.0, 0.0);\n"
+                "EmitVertex();\n"
+                "gl_Position = position + vec4(size[0], 0.0, 0.0);\n"
+                "EmitVertex();\n"
+                "gl_Position = position + vec4(size[0].x, 0.0, 0.0, 0.0);\n"
+                "EmitVertex();\n"
+                "gl_Position = position;\n"
+                "EmitVertex();\n"
+            "\n"
+                "EndPrimitive();\n"
+            "}\n"
+        };
+        const GLchar *fragCode = {
+            "#version 430 core\n"
+            "in vec3 lineColor;\n"
+            "out vec4 outColor;\n"
+            "void main(void)\n"
+            "{\n"
+                "outColor = vec4(lineColor, 1.0);\n"
+            "}\n"
+        };
+        RShader lineBoxV;
+        lineBoxV.compileShaderCode(vertexCode, ShaderType::VertexShader);
+        RShader lineBoxG;
+        lineBoxG.compileShaderCode(geomCode, ShaderType::GeometryShader);
+        RShader lineBoxF;
+        lineBoxF.compileShaderCode(fragCode, ShaderType::FragmentShader);
         lineBoxsProgram.rename("LineBoxProgram");
         lineBoxsProgram.attachShader(lineBoxV);
         lineBoxsProgram.attachShader(lineBoxF);
@@ -338,26 +432,93 @@ void RPlane::displayLineBox(const RMatrix4 &projection, const RMatrix4 &view)
     lineBoxsProgram.nonuse();
 }
 
-void RPlane::displayLineBox(int left, int right, int buttom, int top, RPoint pos)
+void RPlane::RenderLineBox(int left, int right, int buttom, int top, RPoint pos)
 {
-    RMatrix4 projection = Rglm::ortho(left*1.0f, right*1.0f, buttom*1.0f, top*1.0f);
-    RMatrix4 view = Rglm::translate(RMatrix4(1), { pos.x(), pos.y(), 0 });
-    displayLineBox(projection, view);
+    RMatrix4 projection = RMath::ortho(left*1.0f, right*1.0f, buttom*1.0f, top*1.0f);
+    RMatrix4 view = RMath::translate(RMatrix4(1), { pos.x(), pos.y(), 0 });
+    RenderLineBox(projection, view);
 }
 
-void RPlane::updataModelMat()
+void RPlane::renderControl()
+{
+    shaders_.setUniformMatrix(modelLoc_, 4, RMath::value_ptr(modelMat_));
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+void RPlane::updateModelMat()
 {
     dirty_ = true;
 }
 
-void RPlane::updataModelMatNow()
+void RPlane::updateModelMatOver()
 {
-    modelMat_ = RMatrix4(1);
-    modelMat_ = Rglm::translate(modelMat_, {pos_.x()+width_/2.0f,
-                                            pos_.y()+height_/2.0f, pos_.z()});
-    modelMat_ *= rotateMat_;
-    modelMat_ = Rglm::scale(modelMat_, {innerWidth(), innerHeight(), 1.0f});
+    dirty_ = false;
+}
 
+void RPlane::updateModelMatNow()
+{
+    float w, h, tw = texture_.width(), th = texture_.height();
+    float min = innerWidth() / tw*1.f;
+    float max = innerHeight() / th*1.f;
+    if(min > max) std::swap(min, max);
+
+    switch(sizeMode_)
+    {
+    case Fixed:
+        w = tw;
+        h = th;
+        break;
+    case Auto:
+        w = innerWidth();
+        h = innerHeight();
+        break;
+    case Cover:
+        w = tw * max;
+        h = th * max;
+        break;
+    case Contain:
+        w = tw * min;
+        h = th * min;
+        break;
+    }
+
+    float x, y;
+    switch(hAlign_)
+    {
+    case Align_Left:
+        x = w/2.0f + paddingLeft_;
+        break;
+    case Align_Mind:
+        x = width_/2.0f;
+        break;
+    case Align_Right:
+        x = width_ - w/2.0f - paddingRight_;
+        break;
+    default:
+        x = width_/2.0f;
+        break;
+    }
+    switch(vAlign_)
+    {
+    case Align_Bottom:
+        y = h/2.0f + paddingBottom_;
+        break;
+    case Align_Mind:
+        y = height_/2.0f;
+        break;
+    case Align_Top:
+        y = height_ - h/2.0f - paddingTop_;
+        break;
+    default:
+        y = height_/2.0f;
+        break;
+    }
+    modelMat_ = RMatrix4(1);
+    modelMat_ = RMath::translate(modelMat_, {pos_.x()+x, pos_.y()+y, pos_.z()});
+    modelMat_ *= rotateMat_;
+    modelMat_ = RMath::scale(modelMat_, {w, h, 1.0f});
+
+    //简化的右乘一个翻转矩阵
     if(flipH_)
     {
         modelMat_[0][0] *= -1;
@@ -372,7 +533,6 @@ void RPlane::updataModelMatNow()
         modelMat_[1][2] *= -1;
         modelMat_[1][3] *= -1;
     }
-    shaders_.setUniformMatrix(modelLoc, 4, Rglm::value_ptr(modelMat_));
     dirty_ = false;
 }
 #endif
@@ -381,8 +541,4 @@ RShaderProgram RPlane::lineBoxsProgram;
 GLuint RPlane::lineBoxVAO;
 RShaderProgram RPlane::planeSProgram;
 GLuint RPlane::planeVAO, RPlane::planeVBO;
-RTexture RPlane::whiteTex;
-UniformLocation RPlane::modelLoc;
-UniformLocation RPlane::viewLoc;
-UniformLocation RPlane::projectionLoc;
-int RPlane::count = 0;
+unsigned long RPlane::count = 0;

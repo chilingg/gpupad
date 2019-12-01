@@ -4,6 +4,7 @@
 #include "RResource.h"
 #include "RImage.h"
 #include "ROpenGL.h"
+#include "RSize.h"
 
 #include <memory>
 
@@ -37,7 +38,7 @@ public:
         Linear = GL_LINEAR
     };
 
-    explicit RTexture();
+    RTexture();
     RTexture(const RImage &img, const std::string &name);
     RTexture(const RTexture &texture);
     RTexture(const RTexture &&texture);
@@ -51,6 +52,7 @@ public:
     bool isValid() const;
     int width() const;
     int height() const;
+    RSize size() const;
 
     bool generate(int width, int height, int echannel, const unsigned char *data, int ichannel = 3);
     bool generate(const RImage &img);

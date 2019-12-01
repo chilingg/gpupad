@@ -4,6 +4,7 @@
 #include <RController.h>
 #include <RWindowCtrl.h>
 #include <RPlane.h>
+#include <RTextPlane.h>
 
 class TestCtr : public RController
 {
@@ -37,7 +38,10 @@ private:
     bool fullScreen_ = false;
     RInputEvent::ButtonAction debugWindowBtn_ = RInputEvent::RELEASE;
     RWindowCtrl *debugWindow_ = nullptr;
-    RPlane plane;
+    std::unique_ptr<RPlane> plane;
+    RTextPlane textPlane;
+    int width_;
+    int height_;
 };
 
 #endif // TESTCTR_H

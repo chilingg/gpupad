@@ -13,24 +13,29 @@ CONFIG(debug, debug|release){
     DESTDIR = bin_release
 }
 
-unix{
-unix:!macx:
+unix:!macx:{
 LIBS += -lglfw \
     -ldl \
+    -L/usr/lib/ -lfreetype
+
+INCLUDEPATH += /usr/include/freetype2
 }
 
 SOURCES += \
+        Redlib/Extern/SourceCodePro.cpp \
         Redlib/Extern/glad.c \
         Redlib/Extern/stb_image_implementatio.cpp \
         Redlib/RController.cpp \
         Redlib/RDebug.cpp \
         Redlib/RInputEvent.cpp \
         Redlib/RPlane.cpp \
+        Redlib/RResource/RFont.cpp \
         Redlib/RResource/RImage.cpp \
         Redlib/RResource/RResource.cpp \
         Redlib/RResource/RShader.cpp \
         Redlib/RResource/RShaderProgram.cpp \
         Redlib/RResource/RTexture.cpp \
+        Redlib/RTextPlane.cpp \
         Redlib/RWindowCtrl.cpp \
         Testctr.cpp \
         main.cpp
@@ -47,12 +52,15 @@ HEADERS += \
     Redlib/ROpenGL.h \
     Redlib/RPlane.h \
     Redlib/RPoint.h \
+    Redlib/RResource/RFont.h \
     Redlib/RResource/RImage.h \
     Redlib/RResource/RResource.h \
     Redlib/RResource/RShader.h \
     Redlib/RResource/RShaderProgram.h \
     Redlib/RResource/RTexture.h \
     Redlib/RSize.h \
+    Redlib/RTextPlane.h \
+    Redlib/RTimer.h \
     Redlib/RWindowCtrl.h \
     Redlib/RSigslot.h \
     Testctr.h

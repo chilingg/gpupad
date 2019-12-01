@@ -19,7 +19,7 @@ RInputEvent::ButtonAction RInputEvent::toButtonAction(int action)
         return REPEAT;
     default:
         printError("Invalid button action value!");
-        exit(EXIT_FAILURE);
+        return RELEASE;
     }
 }
 
@@ -289,7 +289,7 @@ RInputEvent::MouseButtons RInputEvent::toMouseButtons(int button)
         return Mouse_Button_Middle;
     default:
         printError("Invalid mouse button value!");
-        exit(EXIT_FAILURE);
+        return Mouse_None;
     }
 }
 
@@ -331,7 +331,7 @@ RInputEvent::JoystickID RInputEvent::toJoystickID(int jid)
         return joystick16;
     default:
         printError("Invalid integer " + std::to_string(jid) + " to JID!");
-        exit(EXIT_FAILURE);
+        return joystick16;
     }
 }
 
