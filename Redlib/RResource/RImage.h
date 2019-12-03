@@ -3,6 +3,7 @@
 
 #include "RResource.h"
 #include "Extern/stb_image.h"
+#include "RColor.h"
 
 #include <memory>
 
@@ -21,17 +22,18 @@ public:
     void swap(RImage &rc);
     ~RImage();
 
-    bool load(std::string path, bool flip = false);
-    bool load(int width, int height, int channel, unsigned char *data);
-    void flipVertical();
-    void freeImage();
-
     bool isValid() const;
     int width() const;
     int height() const;
     int channel() const;
     unsigned char* data();
     const unsigned char* cdata() const;
+
+    bool load(std::string path, bool flip = false);
+    bool load(int width, int height, int channel, unsigned char *data);
+    void flipVertical();
+    void freeImage();
+    void full(RColor color);
 
 protected:
     void copyOnWrite();

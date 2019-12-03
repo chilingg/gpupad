@@ -56,6 +56,7 @@ public:
 
     bool generate(int width, int height, int echannel, const unsigned char *data, int ichannel = 3);
     bool generate(const RImage &img);
+    bool generate(const std::string path);
     void freeTexture();
     void bind(GLenum unit = 0);
     void unbind();

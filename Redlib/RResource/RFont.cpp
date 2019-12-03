@@ -135,7 +135,7 @@ void RFont::setAsDefualtFont(unsigned size)
     ftFace_.reset(new FT_Face, deleteFontFace);
 
 #ifdef R_DEBUG
-    if(printError(FT_New_Memory_Face(ftLibrary, Font_SourceCodePro, Font_FileSize, 0 , ftFace_.get()), "Cannot set default font!"))
+    if(printError(FT_New_Memory_Face(ftLibrary, Font_SourceCodePro, Font_FileSize, 0, ftFace_.get()), "Cannot set default font!"))
         throw("Cannot set default font!");
 #else
     FT_New_Memory_Face(ftLibrary, defaultFont, size, 0 , face_);

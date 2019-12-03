@@ -5,6 +5,8 @@
 #include <RWindowCtrl.h>
 #include <RPlane.h>
 #include <RTextPlane.h>
+#include <RTimer.h>
+#include <RSprite.h>
 
 class TestCtr : public RController
 {
@@ -33,15 +35,20 @@ protected:
     Signal0 closed;
 
 private:
+    void FPS();
+
     Gamepad gamepad_ { RInputEvent::joystick1, false };
     RInputEvent::ButtonAction fullScreenBtn_ = RInputEvent::RELEASE;
     bool fullScreen_ = false;
     RInputEvent::ButtonAction debugWindowBtn_ = RInputEvent::RELEASE;
     RWindowCtrl *debugWindow_ = nullptr;
-    std::unique_ptr<RPlane> plane;
-    RTextPlane textPlane;
+    std::unique_ptr<RPlane> plane_;
+    RTextPlane textPlane_;
     int width_;
     int height_;
+    RTimer timer_;
+    RTextPlane fpsPlane_;
+    RSprite sprite_;
 };
 
 #endif // TESTCTR_H

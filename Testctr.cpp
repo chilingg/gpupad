@@ -38,12 +38,16 @@ void TestCtr::control()
         debugWindow_ = nullptr;
     }
 
-    //plane->rotateX(static_cast<float>(glfwGetTime()*2));
-    plane->RenderLineBox(0, width_, 0, height_);
-    plane->render();
+    plane_->rotateX(static_cast<float>(glfwGetTime()*2));
+    plane_->RenderLineBox(0, width_, 0, height_);
+    plane_->render();
 
-    textPlane.RenderLineBox(0, width_, 0, height_);
-    textPlane.render();
+    textPlane_.RenderLineBox(0, width_, 0, height_);
+    textPlane_.render();
+
+    FPS();
+
+    sprite_.render();
 }
 
 void TestCtr::scrollNotify(double v)
@@ -102,17 +106,17 @@ void TestCtr::initEvent(RInitEvent *event)
         height_ = window->height();
     }
 
-    plane.reset(new RPlane(80, 80, "text-plan", RPoint(480, 270, 0)));
+    plane_.reset(new RPlane(80, 80, "text-plan", RPoint(480, 270, 0)));
     RImage img(":/texture/Robot_idle.png", "test-img", true);
-    plane->setTexture(img);
-    plane->setSizeMode(RPlane::Contain);
+    plane_->setTexture(img);
+    plane_->setSizeMode(RPlane::Contain);
     //plane->flipV();
-    plane->setMargin(18);
-    plane->setPadding(10);
-    plane->setAlignment(RPlane::Align_Right, RPlane::Align_Top);
-    RFont font;
-    font.loadFont("/home/carper/Code/Redopera/Redopera/Resource/fonts/SourceHanSerifSC_EL-M/SourceHanSerifSC-Regular.otf", 24);
-    auto glyph = font.getFontGlyph(L'j');
+    plane_->setMargin(18);
+    plane_->setPadding(10);
+    plane_->setAlignment(RPlane::Align_Right, RPlane::Align_Top);
+    RFont font(":/fonts/SourceHanSerifSC_EL-M/SourceHanSerifSC-Regular.otf", "testF");
+    //font.loadFont("/home/carper/Code/Redopera/Redopera/Resource/fonts/SourceHanSerifSC_EL-M/SourceHanSerifSC-Regular.otf", 24);
+    //auto glyph = font.getFontGlyph(L'j');
     //RDebug() << "bearingx:" << glyph.bearingX << " bearingy:" << glyph.bearingY
              //<< " w:" << glyph.width << " h:" << glyph.height << " advance:" << glyph.advance;
     //font.setFontSize(8);
@@ -122,35 +126,68 @@ void TestCtr::initEvent(RInitEvent *event)
     //font.clearFontDataCache();
     //font.freeFont();
 
-    textPlane.setFont(font);
-    textPlane.setPosition(10, 200);
-    textPlane.setSize(200, 300);
-    textPlane.setFontSize(12);
+    textPlane_.setFont(font);
+    textPlane_.setPosition(600, 200);
+    textPlane_.setSize(200, 300);
+    textPlane_.setFontSize(12);
+    textPlane_.setMargin(10);
+    textPlane_.setPadding(5);
+    textPlane_.setWordSpacing(1.2f);
+    textPlane_.setlineSpacing(1.5f);
+    textPlane_.setAlignment(RPlane::Align_Right, RPlane::Align_Bottom);
+    //textPlane_.verticalTypeset();
+    textPlane_.setFontColor(240, 240, 255);
     //textPlane.setTexts(L"Aajfgi-_^——……读期间");
     //textPlane.setTexts(L"一二三四五六七八九");
-    textPlane.setWordSpacing(1.1f);
-    textPlane.setTexts(L"https://www.cnblogs.com/PrayG/p/5749832.html\n\
-                       用ios::sync_with_stdio(false)有什么坏处？ - 知乎\
-                       \
-                       2017-7-5 · 好久没写c艹，强答一下 背景姿势： 系统默认standard stream应该都是同步的，你设置sync_with_stdio(false)，其实应该是让C风格的stream和C艹风格的stream变成async且分用不同buffer。\
-                       https://www.zhihu.com/question/62041072\
-                       LeetCode 用 C++ 刷题时是否应该使用 I/O 优化代码？ - 知乎\
-                           2019-2-6\
-                       leetcode里这段强行加快运行速度的C++代码是什么意思？ - 知乎\
-                           2018-6-23\
-                       c++中ios::sync_with_stdio(false)后可以使用freopen()吗? - 知乎\
-                           2018-2-15\
-                       为什么 C 语言的输入输出函数比 C++ 的输入输出流要快？ - 知乎\
-                           2012-8-30\
-                       查看更多结果\
-                       std::ios_base::sync_with_stdio - cppreference.com\
-                       \
-                       2017-11-23 · 本页面最后修改于2017年11月23日 (星期四) 22:42。 此页面已被浏览过5,");
-    textPlane.setTexts(L"ml\n\
-                       用ios::sync_with乎 ");
-    //textPlane.setTexts(L"https://www.cnblogs.com/PrayG/p/5749832.html");
-    textPlane.setMargin(10);
-    textPlane.setPadding(5);
+    textPlane_.setTexts(L"#version 430 core\n"
+                       "layout(points) in;\n"
+                       "layout(line_strip, max_vertices = 5) out;\n"
+                       "in vec2 size[1];\n"
+                       "in vec3 color[1];\n"
+                       "out vec3 lineColor;\n"
+                       "void main(void)\n"
+                       "{\n"
+                           "lineColor = color[0];\n"
+                           "vec4 position = gl_in[0].gl_Position;\n"
+                       "\n"
+                           "gl_Position = position;\n"
+                           "EmitVertex();\n"
+                           "gl_Position = position + vec4(0.0, size[0].y, 0.0, 0.0);\n"
+                           "EmitVertex();\n"
+                           "gl_Position = position + vec4(size[0], 0.0, 0.0);\n"
+                           "EmitVertex();\n"
+                           "gl_Position = position + vec4(size[0].x, 0.0, 0.0, 0.0);\n"
+                           "EmitVertex();\n"
+                           "gl_Position = position;\n"
+                           "EmitVertex();\n"
+                       "\n"
+                           "EndPrimitive();\n"
+                       "}\n");
+    //textPlane_.setTexts(L"FreeType库是一个完全免费（开源）的、高质量的且可移植的字体引擎，"
+                       //"它提供统一的接口来访问多种字体格式文件，包括TrueType, "
+                       //"OpenType, Type1, CID, CFF, Windows FON/FNT, X11 PCF等。");
+
+    fpsPlane_.rename("FPS-Plane");
+    fpsPlane_.setWordSpacing(1.0f);
+    fpsPlane_.setPosition(0, height_ - 50);
+    fpsPlane_.setSize(100, 50);
+    fpsPlane_.setFontSize(12);
+    fpsPlane_.setFontColor(240, 50, 0);
+    fpsPlane_.setPadding(10);
+    fpsPlane_.setTexts(L"FPS:0");
+
+    sprite_.rename("Test-Sprite");
+    sprite_.setPosition(400, 300);
+    RTexture f1, f2, f3, f4;
+    f1.generate(":/texture/Robot_attacked.png");
+    f2.generate(":/texture/Robot_idle.png");
+    f3.generate(":/texture/Robot_injured.png");
+    f4.generate(":/texture/Robot_normal.png");
+    sprite_.addFrame(f1);
+    sprite_.addFrame(f2);
+    sprite_.addFrame(f3);
+    sprite_.addFrame(f4);
+    sprite_.setInterval(20);
 }
 
 void TestCtr::joystickPresentEvent(RjoystickPresentEvent *event)
@@ -186,4 +223,18 @@ void TestCtr::closeEvent(RCloseEvent *event)
 {
     RDebug() << "Close " << event->looper->getName() << " in " << getPathName();
     closed.disconnect(event->looper);
+}
+
+void TestCtr::FPS()
+{
+    static int count = 0;
+    ++count;
+    if(timer_.elapsed() > 1.0)
+    {
+        fpsPlane_.setTexts(L"FPS:" + std::to_wstring(count));
+        timer_.start();
+        count = 0;
+    }
+    //fpsPlane_.RenderLineBox(0, width_, 0, height_);
+    fpsPlane_.render();
 }

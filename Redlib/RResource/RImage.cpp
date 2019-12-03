@@ -129,7 +129,6 @@ void RImage::flipVertical()
     {
         for(int w = 0, w2 = width_ - 1; w < width_/2; ++w, --w2)
         {
-            RDebug() << h << w << h2 << w2;
             for(int c = 0; c < channel_; ++c)
                 swap(bitmap[(h*width_+w)*channel_+c], bitmap[(h2*width_+w2)*channel_+c]);
         }
@@ -139,6 +138,21 @@ void RImage::flipVertical()
 void RImage::freeImage()
 {
     data_.reset();
+}
+
+void RImage::full(RColor color)
+{
+    unsigned char *data = data_.get();
+    for(int i = 0; i < height_; ++i)
+    {
+        for(int j = 0; j < width_; ++j)
+        {
+            data[i*width_*channel_ + j*channel_] = color.r();
+            if(channel_ >= 2) data[i*width_*channel_ + j*channel_ + 1] = color.g();
+            if(channel_ >= 3) data[i*width_*channel_ + j*channel_ + 2] = color.b();
+            if(channel_ == 4) data[i*width_*channel_ + j*channel_ + 3] = color.a();
+        }
+    }
 }
 
 bool RImage::isValid() const

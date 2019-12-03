@@ -25,7 +25,8 @@ void RPlane::setPlaneDefaultCameraPos(int x, int y, int z)
     //RDebug() << view << "view";
 }
 
-RPlane::RPlane(RShaderProgram *program): RPlane(32, 32, "Plane", RPoint(0, 0), program)
+RPlane::RPlane(RShaderProgram *program, const std::string &name):
+    RPlane(32, 32, name, RPoint(0, 0), program)
 {
 
 }
@@ -162,25 +163,21 @@ void RPlane::setSize(RSize size)
 void RPlane::setPosition(int x, int y, int z)
 {
     pos_ = RPoint(x, y, z);
-    updateModelMat();
 }
 
 void RPlane::setPositionX(int x)
 {
     pos_.setX(x);
-    updateModelMat();
 }
 
 void RPlane::setPositionY(int y)
 {
     pos_.setY(y);
-    updateModelMat();
 }
 
 void RPlane::setPositionZ(int z)
 {
     pos_.setZ(z);
-    updateModelMat();
 }
 
 void RPlane::setMargin(int top, int bottom, int left, int right)
@@ -265,6 +262,11 @@ void RPlane::setShaderProgram(const RShaderProgram &program)
     shaders_.nonuse();
 }
 
+void RPlane::rename(std::string name)
+{
+    name_.swap(name);
+}
+
 void RPlane::rotateX(float value)
 {
     rotateMat_ = RMath::rotate(RMatrix4(1), value, {1.0f, 0.0f, 0.0f});
@@ -289,6 +291,23 @@ void RPlane::render()
     shaders_.use();
 
     if(dirty_) updateModelMatNow();
+    RMatrix4 modelMat = RMath::translate(RMatrix4(1), {pos_.x(), pos_.y(), pos_.z()}) * modelMat_;
+    shaders_.setUniformMatrix(modelLoc_, 4, RMath::value_ptr(modelMat));
+
+    texture_.bind();
+
+    renderControl();
+    glBindVertexArray(0);
+}
+
+void RPlane::render(RMatrix4 modelMat)
+{
+    glBindVertexArray(planeVAO);
+    shaders_.use();
+
+    if(dirty_) updateModelMatNow();
+    shaders_.setUniformMatrix(modelLoc_, 4, RMath::value_ptr(modelMat));
+
     texture_.bind();
 
     renderControl();
@@ -298,13 +317,21 @@ void RPlane::render()
 void RPlane::flipH()
 {
     flipH_ = true;
-    updateModelMat();
+    //简化的右乘一个翻转矩阵
+    modelMat_[0][0] *= -1;
+    modelMat_[0][1] *= -1;
+    modelMat_[0][2] *= -1;
+    modelMat_[0][3] *= -1;
 }
 
 void RPlane::flipV()
 {
     flipV_ = true;
-    updateModelMat();
+    //简化的右乘一个翻转矩阵
+    modelMat_[1][0] *= -1;
+    modelMat_[1][1] *= -1;
+    modelMat_[1][2] *= -1;
+    modelMat_[1][3] *= -1;
 }
 
 #ifdef R_DEBUG
@@ -441,7 +468,6 @@ void RPlane::RenderLineBox(int left, int right, int buttom, int top, RPoint pos)
 
 void RPlane::renderControl()
 {
-    shaders_.setUniformMatrix(modelLoc_, 4, RMath::value_ptr(modelMat_));
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
@@ -514,7 +540,7 @@ void RPlane::updateModelMatNow()
         break;
     }
     modelMat_ = RMatrix4(1);
-    modelMat_ = RMath::translate(modelMat_, {pos_.x()+x, pos_.y()+y, pos_.z()});
+    modelMat_ = RMath::translate(modelMat_, {x, y, 0});
     modelMat_ *= rotateMat_;
     modelMat_ = RMath::scale(modelMat_, {w, h, 1.0f});
 

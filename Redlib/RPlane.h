@@ -30,7 +30,7 @@ public:
     static void setPlaneDefaultViewpro(int left, int right, int buttom, int top, int near= -1, int far = 1);
     static void setPlaneDefaultCameraPos(int x, int y, int z = 0);
 
-    RPlane(RShaderProgram *program = nullptr);
+    explicit RPlane(RShaderProgram *program = nullptr, const std::string &name = "Plane");
     RPlane(const RPlane &plane);
     RPlane(int width, int height, const std::string &name, RPoint pos, RShaderProgram *program = nullptr);
     virtual ~RPlane();
@@ -56,6 +56,7 @@ public:
     void setSizeMode(SizeMode mode);
     void setAlignment(Alignment hAlign, Alignment vAlign);
     void setShaderProgram(const RShaderProgram &program);
+    void rename(std::string name);
 
     void rotateX(float x);
     void rotateY(float y);
@@ -88,8 +89,13 @@ public:
     SizeMode sizeMode() const { return sizeMode_; }
     Alignment vAlign() const { return vAlign_; }
     Alignment hAlign() const { return hAlign_; }
+    const std::string& name() const { return name_; }
+    const RMatrix4& modelMat() const { return modelMat_; }
 
     void render();
+    void render(RMatrix4 modelMat);
+    virtual void updateModelMatNow();
+    void updateModelMat();
 #ifdef R_DEBUG
     //渲染边距线框
     void RenderLineBox(const RMatrix4 &projection, const RMatrix4 &view);
@@ -98,8 +104,6 @@ public:
 
 protected:
     virtual void renderControl();
-    virtual void updateModelMatNow();
-    void updateModelMat();
     void updateModelMatOver();
 
     RMatrix4 rotateMat_;

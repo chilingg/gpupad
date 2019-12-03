@@ -156,6 +156,13 @@ bool RTexture::generate(const RImage &img)
     return generate(img.width(), img.height(), img.channel(), img.cdata(), img.channel());
 }
 
+bool RTexture::generate(const std::string path)
+{
+    RImage img;
+    img.load(path, true);
+    return generate(img);
+}
+
 void RTexture::freeTexture()
 {
     textureID_.reset();

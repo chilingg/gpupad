@@ -16,12 +16,14 @@ public:
         color_ |= a << 24;
     }
 
-    unsigned a() const { return color_ >> 24 & 0xffu; }
-    unsigned b() const { return color_ >> 16 & 0xffu; }
-    unsigned g() const { return color_ >> 8 & 0xffu; }
-    unsigned r() const { return color_ & 0xffu; }
+    unsigned char a() const { return color_ >> 24 & 0xffu; }
+    unsigned char b() const { return color_ >> 16 & 0xffu; }
+    unsigned char g() const { return color_ >> 8 & 0xffu; }
+    unsigned char r() const { return color_ & 0xffu; }
     R_RGBA rgba() const { return color_; }
-    R_RGBA abgr() const { return (r() << 24) + (g() << 16) + (b() << 8) + a(); }
+    R_RGBA abgr() const { return (static_cast<unsigned>(r()) << 24) +
+                (static_cast<unsigned>(g()) << 16) +
+                (static_cast<unsigned>(b()) << 8) + a(); }
 
     void setA(unsigned a) { color_ = (color_ & 0xffffff) | a << 24; }
     void setB(unsigned b) { color_ = (color_ & 0xff00ffff) | (0xffu & b) << 16; }
