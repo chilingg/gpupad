@@ -22,6 +22,7 @@ INCLUDEPATH += /usr/include/freetype2
 }
 
 SOURCES += \
+        Learn.cpp \
         Redlib/RLayout.cpp \
         Redlib/RSprite.cpp \
         Redlib/Extern/SourceCodePro.cpp \
@@ -43,6 +44,7 @@ SOURCES += \
         main.cpp
 
 HEADERS += \
+    Learn.h \
     Redlib/RLayout.h \
     Redlib/RSprite.h \
     Redlib/Extern/sigslot.h \

@@ -12,7 +12,10 @@
 class RTimer
 {
 public:
+    static double getTime() { return glfwGetTime(); }
+
     RTimer(): startTime(glfwGetTime()) {}
+
     double elapsed() { return glfwGetTime() - startTime; }
     double elapsed(double time){
         double elp = glfwGetTime() - startTime;

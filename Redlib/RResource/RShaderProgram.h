@@ -13,7 +13,10 @@ class RUniformLocation;
 class RShaderProgram : public RResource
 {
     friend void swap(RShaderProgram &prog1, RShaderProgram&prog2);
+
 public:
+    static RShaderProgram getStanderdShaderProgram();
+
     RShaderProgram();
     RShaderProgram(RShader vertex, RShader fragment, const std::string &name);
     RShaderProgram(const RShaderProgram &program);
@@ -22,13 +25,17 @@ public:
     void swap(RShaderProgram &prog);
 
     bool isValid() const;
+    bool isUsed() const;
+    GLuint ID() const { return *progID_; }
 
     void attachShader(const RShader &shader);
     void attachShader(const std::string &path, ShaderType type);
     void attachShaderCode(const GLchar *code, ShaderType type);
     bool linkProgram();
+    bool linkProgramAsPrototype();
+    void relinkProgram();
     void use() const;
-    void nonuse();
+    void nonuse() const;
     void freeShaderProgram();
 
     RUniformLocation getUniformLocation(const std::string &name) const;
@@ -47,15 +54,15 @@ public:
     void setUniform(RUniformLocation location, GLsizei size, GLfloat *vp, GLsizei count = 1) const;
     void setUniform(RUniformLocation location, GLsizei size, GLint *vp, GLsizei count = 1) const;
     void setUniform(RUniformLocation location, GLsizei size, GLuint *vp, GLsizei count = 1) const;
-    void setUniformMatrix(RUniformLocation location, GLsizei size, GLfloat *vp, GLsizei count = 1, GLboolean transpose = false) const;
-    void setUniformMatrix(RUniformLocation location, GLsizei size, GLdouble *vp, GLsizei count = 1, GLboolean transpose = false) const;
+    void setUniformMatrix(RUniformLocation location, GLsizei order, GLfloat *vp, GLsizei count = 1, GLboolean transpose = false) const;
+    void setUniformMatrix(RUniformLocation location, GLsizei order, GLdouble *vp, GLsizei count = 1, GLboolean transpose = false) const;
     void setUniformMatrix(RUniformLocation location, GLsizei column, GLsizei row, GLfloat *vp, GLsizei count = 1, GLboolean transpose = false) const;
     void setUniformMatrix(RUniformLocation location, GLsizei column, GLsizei row, GLdouble *vp, GLsizei count = 1, GLboolean transpose = false) const;
 
 private:
     static void deleteShaderProgram(GLuint *ID);
 
-    static GLuint usingProgramID;
+    static GLuint usingProgramID;//当前使用的着色器程序ID
 
     std::shared_ptr<GLuint> progID_;
     std::map<ShaderType, RShader> shaders_;

@@ -4,7 +4,11 @@
 
 void RPlane::setPlaneDefaultViewpro(int left, int right, int buttom, int top, int near, int far)
 {
-    planeSProgram.use();
+    bool b = true;
+    if(!planeSProgram.isUsed())
+        planeSProgram.use();
+    else
+        b = false;
     RMatrix4 projection = RMath::ortho(static_cast<float>(left),
                                       static_cast<float>(right),
                                       static_cast<float>(buttom),
@@ -12,16 +16,20 @@ void RPlane::setPlaneDefaultViewpro(int left, int right, int buttom, int top, in
                                       static_cast<float>(near),
                                       static_cast<float>(far));
     planeSProgram.setUniformMatrix(planeSProgram.getUniformLocation("projection"), 4, RMath::value_ptr(projection));
-    planeSProgram.nonuse();
+    if(b) planeSProgram.nonuse();
     //RDebug() << projection << "projection";
 }
 
 void RPlane::setPlaneDefaultCameraPos(int x, int y, int z)
 {
-    planeSProgram.use();
+    bool b = true;
+    if(!planeSProgram.isUsed())
+        planeSProgram.use();
+    else
+        b = false;
     RMatrix4 view = RMath::translate(RMatrix4(1), {-x, -y, -z});
     planeSProgram.setUniformMatrix(planeSProgram.getUniformLocation("view"), 4, RMath::value_ptr(view));
-    planeSProgram.nonuse();
+    if(b) planeSProgram.nonuse();
     //RDebug() << view << "view";
 }
 
@@ -89,34 +97,8 @@ RPlane::RPlane(int width, int height, const std::string &name, RPoint pos, RShad
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), offsetBuffer(3*sizeof(float)));
         glBindVertexArray(0);
 
-        const GLchar *vertexCode = {
-            "#version 430 core\n"
-            "layout(location = 0) in vec3 aPos;\n"
-            "layout(location = 1) in vec2 aTexCoor;\n"
-            "uniform mat4 model;\n"
-            "uniform mat4 view;\n"
-            "uniform mat4 projection;\n"
-            "out vec2 TexCoor;\n"
-            "void main(void)\n"
-            "{\n"
-                "gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-                "TexCoor = aTexCoor;\n"
-            "}\n"
-        };
-        const GLchar *fragCode = {
-            "#version 430 core\n"
-            "in vec2 TexCoor;\n"
-            "out vec4 outColor;\n"
-            "uniform sampler2D tex;\n"
-            "void main(void)\n"
-            "{\n"
-                "outColor = texture(tex, TexCoor);\n"
-            "}\n"
-        };
+        planeSProgram = RShaderProgram::getStanderdShaderProgram();
         planeSProgram.rename("DefaultPlaneProgram");
-        planeSProgram.attachShaderCode(vertexCode, ShaderType::VertexShader);
-        planeSProgram.attachShaderCode(fragCode, ShaderType::FragmentShader);
-        planeSProgram.linkProgram();
 
         planeSProgram.use();
         //默认视口
@@ -128,7 +110,7 @@ RPlane::RPlane(int width, int height, const std::string &name, RPoint pos, RShad
     else shaders_ = planeSProgram;
 
     setColorTexture(0xffffffff);
-    setShaderProgram(planeSProgram);
+    setShaderProgram(planeSProgram, shaders_.getUniformLocation("model"));
 }
 
 RPlane::~RPlane()
@@ -254,12 +236,10 @@ void RPlane::setAlignment(RPlane::Alignment hAlign, RPlane::Alignment vAlign)
     updateModelMat();
 }
 
-void RPlane::setShaderProgram(const RShaderProgram &program)
+void RPlane::setShaderProgram(const RShaderProgram &program, RUniformLocation modelLoc)
 {
     shaders_ = program;
-    shaders_.use();
-    modelLoc_ = shaders_.getUniformLocation("model");
-    shaders_.nonuse();
+    modelLoc_ = modelLoc;
 }
 
 void RPlane::rename(std::string name)
@@ -306,6 +286,36 @@ void RPlane::render(RMatrix4 modelMat)
     shaders_.use();
 
     if(dirty_) updateModelMatNow();
+    shaders_.setUniformMatrix(modelLoc_, 4, RMath::value_ptr(modelMat));
+
+    texture_.bind();
+
+    renderControl();
+    glBindVertexArray(0);
+}
+
+void RPlane::renderUseSizeModel(RMatrix4 modelMat)
+{
+    glBindVertexArray(planeVAO);
+    shaders_.use();
+
+    if(dirty_) updateModelMatNow();
+    modelMat = modelMat * modelMat_;
+    shaders_.setUniformMatrix(modelLoc_, 4, RMath::value_ptr(modelMat));
+
+    texture_.bind();
+
+    renderControl();
+    glBindVertexArray(0);
+}
+
+void RPlane::renderUsePositionAndSizeModel(RMatrix4 modelMat)
+{
+    glBindVertexArray(planeVAO);
+    shaders_.use();
+
+    if(dirty_) updateModelMatNow();
+    modelMat = modelMat * RMath::translate(RMatrix4(1), {pos_.x(), pos_.y(), pos_.z()}) * modelMat_;
     shaders_.setUniformMatrix(modelLoc_, 4, RMath::value_ptr(modelMat));
 
     texture_.bind();

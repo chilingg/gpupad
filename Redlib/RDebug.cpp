@@ -247,7 +247,7 @@ const RDebug &RDebug::operator<<(const RVector3 &vec) const
 const RDebug &RDebug::operator<<(const RVector4 &vec) const
 {
 #ifdef R_DEBUG
-    std::cout << '(' << vec.x << ", " << vec.y << ", " << vec.z << ") ";
+    std::cout << '(' << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << ") ";
 #endif
     return *this;
 }

@@ -10,8 +10,8 @@ class RResource
 public:
     using ResourceID = std::vector<RResource*>::size_type;
 
-    static std::string checkFilePath(std::string path);
     static std::string getTextFileContent(std::string path);
+    static std::string checkFilePath(std::string path);
     static void setResourcePath(std::string path);
 
     RResource(const std::string &name);
@@ -25,6 +25,8 @@ public:
     const std::string& name() const;
     std::string nameID() const;
     void rename(const std::string &name);
+
+protected:
 
 private:
     static ResourceID creatorResourceID(RResource *rc);

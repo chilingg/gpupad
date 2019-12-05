@@ -55,7 +55,7 @@ public:
     void setTexture(const RTexture &texture);
     void setSizeMode(SizeMode mode);
     void setAlignment(Alignment hAlign, Alignment vAlign);
-    void setShaderProgram(const RShaderProgram &program);
+    void setShaderProgram(const RShaderProgram &program, RUniformLocation modelLoc);
     void rename(std::string name);
 
     void rotateX(float x);
@@ -94,6 +94,8 @@ public:
 
     void render();
     void render(RMatrix4 modelMat);
+    void renderUseSizeModel(RMatrix4 modelMat);
+    void renderUsePositionAndSizeModel(RMatrix4 modelMat);
     virtual void updateModelMatNow();
     void updateModelMat();
 #ifdef R_DEBUG

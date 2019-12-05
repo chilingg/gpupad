@@ -67,6 +67,11 @@ bool RShaderProgram::isValid() const
     return progID_ != nullptr;
 }
 
+bool RShaderProgram::isUsed() const
+{
+    return progID_ != nullptr && *progID_ && *progID_ == usingProgramID;
+}
+
 void RShaderProgram::attachShader(const RShader &shader)
 {
 #ifdef R_DEBUG
@@ -116,6 +121,16 @@ void RShaderProgram::attachShaderCode(const GLchar *code, ShaderType type)
 
 bool RShaderProgram::linkProgram()
 {
+    bool b = linkProgramAsPrototype();
+
+    std::map<ShaderType, RShader> temp;
+    shaders_.swap(temp);//连接后清空保存的着色器
+
+    return b;
+}
+
+bool RShaderProgram::linkProgramAsPrototype()
+{
 #ifdef R_DEBUG
     if(printError(!shaders_.count(ShaderType::VertexShader) && !shaders_.count(ShaderType::FragmentShader),
                "Unattached either VertexShader or FragmentShader"))
@@ -136,24 +151,28 @@ bool RShaderProgram::linkProgram()
     glGetProgramiv(*progID_, GL_LINK_STATUS, &success);
     if(!success)
     {
-        char infoLog[512];
-        glGetProgramInfoLog(*progID_, 512, nullptr, infoLog);
-        RDebug() << infoLog;
         printError(nameID() + ": Shader program linking failed!");
         progID_.reset();
         return false;
     }
 #endif
 
-    std::map<ShaderType, RShader> temp;
-    shaders_.swap(temp);//连接后清空保存的着色器
     return true;
+}
+
+void RShaderProgram::relinkProgram()
+{
+#ifdef R_DEBUG
+    if(printError(progID_ == nullptr, "Relink invalid shader program!"))
+        return;
+#endif
+    glLinkProgram(*progID_);
 }
 
 void RShaderProgram::use() const
 {
 #ifdef R_DEBUG
-    if(printError(!progID_, "Not be used " + nameID() + "Its invalid shader program!"))
+    if(printError(!progID_, "Not be used " + nameID() + " Its invalid shader program!"))
         return;
 #endif
 
@@ -162,7 +181,7 @@ void RShaderProgram::use() const
     return;
 }
 
-void RShaderProgram::nonuse()
+void RShaderProgram::nonuse() const
 {
     usingProgramID = 0;
     glUseProgram(0);
@@ -178,12 +197,15 @@ RUniformLocation RShaderProgram::getUniformLocation(const std::string &name) con
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Unable to get uniform location " + name + " for " + nameID()
-               + ", Its invalid shader program!")) return RUniformLocation();
-    if(printError(usingProgramID != *progID_, "Getting uniform " + name
-                  + " is invalid for " + nameID() + ", Its not have use!")) return RUniformLocation();
+               + ", Its invalid shader program!"))
+        return RUniformLocation();
 #endif
 
+    bool b = true;
+    if(usingProgramID != *progID_) use();
+    else b = false;
     RUniformLocation loc(glGetUniformLocation(*progID_, name.c_str()), name);
+    if(b) nonuse();
 
 #ifdef R_DEBUG
     if(printError(!loc.isValid(), "No find uniform location of the " + name + " for " + nameID()))
@@ -440,7 +462,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLsizei size, GLuint 
     }
 }
 
-void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei size, GLfloat *vp, GLsizei count, GLboolean transpose) const
+void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei order, GLfloat *vp, GLsizei count, GLboolean transpose) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -450,7 +472,7 @@ void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei size, G
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
                   + " is invalid for " + nameID() + ", Its not have use!")) return;
 #endif
-    switch(size) {
+    switch(order) {
     case 2:
         glUniformMatrix2fv(location, count, transpose, vp);
         break;
@@ -461,13 +483,13 @@ void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei size, G
         glUniformMatrix4fv(location, count, transpose, vp);
         break;
     default:
-        printError("Invalid size argument for UniformMatrix" + std::to_string(size) + "fv"
+        printError("Invalid size argument for UniformMatrix" + std::to_string(order) + "fv"
                    + "In " + nameID());
         break;
     }
 }
 
-void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei size, GLdouble *vp, GLsizei count, GLboolean transpose) const
+void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei order, GLdouble *vp, GLsizei count, GLboolean transpose) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -477,7 +499,7 @@ void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei size, G
     if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
                   + " is invalid for " + nameID() + ", Its not have use!")) return;
 #endif
-    switch(size) {
+    switch(order) {
     case 2:
         glUniformMatrix2dv(location, count, transpose, vp);
         break;
@@ -488,7 +510,7 @@ void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei size, G
         glUniformMatrix4dv(location, count, transpose, vp);
         break;
     default:
-        printError("Invalid size argument for UniformMatrix" + std::to_string(size) + "fv"
+        printError("Invalid size argument for UniformMatrix" + std::to_string(order) + "fv"
                 + "In " + nameID());
         break;
     }
@@ -563,4 +585,40 @@ void RShaderProgram::deleteShaderProgram(GLuint *ID)
 {
     glDeleteProgram(*ID);
     delete ID;
+}
+
+RShaderProgram RShaderProgram::getStanderdShaderProgram()
+{
+    RShaderProgram program;
+
+    const GLchar *vertexCode = {
+        "#version 430 core\n"
+        "layout(location = 0) in vec3 aPos;\n"
+        "layout(location = 1) in vec2 aTexCoor;\n"
+        "uniform mat4 model;\n"
+        "uniform mat4 view;\n"
+        "uniform mat4 projection;\n"
+        "out vec2 TexCoor;\n"
+        "void main(void)\n"
+        "{\n"
+            "gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
+            "TexCoor = aTexCoor;\n"
+        "}\n"
+    };
+    const GLchar *fragCode = {
+        "#version 430 core\n"
+        "in vec2 TexCoor;\n"
+        "out vec4 outColor;\n"
+        "uniform sampler2D tex;\n"
+        "void main(void)\n"
+        "{\n"
+            "outColor = texture(tex, TexCoor);\n"
+        "}\n"
+    };
+    program.attachShaderCode(vertexCode, ShaderType::VertexShader);
+    program.attachShaderCode(fragCode, ShaderType::FragmentShader);
+    program.linkProgram();
+    program.rename("StanderdShaderProgram");
+
+    return program;
 }
