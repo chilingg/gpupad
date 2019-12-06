@@ -13,9 +13,9 @@ public:
         VerticalTypeset
     };
 
-    explicit RTextPlane(RShaderProgram *program = nullptr, const std::string &name = "TextLabel");
+    explicit RTextPlane(RShaderProgram program = RShaderProgram(), const std::string &name = "TextLabel");
     RTextPlane(const RTextPlane &label);
-    RTextPlane(std::wstring texts, int width, int height, const std::string &name, RPoint pos, RShaderProgram *program = nullptr);
+    RTextPlane(std::wstring texts, int width, int height, const std::string &name, RPoint pos, RShaderProgram program = RShaderProgram());
     ~RTextPlane() override;
 
     void setColorTexture(RColor color) = delete;

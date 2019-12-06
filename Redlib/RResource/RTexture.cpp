@@ -2,6 +2,18 @@
 
 #include "RDebug.h"
 
+void RTexture::hintWrapPattern(RTexture::TextureWrap s, RTexture::TextureWrap t)
+{
+    wrapS = s;
+    wrapT = t;
+}
+
+void RTexture::hintTexFilter(RTexture::TextureFilter mag, RTexture::TextureFilter min)
+{
+    filterMax = mag;
+    filterMin = min;
+}
+
 RTexture::RTexture():
     RResource("UnknowTexture")
 {
@@ -21,10 +33,10 @@ RTexture::RTexture(const RTexture &texture):
     wrapT_(texture.wrapT_),
     filterMin_(texture.filterMin_),
     filterMax_(texture.filterMax_),
-    borderColor{texture.borderColor[0],
-                texture.borderColor[1],
-                texture.borderColor[2],
-                texture.borderColor[3],},
+    borderColor_{texture.borderColor_[0],
+                texture.borderColor_[1],
+                texture.borderColor_[2],
+                texture.borderColor_[3],},
     width_(texture.width_),
     height_(texture.height_)
 {
@@ -38,10 +50,10 @@ RTexture::RTexture(const RTexture &&texture):
     wrapT_(texture.wrapT_),
     filterMin_(texture.filterMin_),
     filterMax_(texture.filterMax_),
-    borderColor{texture.borderColor[0],
-                texture.borderColor[1],
-                texture.borderColor[2],
-                texture.borderColor[3],},
+    borderColor_{texture.borderColor_[0],
+                texture.borderColor_[1],
+                texture.borderColor_[2],
+                texture.borderColor_[3],},
     width_(texture.width_),
     height_(texture.height_)
 {
@@ -63,7 +75,7 @@ void RTexture::swap(RTexture &texture)
     swap(wrapT_, texture.wrapT_);
     swap(filterMin_, texture.filterMin_);
     swap(filterMax_, texture.filterMax_);
-    swap(borderColor, texture.borderColor);
+    swap(borderColor_, texture.borderColor_);
     swap(width_, texture.width_);
     swap(height_, texture.height_);
 }
@@ -129,7 +141,7 @@ bool RTexture::generate(int width, int height, int echannel, const unsigned char
     textureID_.reset(ID, deleteTexture);
 
     glBindTexture(GL_TEXTURE_2D, *ID);
-    glTexParameterIuiv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    glTexParameterIuiv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMin_);
@@ -217,3 +229,9 @@ void swap(RTexture &texture1, RTexture &texture2)
 {
     texture1.swap(texture2);
 }
+
+GLint RTexture::wrapS = GL_CLAMP_TO_BORDER;
+GLint RTexture::wrapT = GL_CLAMP_TO_BORDER;
+GLint RTexture::filterMin = GL_NEAREST;
+GLint RTexture::filterMax = GL_LINEAR;
+GLuint RTexture::borderColor[4]{ 0, 0, 0, 255 };

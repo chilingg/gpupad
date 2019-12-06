@@ -27,12 +27,12 @@ public:
         Align_Bottom
     };
 
-    static void setPlaneDefaultViewpro(int left, int right, int buttom, int top, int near= -1, int far = 1);
-    static void setPlaneDefaultCameraPos(int x, int y, int z = 0);
+    static void setPlaneDefaultViewpro(float left, float right, float bottom, float top, float near= -1, float far = 1);
+    static void setPlaneDefaultCameraPos(float x, float y, float z = 0);
 
-    explicit RPlane(RShaderProgram *program = nullptr, const std::string &name = "Plane");
+    explicit RPlane(RShaderProgram program = RShaderProgram(), const std::string &name = "Plane");
     RPlane(const RPlane &plane);
-    RPlane(int width, int height, const std::string &name, RPoint pos, RShaderProgram *program = nullptr);
+    RPlane(int width, int height, const std::string &name, RPoint pos, RShaderProgram program = RShaderProgram());
     virtual ~RPlane();
 
     void setSize(int width, int height);
@@ -42,6 +42,10 @@ public:
     void setPositionX(int value);
     void setPositionY(int value);
     void setPositionZ(int value);
+
+    void setOuterPosition(int x, int y, int z = 0);
+    void setOuterPositionX(int value);
+    void setOuterPositionY(int value);
 
     void setMargin(int top, int bottom, int left, int right);
     void setMargin(int value);
@@ -92,12 +96,12 @@ public:
     const std::string& name() const { return name_; }
     const RMatrix4& modelMat() const { return modelMat_; }
 
+    virtual void updateModelMatNow();
+    void updateModelMat();
     void render();
     void render(RMatrix4 modelMat);
     void renderUseSizeModel(RMatrix4 modelMat);
     void renderUsePositionAndSizeModel(RMatrix4 modelMat);
-    virtual void updateModelMatNow();
-    void updateModelMat();
 #ifdef R_DEBUG
     //渲染边距线框
     void RenderLineBox(const RMatrix4 &projection, const RMatrix4 &view);

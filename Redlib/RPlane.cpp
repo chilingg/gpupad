@@ -2,25 +2,19 @@
 
 #include "RDebug.h"
 
-void RPlane::setPlaneDefaultViewpro(int left, int right, int buttom, int top, int near, int far)
+void RPlane::setPlaneDefaultViewpro(float left, float right, float bottom, float top, float near, float far)
 {
     bool b = true;
     if(!planeSProgram.isUsed())
         planeSProgram.use();
     else
         b = false;
-    RMatrix4 projection = RMath::ortho(static_cast<float>(left),
-                                      static_cast<float>(right),
-                                      static_cast<float>(buttom),
-                                      static_cast<float>(top),
-                                      static_cast<float>(near),
-                                      static_cast<float>(far));
+    RMatrix4 projection = RMath::ortho(left, right, bottom, top, near, far);
     planeSProgram.setUniformMatrix(planeSProgram.getUniformLocation("projection"), 4, RMath::value_ptr(projection));
     if(b) planeSProgram.nonuse();
-    //RDebug() << projection << "projection";
 }
 
-void RPlane::setPlaneDefaultCameraPos(int x, int y, int z)
+void RPlane::setPlaneDefaultCameraPos(float x, float y, float z)
 {
     bool b = true;
     if(!planeSProgram.isUsed())
@@ -30,13 +24,11 @@ void RPlane::setPlaneDefaultCameraPos(int x, int y, int z)
     RMatrix4 view = RMath::translate(RMatrix4(1), {-x, -y, -z});
     planeSProgram.setUniformMatrix(planeSProgram.getUniformLocation("view"), 4, RMath::value_ptr(view));
     if(b) planeSProgram.nonuse();
-    //RDebug() << view << "view";
 }
 
-RPlane::RPlane(RShaderProgram *program, const std::string &name):
+RPlane::RPlane(RShaderProgram program, const std::string &name):
     RPlane(32, 32, name, RPoint(0, 0), program)
 {
-
 }
 
 RPlane::RPlane(const RPlane &plane):
@@ -67,7 +59,7 @@ RPlane::RPlane(const RPlane &plane):
     ++count;
 }
 
-RPlane::RPlane(int width, int height, const std::string &name, RPoint pos, RShaderProgram *program):
+RPlane::RPlane(int width, int height, const std::string &name, RPoint pos, RShaderProgram program):
     rotateMat_(1.0f),
     modelMat_(1.0f),
     shaders_(),
@@ -103,10 +95,11 @@ RPlane::RPlane(int width, int height, const std::string &name, RPoint pos, RShad
         planeSProgram.use();
         //默认视口
         setPlaneDefaultViewpro(0, 960, 0, 540, -127, 128);
-        setPlaneDefaultCameraPos(0, 0);
+        //planeSProgram.setViewpro("projection", 960, 0, 540, -127, 128);
+        planeSProgram.setCameraPos("view", 0, 0);
     }
 
-    if(program) shaders_ = *program;
+    if(program.isValid()) shaders_ = program;
     else shaders_ = planeSProgram;
 
     setColorTexture(0xffffffff);
@@ -160,6 +153,21 @@ void RPlane::setPositionY(int y)
 void RPlane::setPositionZ(int z)
 {
     pos_.setZ(z);
+}
+
+void RPlane::setOuterPosition(int x, int y, int z)
+{
+    pos_ = RPoint(x+marginLeft_, y+marginBottom_, z);
+}
+
+void RPlane::setOuterPositionX(int value)
+{
+    pos_.setX(value+marginLeft_);
+}
+
+void RPlane::setOuterPositionY(int value)
+{
+    pos_.setY(value+marginBottom_);
 }
 
 void RPlane::setMargin(int top, int bottom, int left, int right)

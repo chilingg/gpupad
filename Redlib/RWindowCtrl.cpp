@@ -88,7 +88,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);//小于或等于时通过
         //默认背景色
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.07f, 0.07f, 0.07f, 1.0f);
         //禁用字节对齐限制
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     }

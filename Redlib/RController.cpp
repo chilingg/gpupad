@@ -50,6 +50,13 @@ RController *RController::getFreeTree()
 
 void RController::addChild(RController *child)
 {
+    if(child == nullptr)
+    {
+#ifdef R_DEBUG
+        printError("Add null in " + getPathName());
+#endif
+        return;
+    }
     if(child == this || isAncestor(child))
     {
 #ifdef R_DEBUG
@@ -170,7 +177,7 @@ void RController::changeParent(RController *parent)
         return;
     }
 
-    if(!parent)
+    if(parent == nullptr)
         parent = getFreeTree();
 
     if(parent_)

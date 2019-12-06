@@ -2,7 +2,7 @@
 
 #include "RDebug.h"
 
-RTextPlane::RTextPlane(RShaderProgram *program, const std::string &name):
+RTextPlane::RTextPlane(RShaderProgram program, const std::string &name):
     RTextPlane(L"Text label", 32, 32, name, RPoint(0, 0), program)
 {
 
@@ -21,7 +21,7 @@ RTextPlane::RTextPlane(const RTextPlane &label):
 
 }
 
-RTextPlane::RTextPlane(std::wstring texts, int width, int height, const std::string &name, RPoint pos, RShaderProgram *program):
+RTextPlane::RTextPlane(std::wstring texts, int width, int height, const std::string &name, RPoint pos, RShaderProgram program):
     RPlane(width, height, name, pos, program),
     texts_(texts),
     fontColor_(0xffffffffu)

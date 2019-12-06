@@ -15,6 +15,16 @@ RShaderProgram::RShaderProgram():
 
 }
 
+RShaderProgram::RShaderProgram(RShader vertex, const std::string &name):
+    RResource(name)
+{
+#ifdef R_DEBUG
+    if(printError(vertex.type() != ShaderType::VertexShader, "Instead of " + vertex.name() + ' ' + vertex.typeName()
+                  + " The program needs VertexShader and FragmentShader!"))
+        return;
+#endif
+}
+
 RShaderProgram::RShaderProgram(RShader vertex, RShader fragment, const std::string &name):
     RResource(name)
 {
@@ -213,6 +223,52 @@ RUniformLocation RShaderProgram::getUniformLocation(const std::string &name) con
 #endif
 
     return loc;
+}
+
+bool RShaderProgram::setViewpro(const std::string name, float left, float right, float bottom, float top, float near, float far)
+{
+    RUniformLocation loc = getUniformLocation(name);
+
+    return setViewpro(loc, left, right, bottom, top, near, far);
+}
+
+bool RShaderProgram::setViewpro(RUniformLocation location, float left, float right, float bottom, float top, float near, float far)
+{
+#ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return false;
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid shader program!")) return false;
+    if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
+                  + " is invalid for " + nameID() + ", Its not have use!")) return false;
+#endif
+    RMatrix4 projection = RMath::ortho(left, right, bottom, top, near, far);
+    setUniformMatrix(location, 4, RMath::value_ptr(projection));
+
+    return location.isValid();
+}
+
+bool RShaderProgram::setCameraPos(const std::string name, float x, float y, float z)
+{
+    RUniformLocation loc = getUniformLocation(name);
+
+    return setCameraPos(loc, x, y, z);
+}
+
+bool RShaderProgram::setCameraPos(RUniformLocation location, float x, float y, float z)
+{
+#ifdef R_DEBUG
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid location!")) return false;
+    if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
+                  + nameID() + ", Its invalid shader program!")) return false;
+    if(printError(usingProgramID != *progID_, "Setting uniform " + location.name_
+                  + " is invalid for " + nameID() + ", Its not have use!")) return false;
+#endif
+    RMatrix4 view = RMath::translate(RMatrix4(1), {-x, -y, -z});
+    setUniformMatrix(location, 4, RMath::value_ptr(view));
+
+    return location.isValid();
 }
 
 void RShaderProgram::setUniform(RUniformLocation location, GLfloat v1) const

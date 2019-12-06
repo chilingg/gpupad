@@ -38,6 +38,9 @@ public:
         Linear = GL_LINEAR
     };
 
+    static void hintWrapPattern(TextureWrap s, TextureWrap t);
+    static void hintTexFilter(TextureFilter mag, TextureFilter min = Nearest);
+
     RTexture();
     RTexture(const RImage &img, const std::string &name);
     RTexture(const RTexture &texture);
@@ -63,14 +66,20 @@ public:
 
 private:
     static void deleteTexture(GLuint *ID);
+
     static constexpr GLenum TEXTURE_UNIT = GL_TEXTURE0;
+    static GLint wrapS;
+    static GLint wrapT;
+    static GLint filterMin;
+    static GLint filterMax;
+    static GLuint borderColor[4];
 
     std::shared_ptr<GLuint> textureID_;
-    GLint wrapS_ = GL_CLAMP_TO_BORDER;
-    GLint wrapT_ = GL_CLAMP_TO_BORDER;
-    GLint filterMin_ = GL_NEAREST;
-    GLint filterMax_ = GL_LINEAR;
-    GLuint borderColor[4]{ 0, 0, 0, 255 };
+    GLint wrapS_ = wrapS;
+    GLint wrapT_ = wrapT;
+    GLint filterMin_ = filterMin;
+    GLint filterMax_ = filterMax;
+    GLuint borderColor_[4]{ borderColor[0], borderColor[1], borderColor[2], borderColor[3] };
     int width_ = 0;
     int height_ = 0;
 };

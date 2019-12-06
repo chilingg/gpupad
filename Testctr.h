@@ -7,6 +7,7 @@
 #include <RTextPlane.h>
 #include <RTimer.h>
 #include <RSprite.h>
+#include <RResource/RShaderProgram.h>
 
 class TestCtr : public RController
 {
@@ -49,6 +50,8 @@ private:
     RTimer timer_;
     RTextPlane fpsPlane_;
     RSprite sprite_;
+    RShaderProgram uiShaders_;
+    RPlane bColor_;
 };
 
 #endif // TESTCTR_H

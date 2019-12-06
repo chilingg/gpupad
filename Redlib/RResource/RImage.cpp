@@ -142,6 +142,8 @@ void RImage::freeImage()
 
 void RImage::full(RColor color)
 {
+    copyOnWrite();
+
     unsigned char *data = data_.get();
     for(int i = 0; i < height_; ++i)
     {

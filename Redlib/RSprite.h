@@ -6,9 +6,9 @@
 class RSprite : public RPlane
 {
 public:
-    explicit RSprite(RShaderProgram *program = nullptr, const std::string &name = "Sprite");
+    explicit RSprite(RShaderProgram program = RShaderProgram(), const std::string &name = "Sprite");
     RSprite(const RSprite &sprite);
-    RSprite(int width, int height, const std::string &name, RPoint pos, RShaderProgram *program = nullptr);
+    RSprite(int width, int height, const std::string &name, RPoint pos, RShaderProgram program = RShaderProgram());
     virtual ~RSprite() override;
 
     void setInterval(int interval = 20);

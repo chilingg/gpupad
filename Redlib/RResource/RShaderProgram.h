@@ -18,6 +18,7 @@ public:
     static RShaderProgram getStanderdShaderProgram();
 
     RShaderProgram();
+    RShaderProgram(RShader vertex, const std::string &name);
     RShaderProgram(RShader vertex, RShader fragment, const std::string &name);
     RShaderProgram(const RShaderProgram &program);
     RShaderProgram(const RShaderProgram &&program);
@@ -39,6 +40,12 @@ public:
     void freeShaderProgram();
 
     RUniformLocation getUniformLocation(const std::string &name) const;
+
+    bool setViewpro(const std::string name, float left, float right, float bottom, float top, float near = -1, float far = 1);
+    bool setViewpro(RUniformLocation location, float left, float right, float bottom, float top, float near = -1, float far = 1);
+    bool setCameraPos(const std::string name, float x, float y, float z = 0);
+    bool setCameraPos(RUniformLocation location, float x, float y, float z = 0);
+
     void setUniform(RUniformLocation location, GLfloat v1) const;
     void setUniform(RUniformLocation location, GLfloat v1, GLfloat v2) const;
     void setUniform(RUniformLocation location, GLfloat v1, GLfloat v2, GLfloat v3) const;

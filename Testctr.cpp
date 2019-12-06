@@ -5,7 +5,6 @@
 #include <RResource/RImage.h>
 #include <RResource/RTexture.h>
 #include <RResource/RShader.h>
-#include <RResource/RShaderProgram.h>
 #include <RResource/RFont.h>
 #include <RColor.h>
 
@@ -38,8 +37,10 @@ void TestCtr::control()
         debugWindow_ = nullptr;
     }
 
+    bColor_.render();
+
     plane_->rotateX(static_cast<float>(glfwGetTime()*2));
-    plane_->RenderLineBox(0, width_, 0, height_);
+    plane_->RenderLineBox(0, 960, 0, 540);
     plane_->render();
 
     textPlane_.RenderLineBox(0, width_, 0, height_);
@@ -106,6 +107,8 @@ void TestCtr::initEvent(RInitEvent *event)
         height_ = window->height();
     }
 
+    RTexture::hintTexFilter(RTexture::Nearest);
+
     plane_.reset(new RPlane(80, 80, "text-plan", RPoint(480, 270, 0)));
     RImage img(":/texture/Robot_idle.png", "test-img", true);
     plane_->setTexture(img);
@@ -126,6 +129,12 @@ void TestCtr::initEvent(RInitEvent *event)
     //font.clearFontDataCache();
     //font.freeFont();
 
+    uiShaders_ = RShaderProgram::getStanderdShaderProgram();
+    uiShaders_.use();
+    uiShaders_.setViewpro("projection", 0, 960, 0, 540);
+    uiShaders_.setCameraPos("view", 0, 0);
+
+    textPlane_.setShaderProgram(uiShaders_, uiShaders_.getUniformLocation("model"));
     textPlane_.setFont(font);
     textPlane_.setPosition(600, 200);
     textPlane_.setSize(200, 300);
@@ -167,11 +176,12 @@ void TestCtr::initEvent(RInitEvent *event)
                        //"它提供统一的接口来访问多种字体格式文件，包括TrueType, "
                        //"OpenType, Type1, CID, CFF, Windows FON/FNT, X11 PCF等。");
 
+    fpsPlane_.setShaderProgram(uiShaders_, uiShaders_.getUniformLocation("model"));
     fpsPlane_.rename("FPS-Plane");
     fpsPlane_.setWordSpacing(1.0f);
     fpsPlane_.setPosition(0, height_ - 50);
     fpsPlane_.setSize(100, 50);
-    fpsPlane_.setFontSize(12);
+    fpsPlane_.setFontSize(13);
     fpsPlane_.setFontColor(240, 50, 0);
     fpsPlane_.setPadding(10);
     fpsPlane_.setTexts(L"FPS:0");
@@ -188,6 +198,10 @@ void TestCtr::initEvent(RInitEvent *event)
     sprite_.addFrame(f3);
     sprite_.addFrame(f4);
     sprite_.setInterval(20);
+
+    bColor_.setSize(width_, height_);
+    bColor_.setColorTexture(28, 28, 28);
+    bColor_.setPosition(0, 0, -127);
 }
 
 void TestCtr::joystickPresentEvent(RjoystickPresentEvent *event)
@@ -205,7 +219,14 @@ void TestCtr::joystickPresentEvent(RjoystickPresentEvent *event)
 void TestCtr::resizeEvent(RResizeEvent *event)
 {
     width_ = event->width; height_ = event->height;
-    //RPlane::setPlaneDefaultViewpro(0, event->width, 0, event->height);
+    RMatrix4 projection = RMath::ortho(0.0f, static_cast<float>(width_), 0.0f, static_cast<float>(height_));
+    uiShaders_.use();
+    uiShaders_.setUniformMatrix(uiShaders_.getUniformLocation("projection"), 4, RMath::value_ptr(projection));
+    uiShaders_.nonuse();
+
+    fpsPlane_.setOuterPositionY(event->height - fpsPlane_.outerHeight());
+    bColor_.setSize(event->width, event->height);
+
     RDebug() << event->width << event->height << "Resize event";
 }
 
