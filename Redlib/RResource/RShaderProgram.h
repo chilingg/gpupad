@@ -18,16 +18,17 @@ public:
     static RShaderProgram getStanderdShaderProgram();
 
     RShaderProgram();
-    RShaderProgram(RShader vertex, const std::string &name);
-    RShaderProgram(RShader vertex, RShader fragment, const std::string &name);
+    RShaderProgram(const RShader &vertex, const std::string &name);
+    RShaderProgram(const RShader &vertex, const RShader &fragment, const std::string &name);
     RShaderProgram(const RShaderProgram &program);
     RShaderProgram(const RShaderProgram &&program);
     RShaderProgram& operator=(RShaderProgram program);
+    ~RShaderProgram();
     void swap(RShaderProgram &prog);
 
     bool isValid() const;
     bool isUsed() const;
-    GLuint ID() const { return *progID_; }
+    GLuint shaderProgramID() const { return *progID_; }
 
     void attachShader(const RShader &shader);
     void attachShader(const std::string &path, ShaderType type);
@@ -41,30 +42,30 @@ public:
 
     RUniformLocation getUniformLocation(const std::string &name) const;
 
-    bool setViewpro(const std::string name, float left, float right, float bottom, float top, float near = -1, float far = 1);
-    bool setViewpro(RUniformLocation location, float left, float right, float bottom, float top, float near = -1, float far = 1);
+    bool setViewprot(const std::string name, float left, float right, float bottom, float top, float near = -1, float far = 1);
+    bool setViewprot(const RUniformLocation &location, float left, float right, float bottom, float top, float near = -1, float far = 1);
     bool setCameraPos(const std::string name, float x, float y, float z = 0);
-    bool setCameraPos(RUniformLocation location, float x, float y, float z = 0);
+    bool setCameraPos(const RUniformLocation &location, float x, float y, float z = 0);
 
-    void setUniform(RUniformLocation location, GLfloat v1) const;
-    void setUniform(RUniformLocation location, GLfloat v1, GLfloat v2) const;
-    void setUniform(RUniformLocation location, GLfloat v1, GLfloat v2, GLfloat v3) const;
-    void setUniform(RUniformLocation location, GLfloat v1, GLfloat v2, GLfloat v3, GLfloat v4) const;
-    void setUniform(RUniformLocation location, GLint v1) const;
-    void setUniform(RUniformLocation location, GLint v1, GLint v2) const;
-    void setUniform(RUniformLocation location, GLint v1, GLint v2, GLint v3) const;
-    void setUniform(RUniformLocation location, GLint v1, GLint v2, GLint v3, GLint v4) const;
-    void setUniform(RUniformLocation location, GLuint v1) const;
-    void setUniform(RUniformLocation location, GLuint v1, GLuint v2) const;
-    void setUniform(RUniformLocation location, GLuint v1, GLuint v2, GLuint v3) const;
-    void setUniform(RUniformLocation location, GLuint v1, GLuint v2, GLuint v3, GLuint v4) const;
-    void setUniform(RUniformLocation location, GLsizei size, GLfloat *vp, GLsizei count = 1) const;
-    void setUniform(RUniformLocation location, GLsizei size, GLint *vp, GLsizei count = 1) const;
-    void setUniform(RUniformLocation location, GLsizei size, GLuint *vp, GLsizei count = 1) const;
-    void setUniformMatrix(RUniformLocation location, GLsizei order, GLfloat *vp, GLsizei count = 1, GLboolean transpose = false) const;
-    void setUniformMatrix(RUniformLocation location, GLsizei order, GLdouble *vp, GLsizei count = 1, GLboolean transpose = false) const;
-    void setUniformMatrix(RUniformLocation location, GLsizei column, GLsizei row, GLfloat *vp, GLsizei count = 1, GLboolean transpose = false) const;
-    void setUniformMatrix(RUniformLocation location, GLsizei column, GLsizei row, GLdouble *vp, GLsizei count = 1, GLboolean transpose = false) const;
+    void setUniform(const RUniformLocation &location, GLfloat v1) const;
+    void setUniform(const RUniformLocation &location, GLfloat v1, GLfloat v2) const;
+    void setUniform(const RUniformLocation &location, GLfloat v1, GLfloat v2, GLfloat v3) const;
+    void setUniform(const RUniformLocation &location, GLfloat v1, GLfloat v2, GLfloat v3, GLfloat v4) const;
+    void setUniform(const RUniformLocation &location, GLint v1) const;
+    void setUniform(const RUniformLocation &location, GLint v1, GLint v2) const;
+    void setUniform(const RUniformLocation &location, GLint v1, GLint v2, GLint v3) const;
+    void setUniform(const RUniformLocation &location, GLint v1, GLint v2, GLint v3, GLint v4) const;
+    void setUniform(const RUniformLocation &location, GLuint v1) const;
+    void setUniform(const RUniformLocation &location, GLuint v1, GLuint v2) const;
+    void setUniform(const RUniformLocation &location, GLuint v1, GLuint v2, GLuint v3) const;
+    void setUniform(const RUniformLocation &location, GLuint v1, GLuint v2, GLuint v3, GLuint v4) const;
+    void setUniform(const RUniformLocation &location, GLsizei size, GLfloat *vp, GLsizei count = 1) const;
+    void setUniform(const RUniformLocation &location, GLsizei size, GLint *vp, GLsizei count = 1) const;
+    void setUniform(const RUniformLocation &location, GLsizei size, GLuint *vp, GLsizei count = 1) const;
+    void setUniformMatrix(const RUniformLocation &location, GLsizei order, GLfloat *vp, GLsizei count = 1, GLboolean transpose = false) const;
+    void setUniformMatrix(const RUniformLocation &location, GLsizei order, GLdouble *vp, GLsizei count = 1, GLboolean transpose = false) const;
+    void setUniformMatrix(const RUniformLocation &location, GLsizei column, GLsizei row, GLfloat *vp, GLsizei count = 1, GLboolean transpose = false) const;
+    void setUniformMatrix(const RUniformLocation &location, GLsizei column, GLsizei row, GLdouble *vp, GLsizei count = 1, GLboolean transpose = false) const;
 
 private:
     static void deleteShaderProgram(GLuint *ID);

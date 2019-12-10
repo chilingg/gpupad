@@ -3,6 +3,7 @@
 
 #include "ROpenGL.h"
 #include "RController.h"
+#include "RResource/RCursor.h"
 
 #include <vector>
 #include <set>
@@ -19,7 +20,7 @@ public:
         KeepScale
     };
 
-    explicit RWindowCtrl(const std::string &name = "WindowCtrl", RController *parent = nullptr);
+    explicit RWindowCtrl(const std::string &name = "WindowCtrl", RController *parent = nullptr, GLFWwindow *share = nullptr);
     ~RWindowCtrl() override;
 
     void control() override;
@@ -29,17 +30,23 @@ public:
     //设置函数
     void setWindowSize(int width, int height);
     void setWindowTitle(const std::string &title);
-    void setBackground(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255);
+    void setBackgroundColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255);
+    void setBackgroundColor(RColor color);
     void setViewportRatio(double ratio);//视口比例，窗口KeepScale时用
     void setViewportPattern(ViewportPattern pattern);
     void setVSync(bool enable);//垂直同步
     void setFullScreenWindow(bool b);
-    void setWindowSizeLimits(int minW, int minH, int maxW, int maxH);
+    void setWindowMinimumSize(int minW, int minH);
+    void setWindowMaximumSize(int maxW, int maxH);
     void setWindowSizeFixed(bool b);
     void setWindowDecrate(bool b);
     void setWindowFloatOnTop(bool b);
+    void setCursor(RCursor &cursor);
+    void setCursor();
     //查询函数
     double getViewportRatio() const;
+    GLFWwindow* getWindowHandle() const;
+    bool isFocus() const;
     bool isShouldCloused() const;
     //执行函数
     void closeWindow();
@@ -48,12 +55,11 @@ public:
     void showWindow();
     void hideWindow();
 
-    Signal1<double> scrolled;
-
 protected:
     std::string getDefaultName() const override;
     void initEvent(RInitEvent *event) override;
     void closeEvent(RCloseEvent *event) override;
+    RResizeEvent* eventFilter(RResizeEvent *event) override;
     //获取与窗口绑定的WindowCtrl
     static RWindowCtrl* getWindowUserCtrl(GLFWwindow *window);
 

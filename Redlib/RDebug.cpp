@@ -228,10 +228,18 @@ const RDebug &RDebug::operator<<(const RPoint3 &p) const
     return *this;
 }
 
+const RDebug &RDebug::operator<<(const RRect &rect) const
+{
+#ifdef R_DEBUG
+    std::cout << "(" << rect.left() << ", " << rect.bottom() << ")W:" << rect.width() << " H:" << rect.height() << ' ';
+#endif
+    return *this;
+}
+
 const RDebug &RDebug::operator<<(const RColor &color) const
 {
 #ifdef R_DEBUG
-    std::cout << "RGBA:(" << color.r() << ", " << color.g() << ", " << color.b() << ", " << color.a() << ") ";
+    std::cout << "RGBA:(" << color.r()*1u << ", " << color.g()*1u << ", " << color.b()*1u << ", " << color.a()*1u << ") ";
 #endif
     return *this;
 }

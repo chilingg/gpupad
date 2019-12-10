@@ -5,7 +5,6 @@
 #include "RDebug.h"
 
 std::string RResource::RESOURCE_PATH = "../Resource/";
-std::vector<RResource*> RResource::resources(128, nullptr) ;
 
 RResource::RResource(const std::string &name):
     name_(name),
@@ -23,9 +22,9 @@ RResource::RResource(const RResource &rc):
 
 RResource::RResource(const RResource &&rc):
     name_(rc.name_),
-    resourceID_(rc.resourceID_)
+    resourceID_(creatorResourceID(this))
 {
-    resources[resourceID_] = this;
+
 }
 
 RResource &RResource::operator=(RResource rc)
@@ -37,7 +36,7 @@ RResource &RResource::operator=(RResource rc)
 
 RResource::~RResource()
 {
-
+    resourcesList()[resourceID_] = nullptr;
 }
 
 void RResource::swap(RResource &rc)
@@ -88,7 +87,7 @@ std::string RResource::getTextFileContent(std::string path)
     return text;
 }
 
-void RResource::setResourcePath(std::string path)
+void RResource::setResourcePath(const std::string &path)
 {
     std::regex r("(/|(../)+)?([-_a-z0-9]+/)+", std::regex::icase);
     if(!std::regex_match(path, r))
@@ -98,6 +97,11 @@ void RResource::setResourcePath(std::string path)
     }
 
     RESOURCE_PATH = path;
+}
+
+const RResource::ResourcesList *RResource::queryResourceList()
+{
+    return &resourcesList();
 }
 
 void swap(RResource &rc1, RResource &rc2)
@@ -131,17 +135,23 @@ void RResource::rename(const std::string &name)
 
 RResource::ResourceID RResource::creatorResourceID(RResource *rc)
 {
-    ResourceID i = 0;
-    while(i < resources.size())
+    ResourceID i = 1;
+    while(i < resourcesList().size())
     {
-        if(!resources[i])
+        if(!resourcesList()[i])
         {
-            resources[i] = rc;
+            resourcesList()[i] = rc;
             return i;
         }
         ++i;
     }
-    resources.push_back(rc);
+    resourcesList().push_back(rc);
     //返回的是递增了的i
     return i;
+}
+
+RResource::ResourcesList &RResource::resourcesList()
+{
+    static ResourcesList rcList(128, nullptr);
+    return rcList;
 }

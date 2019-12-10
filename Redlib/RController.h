@@ -39,10 +39,12 @@ public:
     bool isChild(RController *child) const;
     bool isAncestor(RController *node) const;//祖辈
     bool isFree() const;
-    const std::string& getName() const;
+    const std::string& name() const;
     std::string getPathName() const;
     int getChildrenSize() const;
     RController* getParent();
+    const std::list<RController*>& getChildren() const;
+
     //执行函数
     int exec();//调用allAction()循环调用子孙节点的control()
     void breakLoop();//退出exec循环
@@ -51,20 +53,27 @@ protected:
     static std::set<RInputEvent::JoystickID> gamepads;
 
     virtual std::string getDefaultName() const;//建议子类重写
+
     //事件响应。感兴趣的子类负责重写
     virtual void inputEvent(const RInputEvent *event);
     virtual void joystickPresentEvent(RjoystickPresentEvent *event);
     virtual void resizeEvent(RResizeEvent *event);
+    virtual void scrollEvent(RScrollEvent *event);
     virtual void initEvent(RInitEvent *event);//exec循环开始
     virtual void closeEvent(RCloseEvent *event);//exec循环终止
     virtual void enteredTreeEvent(REnteredTreeEvent *event);
     virtual void exitedTreeEvent(RExitedTreeEvent *event);
+
+    //事件截断。当前实例发布事件前调用，返回的事件传递给子结点发布，若返回nullptr则截断当前事件的发布
+    virtual RResizeEvent* eventFilter(RResizeEvent *event);
+    virtual const RInputEvent *eventFilter(const RInputEvent *event);
 
     //事件发布接口 PS:深度优先、由下至上
     //由子类负责调用
     void dispatchEvent(const RInputEvent *event);
     void dispatchEvent(RjoystickPresentEvent *event);
     void dispatchEvent(RResizeEvent *event);
+    void dispatchEvent(RScrollEvent *event);
     //已由RController负责调用
     void dispatchEvent(RInitEvent *event);
     void dispatchEvent(RCloseEvent *event);

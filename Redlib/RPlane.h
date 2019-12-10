@@ -7,6 +7,7 @@
 #include "RColor.h"
 #include "RSize.h"
 #include "RMaths.h"
+#include "RRect.h"
 
 #define offsetBuffer(offset) ( reinterpret_cast<void*>(offset) )
 
@@ -27,16 +28,21 @@ public:
         Align_Bottom
     };
 
-    static void setPlaneDefaultViewpro(float left, float right, float bottom, float top, float near= -1, float far = 1);
+    static void setPlaneDefaultViewprot(float left, float right, float bottom, float top, float near= -1, float far = 1);
     static void setPlaneDefaultCameraPos(float x, float y, float z = 0);
 
-    explicit RPlane(RShaderProgram program = RShaderProgram(), const std::string &name = "Plane");
+    RPlane();
     RPlane(const RPlane &plane);
-    RPlane(int width, int height, const std::string &name, RPoint pos, RShaderProgram program = RShaderProgram());
+    RPlane(int width, int height, const std::string &name, const RPoint &pos);
     virtual ~RPlane();
 
     void setSize(int width, int height);
     void setSize(RSize size);
+    void setWidth(int width);
+    void setHeight(int height);
+
+    void setMinimumSize(int minW, int minH);
+    void setMaximumSize(int maxW, int maxH);
 
     void setPosition(int x, int y, int z = 0);
     void setPositionX(int value);
@@ -52,14 +58,19 @@ public:
     void setPadding(int top, int bottom, int left, int right);
     void setPadding(int value);
 
-    void setColorTexture(RColor color);
+    void setColorTexture(const RColor &color);
     void setColorTexture(R_RGBA rgba);
     void setColorTexture(unsigned r, unsigned g, unsigned b, unsigned a = 0xffu);
+
     void setTexture(const RImage &image);
     void setTexture(const RTexture &texture);
+
     void setSizeMode(SizeMode mode);
     void setAlignment(Alignment hAlign, Alignment vAlign);
-    void setShaderProgram(const RShaderProgram &program, RUniformLocation modelLoc);
+
+    void setShaderProgram(const RShaderProgram &program, const RUniformLocation &modelLoc);
+    void setShaderProgram(const RShaderProgram &program, const std::string modelName);
+
     void rename(std::string name);
 
     void rotateX(float x);
@@ -68,6 +79,8 @@ public:
 
     void flipH();
     void flipV();
+
+    RRect getPlaneRect() const { return RRect(x(), y(), width_, height_);}
 
     int width() const { return width_; }
     int height() const { return height_; }
@@ -79,7 +92,7 @@ public:
     int paddingLeft() const { return paddingLeft_; }
     int paddingRight() const { return paddingRight_; }
     int paddingTop() const { return paddingTop_; }
-    int paddingBottm() const { return paddingBottom_; }
+    int paddingBottom() const { return paddingBottom_; }
 
     RPoint pos() const { return pos_; }
     int x() const { return pos_.x(); }
@@ -95,17 +108,18 @@ public:
     Alignment hAlign() const { return hAlign_; }
     const std::string& name() const { return name_; }
     const RMatrix4& modelMat() const { return modelMat_; }
+    const RShaderProgram& shaderProgram() const { return shaders_; }
 
     virtual void updateModelMatNow();
     void updateModelMat();
     void render();
-    void render(RMatrix4 modelMat);
+    void render(RMatrix4 &modelMat);
     void renderUseSizeModel(RMatrix4 modelMat);
     void renderUsePositionAndSizeModel(RMatrix4 modelMat);
 #ifdef R_DEBUG
     //渲染边距线框
-    void RenderLineBox(const RMatrix4 &projection, const RMatrix4 &view);
-    void RenderLineBox(int left, int right, int buttom, int top, RPoint pos = RPoint(0, 0));
+    void renderLineBox(const RMatrix4 &projection, const RMatrix4 &view);
+    void renderLineBox(int left, int right, int buttom, int top, RPoint pos = RPoint(0, 0));
 #endif
 
 protected:
@@ -119,9 +133,9 @@ protected:
     RUniformLocation modelLoc_;
 
 private:
-    static RShaderProgram lineBoxsProgram;
+    static RShaderProgram *lineBoxsProgram;
     static GLuint lineBoxVAO;
-    static RShaderProgram planeSProgram;
+    static RShaderProgram *planeSProgram;
     static GLuint planeVAO, planeVBO;
     static unsigned long count;
 
@@ -146,6 +160,11 @@ private:
     SizeMode sizeMode_ = Auto;//RTextLabel依赖Auto初始值
     Alignment vAlign_ = Align_Mind;
     Alignment hAlign_ = Align_Mind;
+
+    int minWidth_ = 0;
+    int minHeight_ = 0;
+    int maxWidth_ = ~0u >> 1;
+    int maxHeight_ = ~0u >> 1;
 };
 
 #endif // RPLANE_H

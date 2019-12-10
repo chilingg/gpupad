@@ -7,7 +7,7 @@ void swap(RShader &shader1, RShader &shader2)
     shader1.swap(shader2);
 }
 
-std::string RShader::shaderTypeName(RShader shader)
+std::string RShader::shaderTypeName(const RShader &shader)
 {
     return shaderTypeName(shader.type());
 }

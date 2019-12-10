@@ -2,7 +2,7 @@
 
 #include "RDebug.h"
 
-const std::string RController::FREE_TREE_NAME = "FreeTree__";
+const std::string RController::FREE_TREE_NAME = "_FreeTree_";
 std::set<RInputEvent::JoystickID> RController::gamepads;
 
 RController::RController(const std::string &name, RController *parent):
@@ -135,7 +135,7 @@ bool RController::isFree() const
     return parent_ == getFreeTree();
 }
 
-const std::string &RController::getName() const
+const std::string &RController::name() const
 {
     return name_;
 }
@@ -165,6 +165,11 @@ int RController::getChildrenSize() const
 RController *RController::getParent()
 {
     return parent_;
+}
+
+const std::list<RController *> &RController::getChildren() const
+{
+    return children_;
 }
 
 void RController::changeParent(RController *parent)
@@ -320,13 +325,31 @@ void RController::exitedTreeEvent(RExitedTreeEvent *)
 
 }
 
+RResizeEvent* RController::eventFilter(RResizeEvent *event)
+{
+    return event;
+}
+
+const RInputEvent* RController::eventFilter(const RInputEvent *event)
+{
+    return event;
+}
+
 void RController::resizeEvent(RResizeEvent *)
+{
+
+}
+
+void RController::scrollEvent(RScrollEvent *)
 {
 
 }
 
 void RController::dispatchEvent(const RInputEvent *event)
 {
+    if(!(event = eventFilter(event)))
+        return;
+
     for(auto child : children_)
     {
         child->dispatchEvent(event);
@@ -411,9 +434,21 @@ void RController::parentToNull()
 
 void RController::dispatchEvent(RResizeEvent *event)
 {
+    if(!(event = eventFilter(event)))
+        return;
+
     for(auto child : children_)
     {
         child->dispatchEvent(event);
     }
     resizeEvent(event);
+}
+
+void RController::dispatchEvent(RScrollEvent *event)
+{
+    for(auto child : children_)
+    {
+        child->dispatchEvent(event);
+    }
+    scrollEvent(event);
 }

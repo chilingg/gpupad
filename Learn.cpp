@@ -35,7 +35,7 @@ void Learn::initEvent(RInitEvent *event)
     const char * varyings[] = { "outValue" };
 
     render_prog.linkProgram();
-    glTransformFeedbackVaryings(render_prog.ID(), 1, varyings, GL_INTERLEAVED_ATTRIBS);
+    glTransformFeedbackVaryings(render_prog.resourceID(), 1, varyings, GL_INTERLEAVED_ATTRIBS);
     render_prog.relinkProgram();
     render_prog.use();
 
@@ -47,7 +47,7 @@ void Learn::initEvent(RInitEvent *event)
     glBindBuffer(GL_ARRAY_BUFFER, render_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
 
-    inputAttrib = glGetAttribLocation(render_prog.ID(), "inValue");
+    inputAttrib = glGetAttribLocation(render_prog.resourceID(), "inValue");
     glEnableVertexAttribArray(inputAttrib);
     glVertexAttribPointer(inputAttrib, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
 

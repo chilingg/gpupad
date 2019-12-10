@@ -1,7 +1,7 @@
 #include "RSprite.h"
 
-RSprite::RSprite(RShaderProgram program, const std::string &name):
-    RSprite(32, 32, name, RPoint(0, 0), program)
+RSprite::RSprite():
+    RSprite(32, 32, "Sprite", RPoint(0, 0))
 {
 
 }
@@ -17,8 +17,8 @@ RSprite::RSprite(const RSprite &sprite):
 
 }
 
-RSprite::RSprite(int width, int height, const std::string &name, RPoint pos, RShaderProgram program):
-    RPlane(width, height, name, pos, program)
+RSprite::RSprite(int width, int height, const std::string &name, RPoint pos):
+    RPlane(width, height, name, pos)
 {
 
 }

@@ -9,10 +9,12 @@ class RResource
     friend void swap(RResource &rc1, RResource &rc2);
 public:
     using ResourceID = std::vector<RResource*>::size_type;
+    using ResourcesList = std::vector<RResource*>;
 
     static std::string getTextFileContent(std::string path);
     static std::string checkFilePath(std::string path);
-    static void setResourcePath(std::string path);
+    static void setResourcePath(const std::string &path);
+    static const ResourcesList *queryResourceList();
 
     RResource(const std::string &name);
     RResource(const RResource &rc);
@@ -30,9 +32,9 @@ protected:
 
 private:
     static ResourceID creatorResourceID(RResource *rc);
+    static ResourcesList& resourcesList();
 
     static std::string RESOURCE_PATH;
-    static std::vector<RResource*> resources;
 
     std::string name_;
     const ResourceID resourceID_;

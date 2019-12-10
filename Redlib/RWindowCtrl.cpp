@@ -7,7 +7,7 @@
 int RWindowCtrl::count = 0;
 bool RWindowCtrl::vSync_ = true;
 
-RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
+RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindow *share):
     RController(name, parent),
     window_(nullptr)
 {
@@ -35,8 +35,14 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
         }
     }
 
-    //同线程窗口统一共享上下文
-    GLFWwindow *share = glfwGetCurrentContext();
+    //一个线程窗口只能有一个上下文
+    if(glfwGetCurrentContext())
+    {
+        printError("A thread can only have one context!");
+        glfwTerminate();
+        terminateFreeTree();
+    }
+
     window_ = glfwCreateWindow(width_, height_, "Redopera", nullptr, share);
     if(!window_)
     {
@@ -48,50 +54,45 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     glfwSetWindowUserPointer(window_, this);
     glfwGetWindowSize(window_, &width_, &height_);
 
-    //如果当前线程之前没有窗口创建，则将该context设置为当前线程主context
-    if(!share)
+    glfwMakeContextCurrent(window_);
+    //初始化glad
+    if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
     {
-        glfwMakeContextCurrent(window_);
-        if(count == 1)
-        {
-            //初始化glad
-            if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
-            {
-                printError("Failed to initialize GLAD");
-                glfwTerminate();
-                terminateFreeTree();
-            }
-#ifdef R_DEBUG
-            RDebug() << format::green << format::bold << glGetString(GL_VERSION) << format::non;
-            //若启用OpenGL Debug
-            GLint flags;
-            glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-            if(flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-            {
-                RDebug() << format::green << format::bold << "Enable OpenGL debug output" << format::non;
-                glEnable(GL_DEBUG_OUTPUT);
-                glDebugMessageCallback(openglDebugMessageCallback, nullptr);
-                //过滤着色器编译成功消息通知
-                glDebugMessageControl(GL_DEBUG_SOURCE_SHADER_COMPILER, GL_DEBUG_TYPE_OTHER,
-                                      GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
-            }
-#endif
-        }
-        //默认开启垂直同步
-        glfwSwapInterval(1);
-        //视口映射
-        glViewport(0, 0, width_, height_);
-        //设置混合
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        //忽略不必要的Z轴片段
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);//小于或等于时通过
-        //默认背景色
-        glClearColor(0.07f, 0.07f, 0.07f, 1.0f);
-        //禁用字节对齐限制
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        printError("Failed to initialize GLAD");
+        glfwTerminate();
+        terminateFreeTree();
     }
+
+#ifdef R_DEBUG
+    RDebug() << format::green << format::bold << glGetString(GL_VERSION) << format::non;
+    //若启用OpenGL Debug
+    GLint flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if(flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+    {
+        RDebug() << format::green << format::bold << "Enable OpenGL debug output" << format::non;
+        glEnable(GL_DEBUG_OUTPUT);
+        glDebugMessageCallback(openglDebugMessageCallback, nullptr);
+        //过滤着色器编译成功消息通知
+        glDebugMessageControl(GL_DEBUG_SOURCE_SHADER_COMPILER, GL_DEBUG_TYPE_OTHER,
+                              GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+    }
+#endif
+
+    //默认开启垂直同步
+    glfwSwapInterval(1);
+    //视口映射
+    glViewport(0, 0, width_, height_);
+    //设置混合
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //忽略不必要的Z轴片段
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);//小于或等于时通过
+    //默认背景色
+    glClearColor(0.07f, 0.07f, 0.07f, 1.0f);
+    //禁用字节对齐限制
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     glfwSetFramebufferSizeCallback(window_, resizeCallback);
     glfwSetKeyCallback(window_, keyboardCollback);
@@ -99,6 +100,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     glfwSetScrollCallback(window_, mouseScrollCallback);
     glfwSetCursorPosCallback(window_, mouseMoveCallback);
     glfwSetWindowFocusCallback(window_, windowFocusCallback);
+    trackCursor();
 
     RImage img = RImage::getRedoperaIcon();
     GLFWimage icon{ img.width(), img.height(), img.data() };
@@ -118,9 +120,6 @@ RWindowCtrl::~RWindowCtrl()
 
 void RWindowCtrl::control()
 {
-    GLFWwindow *before = glfwGetCurrentContext();
-    glfwMakeContextCurrent(window_);
-
     if(focused_)
     {
         //更新手柄输入
@@ -136,9 +135,6 @@ void RWindowCtrl::control()
     allChildrenActive();
     glfwSwapBuffers(window_);
 
-    //切换为之前的上下文
-    glfwMakeContextCurrent(before);
-
     if(glfwWindowShouldClose(window_))
         breakLoop();
 }
@@ -153,9 +149,14 @@ void RWindowCtrl::setWindowTitle(const std::string &title)
     glfwSetWindowTitle(window_, title.c_str());
 }
 
-void RWindowCtrl::setBackground(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+void RWindowCtrl::setBackgroundColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
     glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+}
+
+void RWindowCtrl::setBackgroundColor(RColor color)
+{
+    glClearColor(color.r() / 255.0f, color.g() / 255.0f, color.b() / 255.0f, color.a() / 255.0f);
 }
 
 void RWindowCtrl::setViewportRatio(double ratio)
@@ -188,7 +189,7 @@ void RWindowCtrl::setFullScreenWindow(bool b)
     }
 }
 
-void RWindowCtrl::setWindowSizeLimits(int minW, int minH, int maxW, int maxH)
+void RWindowCtrl::setWindowMinimumSize(int minW, int minH)
 {
 #ifdef R_DEBUG
     if(minW < 1)
@@ -201,6 +202,14 @@ void RWindowCtrl::setWindowSizeLimits(int minW, int minH, int maxW, int maxH)
         printError("Window size limit parameter error: minH = " + std::to_string(minH));
         minH = GLFW_DONT_CARE;
     }
+#endif
+
+    glfwSetWindowSizeLimits(window_, minW, minH, GLFW_DONT_CARE, GLFW_DONT_CARE);
+}
+
+void RWindowCtrl::setWindowMaximumSize(int maxW, int maxH)
+{
+#ifdef R_DEBUG
     if(maxW < 1)
     {
         printError("Window size limit parameter error: maxW = " + std::to_string(maxW));
@@ -213,7 +222,7 @@ void RWindowCtrl::setWindowSizeLimits(int minW, int minH, int maxW, int maxH)
     }
 #endif
 
-    glfwSetWindowSizeLimits(window_, minW, minH, maxW, maxH);
+    glfwSetWindowSizeLimits(window_, GLFW_DONT_CARE, GLFW_DONT_CARE, maxW, maxH);
 }
 
 void RWindowCtrl::setWindowSizeFixed(bool b)
@@ -231,9 +240,29 @@ void RWindowCtrl::setWindowFloatOnTop(bool b)
     glfwSetWindowAttrib(window_, GLFW_FLOATING, b ? GLFW_TRUE: GLFW_FALSE);
 }
 
+void RWindowCtrl::setCursor()
+{
+    glfwSetCursor(window_, nullptr);
+}
+
+void RWindowCtrl::setCursor(RCursor &cursor)
+{
+    glfwSetCursor(window_, cursor.data());
+}
+
 double RWindowCtrl::getViewportRatio() const
 {
     return viewportRatio_;
+}
+
+GLFWwindow *RWindowCtrl::getWindowHandle() const
+{
+    return window_;
+}
+
+bool RWindowCtrl::isFocus() const
+{
+    return focused_;
 }
 
 bool RWindowCtrl::isShouldCloused() const
@@ -304,13 +333,19 @@ std::string RWindowCtrl::getDefaultName() const
 void RWindowCtrl::initEvent(RInitEvent *)
 {
 #ifdef R_DEBUG
-    printError(!glfwGetWindowAttrib(window_, GLFW_VISIBLE), getName() + "Window is hide! in initialization Event");
+    printError(!glfwGetWindowAttrib(window_, GLFW_VISIBLE), name() + "Window is hide! in initialization Event");
 #endif
 }
 
 void RWindowCtrl::closeEvent(RCloseEvent *)
 {
     glfwSetWindowShouldClose(window_, GLFW_TRUE);
+}
+
+RResizeEvent *RWindowCtrl::eventFilter(RResizeEvent *event)
+{
+    if(event->sender == this) return event;
+    else return nullptr;
 }
 
 RWindowCtrl *RWindowCtrl::getWindowUserCtrl(GLFWwindow *window)
@@ -420,7 +455,7 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
         wctrl->width_ = width;
         wctrl->height_ = height;
         glViewport(0, 0, width, height);
-        RResizeEvent e(width, height);
+        RResizeEvent e(wctrl, width, height);
         wctrl->dispatchEvent(&e);
     }
     else if(wctrl->viewportPattern == KeepScale)
@@ -440,7 +475,7 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
         }
         wctrl->width_ = newW;
         wctrl->height_ = newH;
-        RResizeEvent e(newW, newH);
+        RResizeEvent e(wctrl, newW, newH);
         wctrl->dispatchEvent(&e);
     }
 }
@@ -473,7 +508,11 @@ void RWindowCtrl::mouseButtonCallback(GLFWwindow *window, int button, int action
 void RWindowCtrl::mouseScrollCallback(GLFWwindow *window, double , double y)
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
-    wctrl->scrolled.emit(y);
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+
+    RScrollEvent e{wctrl, static_cast<int>(y), static_cast<int>(xpos), static_cast<int>(ypos)};
+    wctrl->dispatchEvent(&e);
 }
 
 void RWindowCtrl::windowFocusCallback(GLFWwindow *window, int focused)

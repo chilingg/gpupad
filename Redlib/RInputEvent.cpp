@@ -383,7 +383,7 @@ void RInputEvent::updateKeyboardInput(RInputEvent::Keyboards key, RInputEvent::B
     keyboardInputs_[key] = action_;
 }
 
-void RInputEvent::updateMouseInput(RInputEvent::MouseButtons key, RPoint2 point)
+void RInputEvent::updateMouseInput(RInputEvent::MouseButtons key, const RPoint2 &point)
 {
     mouseInputs_[key] = point;
 }

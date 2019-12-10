@@ -2,13 +2,14 @@
 #define RSPRITE_H
 
 #include "RPlane.h"
+#include <vector>
 
 class RSprite : public RPlane
 {
 public:
-    explicit RSprite(RShaderProgram program = RShaderProgram(), const std::string &name = "Sprite");
+    explicit RSprite();
     RSprite(const RSprite &sprite);
-    RSprite(int width, int height, const std::string &name, RPoint pos, RShaderProgram program = RShaderProgram());
+    RSprite(int width, int height, const std::string &name, RPoint pos);
     virtual ~RSprite() override;
 
     void setInterval(int interval = 20);

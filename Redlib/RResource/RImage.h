@@ -19,8 +19,8 @@ public:
     RImage(const RImage &img);
     RImage(const RImage &&img);
     RImage& operator=(RImage img);
-    void swap(RImage &rc);
     ~RImage();
+    void swap(RImage &rc);
 
     bool isValid() const;
     int width() const;
@@ -33,7 +33,7 @@ public:
     bool load(int width, int height, int channel, unsigned char *data);
     void flipVertical();
     void freeImage();
-    void full(RColor color);
+    void full(const RColor &color);
 
 protected:
     void copyOnWrite();

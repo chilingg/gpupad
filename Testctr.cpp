@@ -40,20 +40,15 @@ void TestCtr::control()
     bColor_.render();
 
     plane_->rotateX(static_cast<float>(glfwGetTime()*2));
-    plane_->RenderLineBox(0, 960, 0, 540);
+    plane_->renderLineBox(0, 960, 0, 540);
     plane_->render();
 
-    textPlane_.RenderLineBox(0, width_, 0, height_);
+    textPlane_.renderLineBox(0, width_, 0, height_);
     textPlane_.render();
 
     FPS();
 
     sprite_.render();
-}
-
-void TestCtr::scrollNotify(double v)
-{
-    RDebug() << v;
 }
 
 void TestCtr::inputEvent(const RInputEvent *event)
@@ -73,7 +68,7 @@ void TestCtr::inputEvent(const RInputEvent *event)
         {
             if(!debugWindow_)
             {
-                debugWindow_ = new RWindowCtrl("Debug", this);
+                debugWindow_ = new RResourceWindow("Debug", this);
                 debugWindow_->setWindowTitle("Debug");
                 //debugWindow_->setWindowDecrate(false);
                 //debugWindow_->setWindowFloatOnTop(true);
@@ -97,12 +92,11 @@ void TestCtr::inputEvent(const RInputEvent *event)
 
 void TestCtr::initEvent(RInitEvent *event)
 {
-    RDebug() << "Initialization " << event->looper->getName() << " in " << getPathName();
-    closed.connect(event->looper, &RController::breakLoop);
-    if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(event->looper))
+    RDebug() << "Initialization " << event->sender->name() << " in " << getPathName();
+    closed.connect(event->sender, &RController::breakLoop);
+    if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(event->sender))
     {
         //connect(window, &RWindowCtrl::scrolled, this, &TestCtr::scrollNotify);
-        window->scrolled.connect(this, &TestCtr::scrollNotify);
         width_ = window->width();
         height_ = window->height();
     }
@@ -131,7 +125,7 @@ void TestCtr::initEvent(RInitEvent *event)
 
     uiShaders_ = RShaderProgram::getStanderdShaderProgram();
     uiShaders_.use();
-    uiShaders_.setViewpro("projection", 0, 960, 0, 540);
+    uiShaders_.setViewprot("projection", 0, 960, 0, 540);
     uiShaders_.setCameraPos("view", 0, 0);
 
     textPlane_.setShaderProgram(uiShaders_, uiShaders_.getUniformLocation("model"));
@@ -232,18 +226,18 @@ void TestCtr::resizeEvent(RResizeEvent *event)
 
 void TestCtr::exitedTreeEvent(RExitedTreeEvent *event)
 {
-    RDebug() << "Exited tree with the " << event->spawner->getName() << " of the " << getPathName();
+    RDebug() << "Exited tree with the " << event->sender->name() << " of the " << getPathName();
 }
 
 void TestCtr::enteredTreeEvent(REnteredTreeEvent *event)
 {
-    RDebug() << "Entered tree with the " << event->spawner->getName() << " of the " << getPathName();
+    RDebug() << "Entered tree with the " << event->sender->name() << " of the " << getPathName();
 }
 
 void TestCtr::closeEvent(RCloseEvent *event)
 {
-    RDebug() << "Close " << event->looper->getName() << " in " << getPathName();
-    closed.disconnect(event->looper);
+    RDebug() << "Close " << event->sender->name() << " in " << getPathName();
+    closed.disconnect(event->sender);
 }
 
 void TestCtr::FPS()

@@ -2,8 +2,8 @@
 
 #include "RDebug.h"
 
-RTextPlane::RTextPlane(RShaderProgram program, const std::string &name):
-    RTextPlane(L"Text label", 32, 32, name, RPoint(0, 0), program)
+RTextPlane::RTextPlane():
+    RTextPlane(L"Text label", 32, 32, "TextPlane", RPoint(0, 0))
 {
 
 }
@@ -12,22 +12,26 @@ RTextPlane::RTextPlane(const RTextPlane &label):
     RPlane(label),
     texts_(label.texts_),
     fontColor_(label.fontColor_),
+    backgroundColor_(label.backgroundColor_),
     textImage_(label.textImage_),
     font_(label.font_),
     lineSpacing_(label.lineSpacing_),
     wordSpacing_(label.wordSpacing_),
     typeset_(label.typeset_)
 {
-
+    texture_.rename("TextPlane-Texture");
 }
 
-RTextPlane::RTextPlane(std::wstring texts, int width, int height, const std::string &name, RPoint pos, RShaderProgram program):
-    RPlane(width, height, name, pos, program),
+RTextPlane::RTextPlane(const std::wstring &texts, int width, int height, const std::string &name, const RPoint &pos):
+    RPlane(width, height, name, pos),
     texts_(texts),
-    fontColor_(0xffffffffu)
+    fontColor_(0xffffffffu),
+    backgroundColor_(0x0u)
 {
     textImage_.load(width, height, 4, nullptr);
-    setAlignment(RPlane::Align_Left, RPlane::Align_Top);
+    textImage_.rename("TextPlane-Image");
+    font_.rename("TextPlane--Font");
+    texture_.rename("TextPlane-Texture");
     flipV();
 }
 
@@ -36,14 +40,24 @@ RTextPlane::~RTextPlane()
 
 }
 
-void RTextPlane::setFontColor(RColor color)
+void RTextPlane::setFontColor(const RColor &color)
 {
     fontColor_ = color;
 }
 
-void RTextPlane::setFontColor(unsigned r, unsigned g, unsigned b)
+void RTextPlane::setFontColor(unsigned r, unsigned g, unsigned b, unsigned a)
 {
-    fontColor_ = RColor(r, g, b);
+    fontColor_ = RColor(r, g, b, a);
+}
+
+void RTextPlane::setBackgroundColor(const RColor &color)
+{
+    backgroundColor_ = color;
+}
+
+void RTextPlane::setBackgroundColor(unsigned r, unsigned g, unsigned b, unsigned a)
+{
+    backgroundColor_ = RColor(r, g, b, a);
 }
 
 void RTextPlane::setPadding(int top, int bottom, int left, int right)
@@ -110,13 +124,13 @@ void RTextPlane::updateModelMatNow()
 {
     RPlane::updateModelMatNow();
 
-    int templ = paddingLeft(), tempr = paddingRight(), tempt = paddingTop(), tempb = paddingBottm();
+    int templ = paddingLeft(), tempr = paddingRight(), tempt = paddingTop(), tempb = paddingBottom();
     setPadding(0);
     RPlane::updateModelMatNow();
     if(textImage_.width() != width() || textImage_.height() != height())
         textImage_.load(width(), height(), 4, nullptr);
-    else
-        textImage_.full(RColor(0x0u));
+
+    textImage_.full(backgroundColor_);
 
     setPadding(tempt, tempb, templ, tempr);
 
@@ -128,13 +142,33 @@ void RTextPlane::updateModelMatNow()
     updateModelMatOver();
 }
 
+unsigned RTextPlane::fontSize()
+{
+    return font_.size();
+}
+
+float RTextPlane::lineSpacing()
+{
+    return lineSpacing_;
+}
+
+float RTextPlane::wordSpacing()
+{
+    return wordSpacing_;
+}
+
+int RTextPlane::lineHeight()
+{
+    return static_cast<int>(font_.size()*lineSpacing_+0.5f);
+}
+
 void RTextPlane::verticalTextToTexture()
 {
     int lineSize = static_cast<int>(font_.size()*lineSpacing_+0.5f);//换行
     int wordSize = static_cast<int>(font_.size());
     int lengthMax = innerHeight();
     int lineMax = innerWidth();
-    int linepos = 0;
+    int linepos = static_cast<int>(font_.size()) + static_cast<int>(font_.size()*0.3+0.5);
 
     std::vector<int> lineLengths { 0 };
     if(lengthMax > static_cast<int>(font_.size()))
@@ -183,7 +217,7 @@ void RTextPlane::verticalTextToTexture()
 
     for(auto linew : lineLengths)
     {
-        if(vAlign() == Align_Bottom) wordOffset = lengthMax - linew - paddingBottm();
+        if(vAlign() == Align_Bottom) wordOffset = lengthMax - linew - paddingBottom();
         else if(vAlign() == Align_Mind) wordOffset = (lengthMax - linew) / 2;
         else wordOffset = paddingLeft();//Align_Top 缺省默认
         linew += wordOffset;
@@ -211,10 +245,14 @@ void RTextPlane::verticalTextToTexture()
                 {
                     if(starty+y < 0 || startx+x < 0 || starty+y > lengthMax) continue;
 
-                    data[((starty+y)*lineMax+startx+x)*4] = r;
-                    data[((starty+y)*lineMax+startx+x)*4+1] = g;
-                    data[((starty+y)*lineMax+startx+x)*4+2] = b;
-                    data[((starty+y)*lineMax+startx+x)*4+3] = bitmap[y*glyph.width+x];
+                    int index = ((starty+y)*lengthMax+startx+x)*4;
+                    float alphe = bitmap[y*glyph.width+x] / 255.0f;
+                    float alphe2 = data[index+3] / 255.0f;
+
+                    data[index] = data[index]/alphe2*(1.0f-alphe) + r*alphe;
+                    data[index+1] = data[index+1]/alphe2*(1.0f-alphe) + g*alphe;
+                    data[index+2] = data[index+1]/alphe2*(1.0f-alphe) + b*alphe;
+                    data[index+3] = static_cast<unsigned char>(RMath::min((alphe + alphe2), 1.0f) * 255u);
                 }
             }
             //RDebug() << "text:" << texts_[textNum] << " w:" << glyph.width << "h:" << glyph.height
@@ -246,7 +284,7 @@ void RTextPlane::horizontalTextToTexture()
     int lineSize = static_cast<int>(font_.size()*lineSpacing_+0.5f);//换行
     int lengthMax = innerWidth();
     int lineMax = innerHeight();
-    int linepos = 0;
+    int linepos = static_cast<int>(font_.size()) + static_cast<int>(font_.size()*0.3+0.5);
 
     //计算每一行的长度
     std::vector<int> lineLengths { 0 };
@@ -260,6 +298,7 @@ void RTextPlane::horizontalTextToTexture()
             {
                 //RDebug() << lineWidths.back() + paddingLeft() << linepos;
                 //下一行是否还有空间（预留三分之一字体大小的空白）
+                //RDebug() << linepos + static_cast<int>(font_.size()) << static_cast<int>(font_.size()*0.3+0.5) << lineMax;
                 if(linepos + static_cast<int>(font_.size()) + static_cast<int>(font_.size()*0.3+0.5) > lineMax) break;
 
                 lineLengths.back() += 1;//换行符占位
@@ -291,7 +330,7 @@ void RTextPlane::horizontalTextToTexture()
     lengthMax = width();
     lineMax = height();
 
-    if(vAlign() == Align_Bottom) linepos = lineMax - static_cast<int>(lineLengths.size()) * lineSize - paddingBottm();
+    if(vAlign() == Align_Bottom) linepos = lineMax - static_cast<int>(lineLengths.size()) * lineSize - paddingBottom();
     else if(vAlign() == Align_Mind) linepos = (lineMax - static_cast<int>(lineLengths.size()) * lineSize) / 2;
     else linepos = paddingTop();//Align_Top 缺省默认
 
@@ -330,10 +369,23 @@ void RTextPlane::horizontalTextToTexture()
                 {
                     if(starty+y < 0 || startx+x < 0 || startx+x > lengthMax) continue;
 
-                    data[((starty+y)*lengthMax+startx+x)*4] = r;
-                    data[((starty+y)*lengthMax+startx+x)*4+1] = g;
-                    data[((starty+y)*lengthMax+startx+x)*4+2] = b;
-                    data[((starty+y)*lengthMax+startx+x)*4+3] = bitmap[y*glyph.width+x];
+                    int index = ((starty+y)*lengthMax+startx+x)*4;
+                    float alphe = bitmap[y*glyph.width+x] / 255.0f;
+
+                    if(backgroundColor_.a() == 0)
+                    {
+                        data[index] = r;
+                        data[index+1] = g;
+                        data[index+2] = b;
+                        data[index+3] = bitmap[y*glyph.width+x];
+                    } else {
+                        float alphe2 = data[index+3] / 255.0f;
+
+                        data[index] = data[index]/alphe2*(1.0f-alphe) + r*alphe;
+                        data[index+1] = data[index+1]/alphe2*(1.0f-alphe) + g*alphe;
+                        data[index+2] = data[index+2]/alphe2*(1.0f-alphe) + b*alphe;
+                        data[index+3] = static_cast<unsigned char>(RMath::min((alphe + alphe2), 1.0f) * 255u);
+                    }
                 }
             }
             //RDebug() << "text:" << texts_[textNum] << " w:" << glyph.width << "h:" << glyph.height
@@ -345,9 +397,9 @@ void RTextPlane::horizontalTextToTexture()
         }
     }
     //若不能显示所有字符，在末尾添加一条省略线
-    if(textNum < texts_.size())
+    if(textNum < texts_.size() && texts_[textNum] != L'\n')
     {
-        linepos =  height() - (innerHeight() > 0 ? paddingBottm() + 1 : 0);
+        linepos =  height() - (innerHeight() > 0 ? paddingBottom() + 1 : 0);
         wordOffset = paddingLeft();
         for(int i = 0; i < innerWidth(); ++i)
         {

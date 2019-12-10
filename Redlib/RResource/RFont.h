@@ -41,7 +41,7 @@ public:
     void setFontSize(unsigned size);
     void setAsDefualtFont(unsigned size);
 
-    bool loadFont(std::string path, unsigned size);
+    bool loadFont(std::string path, unsigned size = 24);
     void freeFont();
     void clearFontDataCache();
 

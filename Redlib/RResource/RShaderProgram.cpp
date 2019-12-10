@@ -15,7 +15,7 @@ RShaderProgram::RShaderProgram():
 
 }
 
-RShaderProgram::RShaderProgram(RShader vertex, const std::string &name):
+RShaderProgram::RShaderProgram(const RShader &vertex, const std::string &name):
     RResource(name)
 {
 #ifdef R_DEBUG
@@ -23,9 +23,10 @@ RShaderProgram::RShaderProgram(RShader vertex, const std::string &name):
                   + " The program needs VertexShader and FragmentShader!"))
         return;
 #endif
+    attachShader(vertex);
 }
 
-RShaderProgram::RShaderProgram(RShader vertex, RShader fragment, const std::string &name):
+RShaderProgram::RShaderProgram(const RShader &vertex, const RShader &fragment, const std::string &name):
     RResource(name)
 {
 #ifdef R_DEBUG
@@ -39,7 +40,6 @@ RShaderProgram::RShaderProgram(RShader vertex, RShader fragment, const std::stri
 #endif
     attachShader(vertex);
     attachShader(fragment);
-    linkProgram();
 }
 
 RShaderProgram::RShaderProgram(const RShaderProgram &program):
@@ -62,6 +62,11 @@ RShaderProgram &RShaderProgram::operator=(RShaderProgram program)
 {
     swap(program);
     return *this;
+}
+
+RShaderProgram::~RShaderProgram()
+{
+    //RDebug() << nameID();
 }
 
 void RShaderProgram::swap(RShaderProgram &prog)
@@ -142,8 +147,7 @@ bool RShaderProgram::linkProgram()
 bool RShaderProgram::linkProgramAsPrototype()
 {
 #ifdef R_DEBUG
-    if(printError(!shaders_.count(ShaderType::VertexShader) && !shaders_.count(ShaderType::FragmentShader),
-               "Unattached either VertexShader or FragmentShader"))
+    if(printError(!shaders_.count(ShaderType::VertexShader), "Unattached VertexShader in " + nameID()))
         return false;
 #endif
 
@@ -225,14 +229,14 @@ RUniformLocation RShaderProgram::getUniformLocation(const std::string &name) con
     return loc;
 }
 
-bool RShaderProgram::setViewpro(const std::string name, float left, float right, float bottom, float top, float near, float far)
+bool RShaderProgram::setViewprot(const std::string name, float left, float right, float bottom, float top, float near, float far)
 {
     RUniformLocation loc = getUniformLocation(name);
 
-    return setViewpro(loc, left, right, bottom, top, near, far);
+    return setViewprot(loc, left, right, bottom, top, near, far);
 }
 
-bool RShaderProgram::setViewpro(RUniformLocation location, float left, float right, float bottom, float top, float near, float far)
+bool RShaderProgram::setViewprot(const RUniformLocation &location, float left, float right, float bottom, float top, float near, float far)
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -255,7 +259,7 @@ bool RShaderProgram::setCameraPos(const std::string name, float x, float y, floa
     return setCameraPos(loc, x, y, z);
 }
 
-bool RShaderProgram::setCameraPos(RUniformLocation location, float x, float y, float z)
+bool RShaderProgram::setCameraPos(const RUniformLocation &location, float x, float y, float z)
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -271,7 +275,7 @@ bool RShaderProgram::setCameraPos(RUniformLocation location, float x, float y, f
     return location.isValid();
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLfloat v1) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLfloat v1) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -284,7 +288,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLfloat v1) const
     glUniform1f(location, v1);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLfloat v1, GLfloat v2) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLfloat v1, GLfloat v2) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -297,7 +301,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLfloat v1, GLfloat v
     glUniform2f(location, v1, v2);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLfloat v1, GLfloat v2, GLfloat v3) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLfloat v1, GLfloat v2, GLfloat v3) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -310,7 +314,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLfloat v1, GLfloat v
     glUniform3f(location, v1, v2, v3);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLfloat v1, GLfloat v2, GLfloat v3, GLfloat v4) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLfloat v1, GLfloat v2, GLfloat v3, GLfloat v4) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -323,7 +327,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLfloat v1, GLfloat v
     glUniform4f(location, v1, v2, v3, v4);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLint v1) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLint v1) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -336,7 +340,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLint v1) const
     glUniform1i(location, v1);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLint v1, GLint v2) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLint v1, GLint v2) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -349,7 +353,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLint v1, GLint v2) c
     glUniform2i(location, v1, v2);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLint v1, GLint v2, GLint v3) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLint v1, GLint v2, GLint v3) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -362,7 +366,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLint v1, GLint v2, G
     glUniform3i(location, v1, v2, v3);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLint v1, GLint v2, GLint v3, GLint v4) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLint v1, GLint v2, GLint v3, GLint v4) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -375,7 +379,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLint v1, GLint v2, G
     glUniform4i(location, v1, v2, v3, v4);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLuint v1) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLuint v1) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -388,7 +392,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLuint v1) const
     glUniform1ui(location, v1);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLuint v1, GLuint v2) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLuint v1, GLuint v2) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -401,7 +405,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLuint v1, GLuint v2)
     glUniform2ui(location, v1, v2);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLuint v1, GLuint v2, GLuint v3) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLuint v1, GLuint v2, GLuint v3) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -414,7 +418,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLuint v1, GLuint v2,
     glUniform3ui(location, v1, v2, v3);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLuint v1, GLuint v2, GLuint v3, GLuint v4) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLuint v1, GLuint v2, GLuint v3, GLuint v4) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -427,7 +431,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLuint v1, GLuint v2,
     glUniform4ui(location, v1, v2, v3, v4);
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLsizei size, GLfloat *vp, GLsizei count) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLsizei size, GLfloat *vp, GLsizei count) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -458,7 +462,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLsizei size, GLfloat
     }
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLsizei size, GLint *vp, GLsizei count) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLsizei size, GLint *vp, GLsizei count) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -488,7 +492,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLsizei size, GLint *
     }
 }
 
-void RShaderProgram::setUniform(RUniformLocation location, GLsizei size, GLuint *vp, GLsizei count) const
+void RShaderProgram::setUniform(const RUniformLocation &location, GLsizei size, GLuint *vp, GLsizei count) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -518,7 +522,7 @@ void RShaderProgram::setUniform(RUniformLocation location, GLsizei size, GLuint 
     }
 }
 
-void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei order, GLfloat *vp, GLsizei count, GLboolean transpose) const
+void RShaderProgram::setUniformMatrix(const RUniformLocation &location, GLsizei order, GLfloat *vp, GLsizei count, GLboolean transpose) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -545,7 +549,7 @@ void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei order, 
     }
 }
 
-void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei order, GLdouble *vp, GLsizei count, GLboolean transpose) const
+void RShaderProgram::setUniformMatrix(const RUniformLocation &location, GLsizei order, GLdouble *vp, GLsizei count, GLboolean transpose) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -572,7 +576,7 @@ void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei order, 
     }
 }
 
-void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei column, GLsizei row, GLfloat *vp, GLsizei count, GLboolean transpose) const
+void RShaderProgram::setUniformMatrix(const RUniformLocation &location, GLsizei column, GLsizei row, GLfloat *vp, GLsizei count, GLboolean transpose) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -603,7 +607,7 @@ void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei column,
 #endif
 }
 
-void RShaderProgram::setUniformMatrix(RUniformLocation location, GLsizei column, GLsizei row, GLdouble *vp, GLsizei count, GLboolean transpose) const
+void RShaderProgram::setUniformMatrix(const RUniformLocation &location, GLsizei column, GLsizei row, GLdouble *vp, GLsizei count, GLboolean transpose) const
 {
 #ifdef R_DEBUG
     if(printError(!progID_, "Setting uniform " + location.name_ + " is invalid for "
@@ -647,7 +651,7 @@ RShaderProgram RShaderProgram::getStanderdShaderProgram()
 {
     RShaderProgram program;
 
-    const GLchar *vertexCode = {
+    static const GLchar *vertexCode = {
         "#version 430 core\n"
         "layout(location = 0) in vec3 aPos;\n"
         "layout(location = 1) in vec2 aTexCoor;\n"
@@ -661,7 +665,7 @@ RShaderProgram RShaderProgram::getStanderdShaderProgram()
             "TexCoor = aTexCoor;\n"
         "}\n"
     };
-    const GLchar *fragCode = {
+    static const GLchar *fragCode = {
         "#version 430 core\n"
         "in vec2 TexCoor;\n"
         "out vec4 outColor;\n"

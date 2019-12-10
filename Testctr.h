@@ -8,6 +8,7 @@
 #include <RTimer.h>
 #include <RSprite.h>
 #include <RResource/RShaderProgram.h>
+#include <RResourceWindow.h>
 
 class TestCtr : public RController
 {
@@ -22,7 +23,6 @@ public:
     ~TestCtr() override;
 
     void control() override;
-    void scrollNotify(double v);
 
 protected:
     void inputEvent(const RInputEvent *event) override;
@@ -42,7 +42,7 @@ private:
     RInputEvent::ButtonAction fullScreenBtn_ = RInputEvent::RELEASE;
     bool fullScreen_ = false;
     RInputEvent::ButtonAction debugWindowBtn_ = RInputEvent::RELEASE;
-    RWindowCtrl *debugWindow_ = nullptr;
+    RResourceWindow *debugWindow_ = nullptr;
     std::unique_ptr<RPlane> plane_;
     RTextPlane textPlane_;
     int width_;

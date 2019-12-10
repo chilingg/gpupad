@@ -21,43 +21,59 @@ public:
 class RInitEvent
 {
 public:
-    explicit RInitEvent(RController *looper):
-        looper(looper) {}
-    RController *looper;
+    explicit RInitEvent(RController *sender):
+        sender(sender) {}
+    RController *sender;
 };
 
 class RCloseEvent
 {
 public:
-    explicit RCloseEvent(RController *looper):
-        looper(looper) {}
-    RController *looper;
+    explicit RCloseEvent(RController *sender):
+        sender(sender) {}
+    RController *sender;
 };
 
 class REnteredTreeEvent
 {
 public:
-    explicit REnteredTreeEvent(RController *spawner):
-        spawner(spawner) {}
-    RController *spawner;
+    explicit REnteredTreeEvent(RController *sender):
+        sender(sender) {}
+    RController *sender;
 };
 
 class RExitedTreeEvent
 {
 public:
-    explicit RExitedTreeEvent(RController *spawner):
-        spawner(spawner) {}
-    RController *spawner;
+    explicit RExitedTreeEvent(RController *sender):
+        sender(sender) {}
+    RController *sender;
 };
 
 class RResizeEvent
 {
 public:
-    RResizeEvent(int width, int height):
+    RResizeEvent(RController *sender, int width, int height):
+        sender(sender),
         width(width),
         height(height) {}
+    RController *sender;
     const int width;
     const int height;
+};
+
+class RScrollEvent
+{
+public:
+    RScrollEvent(RController *sender, int direct, int x, int y):
+        sender(sender),
+        direct(direct),
+        x(x),
+        y(y) {}
+    RController *sender;
+    const int direct;
+    const int x;
+    const int y;
 };
 
 #endif // REVENT_H

@@ -15,7 +15,7 @@ RImage RImage::getRedoperaIcon()
     icon.channel_ = 4;
 
     size_t size = 4096;
-    unsigned char *data = static_cast<unsigned char*>(calloc(size, sizeof(unsigned char)));
+    unsigned char *data = static_cast<unsigned char*>(malloc(size * sizeof(unsigned char)));
     for(size_t i = 0; i < size; ++i)
         data[i] = RIcon[i];
     icon.data_.reset(data, stbi_image_free);
@@ -104,7 +104,7 @@ bool RImage::load(std::string path, bool flip)
 bool RImage::load(int width, int height, int channel, unsigned char *data)
 {
     size_t size = static_cast<size_t>(height) * static_cast<size_t>(width) * static_cast<size_t>(channel);
-    unsigned char *d = static_cast<unsigned char*>(calloc(size, sizeof(unsigned char)));
+    unsigned char *d = static_cast<unsigned char*>(malloc(size * sizeof(unsigned char)));
     assert(d != nullptr);
 
     data_.reset(d, stbi_image_free);
@@ -127,7 +127,7 @@ void RImage::flipVertical()
 
     for(int h = 0, h2 = height_ - 1; h < height_/2; ++h, --h2)
     {
-        for(int w = 0, w2 = width_ - 1; w < width_/2; ++w, --w2)
+        for(int w = 0, w2 = 0; w < width_; ++w, ++w2)
         {
             for(int c = 0; c < channel_; ++c)
                 swap(bitmap[(h*width_+w)*channel_+c], bitmap[(h2*width_+w2)*channel_+c]);
@@ -140,7 +140,7 @@ void RImage::freeImage()
     data_.reset();
 }
 
-void RImage::full(RColor color)
+void RImage::full(const RColor &color)
 {
     copyOnWrite();
 
@@ -191,12 +191,11 @@ unsigned char *RImage::data()
 void RImage::copyOnWrite()
 {
     if(data_.unique() || data_ == nullptr) return;
-    RDebug() << data_.unique() << data_.use_count();
     assert(isValid());
 
     size_t size = static_cast<size_t>(height_) * static_cast<size_t>(width_) * static_cast<size_t>(channel_);
     unsigned char *source = data_.get();
-    unsigned char *data = static_cast<unsigned char*>(calloc(size, sizeof(unsigned char)));
+    unsigned char *data = static_cast<unsigned char*>(malloc(size * sizeof(unsigned char)));
     for(size_t i = 0; i < size; ++i)
         data[i] = source[i];
     data_.reset(data, stbi_image_free);

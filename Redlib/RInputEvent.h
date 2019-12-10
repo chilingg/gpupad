@@ -225,7 +225,7 @@ public:
     float checkGamepadAxis(JoystickID jid, GamepadAxes axis) const;
 
     void updateKeyboardInput(Keyboards key, ButtonAction action_);
-    void updateMouseInput(MouseButtons key, RPoint2 point);
+    void updateMouseInput(MouseButtons key, const RPoint2 &point);
     void updateGamepadButtonInput(JoystickID jid);
     void deleteJoystick(JoystickID jid);
 

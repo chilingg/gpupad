@@ -20,7 +20,7 @@ class RShader : public RResource
 {
     friend void swap(RShader &shader1, RShader &shader2);
 public:
-    static std::string shaderTypeName(RShader shader);
+    static std::string shaderTypeName(const RShader &shader);
     static std::string shaderTypeName(ShaderType type);
 
     RShader();

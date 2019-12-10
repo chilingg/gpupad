@@ -2,33 +2,28 @@
 
 #include "RDebug.h"
 
-void RPlane::setPlaneDefaultViewpro(float left, float right, float bottom, float top, float near, float far)
+void RPlane::setPlaneDefaultViewprot(float left, float right, float bottom, float top, float near, float far)
 {
     bool b = true;
-    if(!planeSProgram.isUsed())
-        planeSProgram.use();
+    if(!planeSProgram->isUsed())
+        planeSProgram->use();
     else
         b = false;
     RMatrix4 projection = RMath::ortho(left, right, bottom, top, near, far);
-    planeSProgram.setUniformMatrix(planeSProgram.getUniformLocation("projection"), 4, RMath::value_ptr(projection));
-    if(b) planeSProgram.nonuse();
+    planeSProgram->setUniformMatrix(planeSProgram->getUniformLocation("projection"), 4, RMath::value_ptr(projection));
+    if(b) planeSProgram->nonuse();
 }
 
 void RPlane::setPlaneDefaultCameraPos(float x, float y, float z)
 {
     bool b = true;
-    if(!planeSProgram.isUsed())
-        planeSProgram.use();
+    if(!planeSProgram->isUsed())
+        planeSProgram->use();
     else
         b = false;
     RMatrix4 view = RMath::translate(RMatrix4(1), {-x, -y, -z});
-    planeSProgram.setUniformMatrix(planeSProgram.getUniformLocation("view"), 4, RMath::value_ptr(view));
-    if(b) planeSProgram.nonuse();
-}
-
-RPlane::RPlane(RShaderProgram program, const std::string &name):
-    RPlane(32, 32, name, RPoint(0, 0), program)
-{
+    planeSProgram->setUniformMatrix(planeSProgram->getUniformLocation("view"), 4, RMath::value_ptr(view));
+    if(b) planeSProgram->nonuse();
 }
 
 RPlane::RPlane(const RPlane &plane):
@@ -54,12 +49,23 @@ RPlane::RPlane(const RPlane &plane):
     paddingRight_(plane.paddingRight_),
     sizeMode_(plane.sizeMode_),
     vAlign_(plane.vAlign_),
-    hAlign_(plane.hAlign_)
+    hAlign_(plane.hAlign_),
+    minWidth_(plane.minWidth_),
+    minHeight_(plane.minHeight_),
+    maxWidth_(plane.maxWidth_),
+    maxHeight_(plane.maxHeight_)
 {
+    texture_.rename("Plane-Texture");
     ++count;
 }
 
-RPlane::RPlane(int width, int height, const std::string &name, RPoint pos, RShaderProgram program):
+RPlane::RPlane():
+    RPlane(32, 32, "Plane", RPoint(0, 0))
+{
+
+}
+
+RPlane::RPlane(int width, int height, const std::string &name, const RPoint &pos):
     rotateMat_(1.0f),
     modelMat_(1.0f),
     shaders_(),
@@ -89,34 +95,34 @@ RPlane::RPlane(int width, int height, const std::string &name, RPoint pos, RShad
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), offsetBuffer(3*sizeof(float)));
         glBindVertexArray(0);
 
-        planeSProgram = RShaderProgram::getStanderdShaderProgram();
-        planeSProgram.rename("DefaultPlaneProgram");
+        planeSProgram = new RShaderProgram(RShaderProgram::getStanderdShaderProgram());
+        planeSProgram->rename("DefaultPlaneProgram");
 
-        planeSProgram.use();
+        planeSProgram->use();
         //默认视口
-        setPlaneDefaultViewpro(0, 960, 0, 540, -127, 128);
-        //planeSProgram.setViewpro("projection", 960, 0, 540, -127, 128);
-        planeSProgram.setCameraPos("view", 0, 0);
+        setPlaneDefaultViewprot(0, 960, 0, 540, -127, 128);
+        //planeSProgram->setViewpro("projection", 960, 0, 540, -127, 128);
+        planeSProgram->setCameraPos("view", 0, 0);
     }
 
-    if(program.isValid()) shaders_ = program;
-    else shaders_ = planeSProgram;
+    shaders_ = *planeSProgram;
 
+    texture_.rename(this->name() + "-ColorTexture");
     setColorTexture(0xffffffff);
-    setShaderProgram(planeSProgram, shaders_.getUniformLocation("model"));
+    setShaderProgram(*planeSProgram, shaders_.getUniformLocation("model"));
 }
 
 RPlane::~RPlane()
 {
     if(--count == 0)
     {
-        planeSProgram.freeShaderProgram();
+        delete planeSProgram;
         glDeleteBuffers(1, &planeVBO);
         glDeleteVertexArrays(1, &planeVAO);
 #ifdef R_DEBUG
-        if(lineBoxsProgram.isValid())
+        if(lineBoxVAO)
         {
-            lineBoxsProgram.freeShaderProgram();
+            delete lineBoxsProgram;
             glDeleteVertexArrays(1, &lineBoxVAO);
         }
 #endif
@@ -125,14 +131,65 @@ RPlane::~RPlane()
 
 void RPlane::setSize(int width, int height)
 {
+    width = RMath::max(width, minWidth_);
+    width = RMath::min(width, maxWidth_);
+    height = RMath::max(height, minHeight_);
+    height = RMath::min(height, maxHeight_);
+
     width_ = width; height_ = height;
     updateModelMat();
 }
 
 void RPlane::setSize(RSize size)
 {
-    width_ = size.width(); height_ = size.height();
+    int width = size.width();
+    int height = size.height();
+    width = RMath::max(width, minWidth_);
+    width = RMath::min(width, maxWidth_);
+    height = RMath::max(height, minHeight_);
+    height = RMath::min(height, maxHeight_);
+
+    width_ = width;
+    height_ = height;
     updateModelMat();
+}
+
+void RPlane::setWidth(int width)
+{
+    width = RMath::max(width, minWidth_);
+    width = RMath::min(width, maxWidth_);
+    width_ = width;
+    updateModelMat();
+}
+
+void RPlane::setHeight(int height)
+{
+    height = RMath::max(height, minHeight_);
+    height = RMath::min(height, maxHeight_);
+    height_ = height;
+    updateModelMat();
+}
+
+void RPlane::setMinimumSize(int minW, int minH)
+{
+    minW = RMath::min(minW, maxWidth_);
+    minH = RMath::min(minH, maxHeight_);
+    minWidth_ = minW;
+    minHeight_ = minH;
+
+    if(width_ < minW) width_ = minW;
+    if(height_ < minH) height_ = minH;
+}
+
+void RPlane::setMaximumSize(int maxW, int maxH)
+{
+    maxW = RMath::max(maxW, minWidth_);
+    maxH = RMath::max(maxH, minHeight_);
+    maxWidth_ = maxW;
+    maxHeight_ = maxH;
+
+    if(width_ > maxW) width_ = maxW;
+    if(height_ > maxH) height_ = maxH;
 }
 
 void RPlane::setPosition(int x, int y, int z)
@@ -192,7 +249,7 @@ void RPlane::setPadding(int value)
     updateModelMat();
 }
 
-void RPlane::setColorTexture(RColor color)
+void RPlane::setColorTexture(const RColor &color)
 {
     R_RGBA rgba = color.rgba();
     setColorTexture(rgba);
@@ -201,11 +258,8 @@ void RPlane::setColorTexture(RColor color)
 void RPlane::setColorTexture(R_RGBA rgba)
 {
     const unsigned char *colorData = reinterpret_cast<unsigned char*>(&rgba);
-    RTexture colorTex;
-    colorTex.rename("ColorTexture");
-    colorTex.setTexFilter(RTexture::Nearest);
-    colorTex.generate(1, 1, 4, colorData, 4);
-    setTexture(colorTex);
+    texture_.setTexFilter(RTexture::Nearest);
+    texture_.generate(1, 1, 4, colorData, 4);
 }
 
 void RPlane::setColorTexture(unsigned r, unsigned g, unsigned b, unsigned a)
@@ -244,10 +298,16 @@ void RPlane::setAlignment(RPlane::Alignment hAlign, RPlane::Alignment vAlign)
     updateModelMat();
 }
 
-void RPlane::setShaderProgram(const RShaderProgram &program, RUniformLocation modelLoc)
+void RPlane::setShaderProgram(const RShaderProgram &program, const RUniformLocation &modelLoc)
 {
     shaders_ = program;
     modelLoc_ = modelLoc;
+}
+
+void RPlane::setShaderProgram(const RShaderProgram &program, const std::string modelName)
+{
+    shaders_ = program;
+    modelLoc_ = program.getUniformLocation(modelName);
 }
 
 void RPlane::rename(std::string name)
@@ -288,7 +348,7 @@ void RPlane::render()
     glBindVertexArray(0);
 }
 
-void RPlane::render(RMatrix4 modelMat)
+void RPlane::render(RMatrix4 &modelMat)
 {
     glBindVertexArray(planeVAO);
     shaders_.use();
@@ -353,12 +413,12 @@ void RPlane::flipV()
 }
 
 #ifdef R_DEBUG
-void RPlane::RenderLineBox(const RMatrix4 &projection, const RMatrix4 &view)
+void RPlane::renderLineBox(const RMatrix4 &projection, const RMatrix4 &view)
 {
     static RUniformLocation posLoc;
     static RUniformLocation sizeLoc;
 
-    if(!lineBoxsProgram.isValid())
+    if(!lineBoxVAO)
     {
         const GLchar *vertexCode = {
             "#version 430 core\n"
@@ -420,19 +480,20 @@ void RPlane::RenderLineBox(const RMatrix4 &projection, const RMatrix4 &view)
         lineBoxG.compileShaderCode(geomCode, ShaderType::GeometryShader);
         RShader lineBoxF;
         lineBoxF.compileShaderCode(fragCode, ShaderType::FragmentShader);
-        lineBoxsProgram.rename("LineBoxProgram");
-        lineBoxsProgram.attachShader(lineBoxV);
-        lineBoxsProgram.attachShader(lineBoxF);
-        lineBoxsProgram.attachShader(lineBoxG);
-        lineBoxsProgram.linkProgram();
+        lineBoxsProgram = new RShaderProgram;
+        lineBoxsProgram->rename("LineBoxProgram");
+        lineBoxsProgram->attachShader(lineBoxV);
+        lineBoxsProgram->attachShader(lineBoxF);
+        lineBoxsProgram->attachShader(lineBoxG);
+        lineBoxsProgram->linkProgram();
         glGenVertexArrays(1, &lineBoxVAO);
-        lineBoxsProgram.use();
-        posLoc = lineBoxsProgram.getUniformLocation("aPos");
-        sizeLoc = lineBoxsProgram.getUniformLocation("aSize");
+        lineBoxsProgram->use();
+        posLoc = lineBoxsProgram->getUniformLocation("aPos");
+        sizeLoc = lineBoxsProgram->getUniformLocation("aSize");
     }
 
     glBindVertexArray(lineBoxVAO);
-    lineBoxsProgram.use();
+    lineBoxsProgram->use();
 
     RVector4 vec[3];
 
@@ -464,24 +525,24 @@ void RPlane::RenderLineBox(const RMatrix4 &projection, const RMatrix4 &view)
 
     vec[0] = {pos_.x()-marginLeft_, pos_.y()-marginBottom_, pos_.z(), 1.0f};
     vec[1] = {pos_.x(), pos_.y(), pos_.z(), 1.0f};
-    vec[2] = {pos_.x()+paddingLeft_, pos_.y()+paddingLeft_, pos_.z(), 1.0f};
+    vec[2] = {pos_.x()+paddingLeft_, pos_.y()+paddingBottom_, pos_.z(), 1.0f};
 
     vec[0] = projection * view * vec[0];
     vec[1] = projection * view * vec[1];
     vec[2] = projection * view * vec[2];
-    lineBoxsProgram.setUniform(posLoc, 4, &vec[0].x, 3);
-    lineBoxsProgram.setUniform(sizeLoc, 2, &lineBoxs[0][0], 3);
+    lineBoxsProgram->setUniform(posLoc, 4, &vec[0].x, 3);
+    lineBoxsProgram->setUniform(sizeLoc, 2, &lineBoxs[0][0], 3);
     //平面的三个线框
     glDrawArraysInstanced(GL_POINTS, 0, 1, 3);
 
-    lineBoxsProgram.nonuse();
+    lineBoxsProgram->nonuse();
 }
 
-void RPlane::RenderLineBox(int left, int right, int buttom, int top, RPoint pos)
+void RPlane::renderLineBox(int left, int right, int buttom, int top, RPoint pos)
 {
     RMatrix4 projection = RMath::ortho(left*1.0f, right*1.0f, buttom*1.0f, top*1.0f);
     RMatrix4 view = RMath::translate(RMatrix4(1), { pos.x(), pos.y(), 0 });
-    RenderLineBox(projection, view);
+    renderLineBox(projection, view);
 }
 
 void RPlane::renderControl()
@@ -581,8 +642,8 @@ void RPlane::updateModelMatNow()
 }
 #endif
 
-RShaderProgram RPlane::lineBoxsProgram;
-GLuint RPlane::lineBoxVAO;
-RShaderProgram RPlane::planeSProgram;
-GLuint RPlane::planeVAO, RPlane::planeVBO;
+RShaderProgram *RPlane::lineBoxsProgram;
+GLuint RPlane::lineBoxVAO = 0;
+RShaderProgram *RPlane::planeSProgram;
+GLuint RPlane::planeVAO = 0, RPlane::planeVBO = 0;
 unsigned long RPlane::count = 0;

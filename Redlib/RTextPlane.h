@@ -3,6 +3,7 @@
 
 #include "RPlane.h"
 #include "RResource/RFont.h"
+#include <vector>
 
 class RTextPlane : public RPlane
 {
@@ -13,19 +14,21 @@ public:
         VerticalTypeset
     };
 
-    explicit RTextPlane(RShaderProgram program = RShaderProgram(), const std::string &name = "TextLabel");
+    RTextPlane();
     RTextPlane(const RTextPlane &label);
-    RTextPlane(std::wstring texts, int width, int height, const std::string &name, RPoint pos, RShaderProgram program = RShaderProgram());
+    RTextPlane(const std::wstring &texts, int width, int height, const std::string &name, const RPoint &pos);
     ~RTextPlane() override;
 
-    void setColorTexture(RColor color) = delete;
+    void setColorTexture(const RColor &color) = delete;
     void setColorTexture(R_RGBA rgba) = delete;
     void setColorTexture(unsigned r, unsigned g, unsigned b, unsigned a = 0xffu) = delete;
     void setTexture(const RImage &image) = delete;
     void setTexture(const RTexture &texture) = delete;
     void setSizeMode(SizeMode mode) = delete;
-    void setFontColor(RColor color);
-    void setFontColor(unsigned r, unsigned g, unsigned b);
+    void setFontColor(const RColor &color);
+    void setFontColor(unsigned r, unsigned g, unsigned b, unsigned a = 255u);
+    void setBackgroundColor(const RColor &color);
+    void setBackgroundColor(unsigned r, unsigned g, unsigned b, unsigned a = 255u);
 
     //覆盖基类，负数转零
     void setPadding(int top, int bottom, int left, int right);
@@ -42,6 +45,11 @@ public:
 
     void updateModelMatNow() override;
 
+    unsigned fontSize();
+    float lineSpacing();
+    float wordSpacing();
+    int lineHeight();
+
 protected:
 
 private:
@@ -50,10 +58,11 @@ private:
 
     std::wstring texts_;
     RColor fontColor_;
+    RColor backgroundColor_;
     RImage textImage_;
     RFont font_;
     float lineSpacing_ = 1.2f;
-    float wordSpacing_ = 1.2f;
+    float wordSpacing_ = 1.0f;
     Typeset typeset_ = HorizontalTypeset;
 };
 
