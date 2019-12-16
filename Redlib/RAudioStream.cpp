@@ -76,6 +76,23 @@ void RAudioStream::setStreamTime(double time)
     stream_.setStreamTime(time);
 }
 
+float RAudioStream::setVolume(float volume)
+{
+    if(volume > 1.0f) volume = 1.0f;
+    if(volume < 0.0f) volume = 0.0f;
+    return volume_ = volume;
+}
+
+float RAudioStream::increaseVolume(float increase)
+{
+    return setVolume(volume_ + increase);
+}
+
+float RAudioStream::decreaseVolume(float decrease)
+{
+    return setVolume(volume_ - decrease);
+}
+
 bool RAudioStream::openStream(const RMp3 &mp3)
 {
 #ifdef R_DEBUG
@@ -180,10 +197,11 @@ int RAudioStream::playback(void *outputBuffer, void *, unsigned nBufferFrames, d
     }
 
     const int16_t* lastValues = rAudio->mp3_.cdata() + offset;
+    float volume = rAudio->volume_;
     for(unsigned i = 0; i < nBufferFrames; ++i)
     {
         for(unsigned j = 0; j < channels; ++j)
-            *buffer++ = *lastValues++;
+            *buffer++ = static_cast<int16_t>(*lastValues++ * volume);
     }
 
     return 0;

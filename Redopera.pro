@@ -54,7 +54,7 @@ SOURCES += \
         Redlib/RAudioStream.cpp \
         Redlib/RResource/RCursor.cpp \
         Redlib/RResource/RMp3.cpp \
-        Redlib/RResource/minimp3_implementation.cpp \
+        Redlib/Extern/minimp3_implementation.cpp \
         Redlib/RResourceWindow.cpp \
         Redlib/RSprite.cpp \
         Redlib/Extern/SourceCodePro.cpp \
