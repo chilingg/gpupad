@@ -39,7 +39,7 @@ std::string RShader::shaderTypeName(ShaderType type)
 }
 
 RShader::RShader():
-    RResource("UnknowShader")
+    RResource("UnnameShader")
 {
 
 }

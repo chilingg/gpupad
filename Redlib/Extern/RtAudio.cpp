@@ -49,6 +49,8 @@
 #include <cmath>
 #include <algorithm>
 
+using namespace RAudioStreamExtern;
+
 // Static variable definitions.
 const unsigned int RtApi::MAX_SAMPLE_RATES = 14;
 const unsigned int RtApi::SAMPLE_RATES[] = {

@@ -11,7 +11,7 @@ void RFont::setCasheSize(unsigned size)
 }
 
 RFont::RFont():
-    RResource("UnknowFont")
+    RResource("UnnameFont")
 {
     if(++count == 1)
         if(printError(FT_Init_FreeType(&ftLibrary), "Could not init FreeType Library!"))

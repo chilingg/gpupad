@@ -24,7 +24,7 @@ RImage RImage::getRedoperaIcon()
 }
 
 RImage::RImage():
-    RResource("UnknowImage")
+    RResource("UnnameImage")
 {
 
 }
@@ -191,7 +191,6 @@ unsigned char *RImage::data()
 void RImage::copyOnWrite()
 {
     if(data_.unique() || data_ == nullptr) return;
-    assert(isValid());
 
     size_t size = static_cast<size_t>(height_) * static_cast<size_t>(width_) * static_cast<size_t>(channel_);
     unsigned char *source = data_.get();

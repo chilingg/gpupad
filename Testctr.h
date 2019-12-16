@@ -9,6 +9,8 @@
 #include <RSprite.h>
 #include <RResource/RShaderProgram.h>
 #include <RResourceWindow.h>
+#include <RResource/RMp3.h>
+#include <RAudioStream.h>
 
 class TestCtr : public RController
 {
@@ -52,6 +54,10 @@ private:
     RSprite sprite_;
     RShaderProgram uiShaders_;
     RPlane bColor_;
+    RAudioStream bgm_;
+    RAudioStream tick_;
+    RInputEvent::ButtonAction bgmBtn_ = RInputEvent::RELEASE;
+    RInputEvent::ButtonAction tickBtn_ = RInputEvent::RELEASE;
 };
 
 #endif // TESTCTR_H

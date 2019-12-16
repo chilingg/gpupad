@@ -10,7 +10,7 @@ void swap(RShaderProgram &prog1, RShaderProgram &prog2)
 }
 
 RShaderProgram::RShaderProgram():
-    RResource("UnknowShaderProgram")
+    RResource("UnnameShaderProgram")
 {
 
 }

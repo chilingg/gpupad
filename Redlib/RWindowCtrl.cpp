@@ -64,7 +64,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindo
     }
 
 #ifdef R_DEBUG
-    RDebug() << format::green << format::bold << glGetString(GL_VERSION) << format::non;
+    RDebug() << format::green << format::bold << name << ": " << glGetString(GL_VERSION) << format::non;
     //若启用OpenGL Debug
     GLint flags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);

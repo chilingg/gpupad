@@ -67,6 +67,8 @@
 #include <stdexcept>
 #include <iostream>
 
+namespace RAudioStreamExtern {
+
 /*! \typedef typedef unsigned long RtAudioFormat;
     \brief RtAudio data format type.
 
@@ -438,6 +440,11 @@ class RTAUDIO_DLL_PUBLIC RtAudio
   */
   RtAudio( RtAudio::Api api=UNSPECIFIED );
 
+  RtAudio(RtAudio &audio): RtAudio(audio.getCurrentApi()) {}
+  RtAudio(RtAudio &&audio): rtapi_(audio.rtapi_) { audio.rtapi_ = nullptr; }
+  RtAudio& operator=(RtAudio &audio) { RtAudio temp(audio); std::swap(rtapi_, temp.rtapi_); return *this;}
+  RtAudio& operator=(RtAudio &&audio) { std::swap(rtapi_, audio.rtapi_); return *this;}
+
   //! The destructor.
   /*!
     If a stream is running or open, it will be stopped and closed
@@ -709,7 +716,11 @@ class S24 {
   #include <sys/time.h>
 #endif
 
+} //RAudioExtern_NameSpace
+
 #include <sstream>
+
+namespace RAudioStreamExtern {
 
 class RTAUDIO_DLL_PUBLIC RtApi
 {
@@ -767,8 +778,8 @@ protected:
     int channels;
     int inJump, outJump;
     RtAudioFormat inFormat, outFormat;
-    std::vector<int> inOffset;
-    std::vector<int> outOffset;
+    ::std::vector<int> inOffset;
+    ::std::vector<int> outOffset;
   };
 
   // A protected structure for audio streams.
@@ -811,8 +822,8 @@ protected:
   typedef float Float32;
   typedef double Float64;
 
-  std::ostringstream errorStream_;
-  std::string errorText_;
+  ::std::ostringstream errorStream_;
+  ::std::string errorText_;
   bool showWarnings_;
   RtApiStream stream_;
   bool firstErrorOccurred_;
@@ -1124,7 +1135,7 @@ public:
 
   private:
 
-  std::vector<RtAudio::DeviceInfo> devices_;
+  ::std::vector<RtAudio::DeviceInfo> devices_;
   void saveDeviceInfo( void );
   bool probeDeviceOpen( unsigned int device, StreamMode mode, unsigned int channels,
                         unsigned int firstChannel, unsigned int sampleRate,
@@ -1201,3 +1212,5 @@ public:
 // End:
 //
 // vim: et sts=2 sw=2
+
+}

@@ -3,9 +3,6 @@
 #ifndef RDEBUG_H
 #define RDEBUG_H
 
-#ifndef R_DEBUG
-#define NDEBUG
-#endif
 #include <assert.h>
 #include <iostream>
 #include <string>

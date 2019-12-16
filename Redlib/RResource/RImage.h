@@ -20,7 +20,7 @@ public:
     RImage(const RImage &&img);
     RImage& operator=(RImage img);
     ~RImage();
-    void swap(RImage &rc);
+    void swap(RImage &img);
 
     bool isValid() const;
     int width() const;

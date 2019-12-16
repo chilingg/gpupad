@@ -3,7 +3,7 @@
 #include "RDebug.h"
 
 RCursor::RCursor():
-    RResource("Cursor")
+    RResource("UnnameCursor")
 {
 
 }

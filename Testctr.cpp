@@ -55,6 +55,7 @@ void TestCtr::inputEvent(const RInputEvent *event)
 {
     if(event->checkButton(RInputEvent::KEY_ESCAPE) == RInputEvent::PRESS)
         closed.emit();
+
     if(event->checkButton(RInputEvent::KEY_F11) != fullScreenBtn_)
     {
         if(fullScreenBtn_ == RInputEvent::PRESS)
@@ -62,6 +63,7 @@ void TestCtr::inputEvent(const RInputEvent *event)
                 window->setFullScreenWindow(fullScreen_ = !fullScreen_);
         fullScreenBtn_ = event->checkButton(RInputEvent::KEY_F11);
     }
+
     if(event->checkButton(RInputEvent::KEY_F12) != debugWindowBtn_)
     {
         if(debugWindowBtn_ == RInputEvent::PRESS)
@@ -77,8 +79,29 @@ void TestCtr::inputEvent(const RInputEvent *event)
         }
         debugWindowBtn_ = event->checkButton(RInputEvent::KEY_F12);
     }
+
+    if(event->checkButton(RInputEvent::KEY_P) != tickBtn_)
+    {
+        if(event->checkButton(RInputEvent::KEY_P) == RInputEvent::PRESS)
+        {
+            tick_.setStreamTime();
+            if(!tick_.isRunning()) tick_.startStream();
+        }
+        tickBtn_ = event->checkButton(RInputEvent::KEY_P);
+    }
+    if(event->checkButton(RInputEvent::KEY_O) != bgmBtn_)
+    {
+        if(event->checkButton(RInputEvent::KEY_O)  == RInputEvent::PRESS)
+        {
+            if(!bgm_.isRunning()) bgm_.repeatStream();
+            else bgm_.abortStream();
+        }
+        bgmBtn_ = event->checkButton(RInputEvent::KEY_O);
+    }
+
     if(event->checkMouseButton(RInputEvent::Mouse_Button_Right).isValid())
         RDebug() << event->checkMouseButton(RInputEvent::Mouse_None);
+
     if(gamepad_.connected)
     {
         if(event->checkButton(gamepad_.jid, RInputEvent::GAMEPAD_BUTTON_A) == RInputEvent::PRESS)
@@ -196,6 +219,9 @@ void TestCtr::initEvent(RInitEvent *event)
     bColor_.setSize(width_, height_);
     bColor_.setColorTexture(28, 28, 28);
     bColor_.setPosition(0, 0, -127);
+
+    bgm_.openStream(RMp3(":/music/bgm.mp3","Test-BGM"));
+    tick_.openStream(RMp3(":/music/tick.mp3","Test-tick"));
 }
 
 void TestCtr::joystickPresentEvent(RjoystickPresentEvent *event)

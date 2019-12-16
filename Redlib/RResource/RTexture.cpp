@@ -15,7 +15,7 @@ void RTexture::hintTexFilter(RTexture::TextureFilter mag, RTexture::TextureFilte
 }
 
 RTexture::RTexture():
-    RResource("UnknowTexture")
+    RResource("UnnameTexture")
 {
 
 }
