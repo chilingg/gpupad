@@ -28,10 +28,10 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindo
         glfwSetJoystickCallback(joystickPresentCallback);
 
         //需手动检测一次手柄连接，检测之前已连接的手柄
-        for(int i = RInputEvent::joystick1; i <= RInputEvent::joystickMaxNum; ++i)
+        for(int i = RInputRegistry::joystick1; i <= RInputRegistry::joystickMaxNum; ++i)
         {
             if(glfwJoystickIsGamepad(i))
-                gamepads.insert(RInputEvent::toJoystickID(i));
+                gamepads.insert(RInputRegistry::toJoystickID(i));
         }
     }
 
@@ -293,8 +293,8 @@ void RWindowCtrl::updateGamepadMappings(std::string path)
         printError("Failed to update gamepad mapping! In path: " + path + '\n' +
                    "To https://github.com/gabomdq/SDL_GameControllerDB download gamecontrollerdb.txt file.");
         //加载内置的手柄映射
-        mappingCode = std::string() + RInputEvent::gamepadMappingCode0
-                + RInputEvent::gamepadMappingCode1 + RInputEvent::gamepadMappingCode2;
+        mappingCode = std::string() + RInputRegistry::gamepadMappingCode0
+                + RInputRegistry::gamepadMappingCode1 + RInputRegistry::gamepadMappingCode2;
     }
 
     glfwUpdateGamepadMappings(mappingCode.c_str());
@@ -426,21 +426,21 @@ void RWindowCtrl::openglDebugMessageCallback(GLenum source, GLenum type, GLuint 
 
 void RWindowCtrl::joystickPresentCallback(int jid, int event)
 {
-    RInputEvent::JoystickID J = RInputEvent::toJoystickID(jid);
-    bool isConnected = event == RInputEvent::joystickConnected ? true : false;
+    RInputRegistry::JoystickID J = RInputRegistry::toJoystickID(jid);
+    bool isConnected = event == RInputRegistry::joystickConnected ? true : false;
     //必需转换为RWindowCtrl才能使用protected发布函数
     RWindowCtrl *wctrl = static_cast<RWindowCtrl*>(getFreeTree());
 
     if(glfwJoystickIsGamepad(jid))//断开的JID无法通过
     {
-        gamepads.insert(RInputEvent::toJoystickID(jid));
-        RjoystickPresentEvent e(RInputEvent::toJoystickID(jid), isConnected);
+        gamepads.insert(RInputRegistry::toJoystickID(jid));
+        RjoystickPresentEvent e(RInputRegistry::toJoystickID(jid), isConnected);
         wctrl->dispatchEvent(&e);
     }
     else if(gamepads.find(J) != gamepads.end())
     {
-        gamepads.erase(RInputEvent::toJoystickID(jid));
-        RjoystickPresentEvent e(RInputEvent::toJoystickID(jid), isConnected);
+        gamepads.erase(RInputRegistry::toJoystickID(jid));
+        RjoystickPresentEvent e(RInputRegistry::toJoystickID(jid), isConnected);
         wctrl->dispatchEvent(&e);
     }
     //不是手柄的JID忽视
@@ -483,26 +483,26 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
 void RWindowCtrl::mouseMoveCallback(GLFWwindow *window, double xpos, double ypos)
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
-    wctrl->inputs.updateMouseInput(RInputEvent::Mouse_None, RPoint2(static_cast<int>(xpos),static_cast<int>(ypos)));
+    wctrl->inputs.updateMouseInput(RInputRegistry::Mouse_None, RPoint2(static_cast<int>(xpos),static_cast<int>(ypos)));
 }
 
-void RWindowCtrl::keyboardCollback(GLFWwindow *window, int key, int , int action, int )
+void RWindowCtrl::keyboardCollback(GLFWwindow *window, int key, int , int action, int mods)
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
-    wctrl->inputs.updateKeyboardInput(RInputEvent::toKeyboards(key), RInputEvent::toButtonAction(action));
+    wctrl->inputs.updateKeyboardInput(RInputRegistry::toKeyboards(key), RInputRegistry::toButtonAction(action));
 }
 
-void RWindowCtrl::mouseButtonCallback(GLFWwindow *window, int button, int action, int )
+void RWindowCtrl::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
     RPoint2 p;
-    if(action != RInputEvent::RELEASE)
+    if(action != RInputRegistry::RELEASE)
     {
         double x, y;
         glfwGetCursorPos(window, &x, &y);
         p.setPoint(static_cast<int>(x), static_cast<int>(y));
     }
-    wctrl->inputs.updateMouseInput(RInputEvent::toMouseButtons(button), p);
+    wctrl->inputs.updateMouseInput(RInputRegistry::toMouseButtons(button), p);
 }
 
 void RWindowCtrl::mouseScrollCallback(GLFWwindow *window, double , double y)

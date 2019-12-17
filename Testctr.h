@@ -16,7 +16,7 @@ class TestCtr : public RController
 {
     struct Gamepad
     {
-        RInputEvent::JoystickID jid;
+        RInputRegistry::JoystickID jid;
         bool connected;
     };
 
@@ -27,7 +27,7 @@ public:
     void control() override;
 
 protected:
-    void inputEvent(const RInputEvent *event) override;
+    void inputEvent(const RInputRegistry *event) override;
     void joystickPresentEvent(RjoystickPresentEvent *event) override;
     void resizeEvent(RResizeEvent *event) override;
     void exitedTreeEvent(RExitedTreeEvent *event) override;
@@ -40,10 +40,10 @@ protected:
 private:
     void FPS();
 
-    Gamepad gamepad_ { RInputEvent::joystick1, false };
-    RInputEvent::ButtonAction fullScreenBtn_ = RInputEvent::RELEASE;
+    Gamepad gamepad_ { RInputRegistry::joystick1, false };
+    RInputRegistry::ButtonAction fullScreenBtn_ = RInputRegistry::RELEASE;
     bool fullScreen_ = false;
-    RInputEvent::ButtonAction debugWindowBtn_ = RInputEvent::RELEASE;
+    RInputRegistry::ButtonAction debugWindowBtn_ = RInputRegistry::RELEASE;
     RResourceWindow *debugWindow_ = nullptr;
     std::unique_ptr<RPlane> plane_;
     RTextPlane textPlane_;
@@ -56,8 +56,8 @@ private:
     RPlane bColor_;
     RAudioStream bgm_;
     RAudioStream tick_;
-    RInputEvent::ButtonAction bgmBtn_ = RInputEvent::RELEASE;
-    RInputEvent::ButtonAction tickBtn_ = RInputEvent::RELEASE;
+    RInputRegistry::ButtonAction bgmBtn_ = RInputRegistry::RELEASE;
+    RInputRegistry::ButtonAction tickBtn_ = RInputRegistry::RELEASE;
 };
 
 #endif // TESTCTR_H

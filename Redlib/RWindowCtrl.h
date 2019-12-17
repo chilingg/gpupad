@@ -56,12 +56,13 @@ public:
     void hideWindow();
 
 protected:
+    //获取与窗口绑定的WindowCtrl
+    static RWindowCtrl* getWindowUserCtrl(GLFWwindow *window);
+
     std::string getDefaultName() const override;
     void initEvent(RInitEvent *event) override;
     void closeEvent(RCloseEvent *event) override;
     RResizeEvent* eventFilter(RResizeEvent *event) override;
-    //获取与窗口绑定的WindowCtrl
-    static RWindowCtrl* getWindowUserCtrl(GLFWwindow *window);
 
 private:
     //与窗口绑定的回调

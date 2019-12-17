@@ -2,7 +2,7 @@
 #define REVENT_H
 
 #include <string>
-#include "RInputEvent.h"
+#include "RInputRegistry.h"
 
 class RController;
 
@@ -11,10 +11,10 @@ class RController;
 class RjoystickPresentEvent
 {
 public:
-    RjoystickPresentEvent(RInputEvent::JoystickID jid, bool connected):
+    RjoystickPresentEvent(RInputRegistry::JoystickID jid, bool connected):
         jid(jid),
         connected(connected) {}
-    RInputEvent::JoystickID jid;
+    RInputRegistry::JoystickID jid;
     const bool connected;
 };
 

@@ -52,6 +52,7 @@ SOURCES += \
         Learn.cpp \
         Redlib/Extern/RtAudio.cpp \
         Redlib/RAudioStream.cpp \
+        Redlib/RInputRegistry.cpp \
         Redlib/RResource/RCursor.cpp \
         Redlib/RResource/RMp3.cpp \
         Redlib/Extern/minimp3_implementation.cpp \
@@ -62,7 +63,6 @@ SOURCES += \
         Redlib/Extern/stb_image_implementatio.cpp \
         Redlib/RController.cpp \
         Redlib/RDebug.cpp \
-        Redlib/RInputEvent.cpp \
         Redlib/RPlane.cpp \
         Redlib/RResource/RFont.cpp \
         Redlib/RResource/RImage.cpp \
@@ -81,6 +81,7 @@ HEADERS += \
     Redlib/Extern/minimp3.h \
     Redlib/Extern/minimp3_ex.h \
     Redlib/RAudioStream.h \
+    Redlib/RInputRegistry.h \
     Redlib/RRect.h \
     Redlib/RResource/RCursor.h \
     Redlib/RResource/RMp3.h \
@@ -91,7 +92,6 @@ HEADERS += \
     Redlib/RColor.h \
     Redlib/RController.h \
     Redlib/RDebug.h \
-    Redlib/RInputEvent.h \
     Redlib/RMaths.h \
     Redlib/RNotifyEvent.h \
     Redlib/ROpenGL.h \

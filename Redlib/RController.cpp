@@ -3,7 +3,7 @@
 #include "RDebug.h"
 
 const std::string RController::FREE_TREE_NAME = "_FreeTree_";
-std::set<RInputEvent::JoystickID> RController::gamepads;
+std::set<RInputRegistry::JoystickID> RController::gamepads;
 
 RController::RController(const std::string &name, RController *parent):
     poolEvent([](){})
@@ -295,7 +295,7 @@ void RController::control()
     allChildrenActive();
 }
 
-void RController::inputEvent(const RInputEvent *)
+void RController::inputEvent(const RInputRegistry *)
 {
 
 }
@@ -330,7 +330,7 @@ RResizeEvent* RController::eventFilter(RResizeEvent *event)
     return event;
 }
 
-const RInputEvent* RController::eventFilter(const RInputEvent *event)
+const RInputRegistry* RController::eventFilter(const RInputRegistry *event)
 {
     return event;
 }
@@ -345,7 +345,7 @@ void RController::scrollEvent(RScrollEvent *)
 
 }
 
-void RController::dispatchEvent(const RInputEvent *event)
+void RController::dispatchEvent(const RInputRegistry *event)
 {
     if(!(event = eventFilter(event)))
         return;

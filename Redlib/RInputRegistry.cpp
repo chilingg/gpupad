@@ -1,13 +1,20 @@
-#include "RInputEvent.h"
+#include "RInputRegistry.h"
+#include <exception>
 
 #include "RDebug.h"
 
-RInputEvent::ButtonAction RInputEvent::toButtonAction(unsigned char action)
+RInputRegistry &RInputRegistry::instance()
+{
+    static RInputRegistry inputRegister;
+    return inputRegister;
+}
+
+RInputRegistry::ButtonAction RInputRegistry::toButtonAction(unsigned char action)
 {
     return toButtonAction(static_cast<int>(action));
 }
 
-RInputEvent::ButtonAction RInputEvent::toButtonAction(int action)
+RInputRegistry::ButtonAction RInputRegistry::toButtonAction(int action)
 {
     switch(action)
     {
@@ -18,12 +25,11 @@ RInputEvent::ButtonAction RInputEvent::toButtonAction(int action)
     case GLFW_REPEAT:
         return REPEAT;
     default:
-        printError("Invalid button action value!");
-        return RELEASE;
+        throw std::invalid_argument("Invalid value: " + std::to_string(action) + " to Enum ButtonAction!");
     }
 }
 
-RInputEvent::Keyboards RInputEvent::toKeyboards(int key)
+RInputRegistry::Keys RInputRegistry::toKey(int key)
 {
     switch(key)
     {
@@ -272,137 +278,157 @@ RInputEvent::Keyboards RInputEvent::toKeyboards(int key)
     case GLFW_KEY_MENU:
         return KEY_MENU;
     default:
-        printError("Invalid keyboard value!");
+        printError("Unknow keyboard value!");
         return KEY_UNKNOWN;
     }
 }
 
-RInputEvent::MouseButtons RInputEvent::toMouseButtons(int button)
+RInputRegistry::MouseButtons RInputRegistry::toMouseButtons(int button)
 {
     switch(button)
     {
     case GLFW_MOUSE_BUTTON_LEFT:
-        return Mouse_Button_Left;
+        return MOUSE_BUTTON_LEFT;
     case GLFW_MOUSE_BUTTON_RIGHT:
-        return Mouse_Button_Right;
+        return MOUSE_BUTTON_RIGHT;
     case GLFW_MOUSE_BUTTON_MIDDLE:
-        return Mouse_Button_Middle;
+        return MOUSE_BUTTON_MIDDLE;
     default:
-        printError("Invalid mouse button value!");
-        return Mouse_None;
+        throw std::invalid_argument("Invalid value: " + std::to_string(button) + " to Enum MouseButtons!");
     }
 }
 
-RInputEvent::JoystickID RInputEvent::toJoystickID(int jid)
+RInputRegistry::JoystickID RInputRegistry::toJoystickID(int jid)
 {
     switch(jid)
     {
     case 0:
-        return joystick1;
+        return JOYSTICK_1;
     case 1:
-        return joystick2;
+        return JOYSTICK_2;
     case 2:
-        return joystick3;
+        return JOYSTICK_3;
     case 3:
-        return joystick4;
+        return JOYSTICK_4;
     case 4:
-        return joystick5;
+        return JOYSTICK_5;
     case 5:
-        return joystick6;
+        return JOYSTICK_6;
     case 6:
-        return joystick7;
+        return JOYSTICK_7;
     case 7:
-        return joystick8;
+        return JOYSTICK_8;
     case 8:
-        return joystick9;
+        return JOYSTICK_9;
     case 9:
-        return joystick10;
+        return JOYSTICK_10;
     case 10:
-        return joystick11;
+        return JOYSTICK_11;
     case 11:
-        return joystick12;
+        return JOYSTICK_12;
     case 12:
-        return joystick13;
+        return JOYSTICK_13;
     case 13:
-        return joystick14;
+        return JOYSTICK_14;
     case 14:
-        return joystick15;
+        return JOYSTICK_15;
     case 15:
-        return joystick16;
+        return JOYSTICK_16;
     default:
-        printError("Invalid integer " + std::to_string(jid) + " to JID!");
-        return joystick16;
+        throw std::invalid_argument("Invalid value: " + std::to_string(jid) + " to Enum JoystickID!");
     }
 }
 
-RInputEvent::RInputEvent()
+const RInputRegistry::MouseButtonValue *RInputRegistry::registerMouseButton(RInputRegistry::MouseButtons btn)
 {
-
-}
-
-RPoint2 RInputEvent::checkMouseButton(const RInputEvent::MouseButtons key) const
-{
-    auto b = mouseInputs_.find(key);
+    auto b = mouseInputs_.find(btn);
     if(b != mouseInputs_.end())
-        return b->second;
-    return RPoint2();
+        return &b->second;
+    else
+        return &(*mouseInputs_.emplace(btn, MouseButtonValue()).first).second;
 }
 
-RInputEvent::ButtonAction RInputEvent::checkButton(RInputEvent::Keyboards key) const
+const RInputRegistry::KeyValue *RInputRegistry::registerKey(RInputRegistry::Keys key)
 {
-    auto b = keyboardInputs_.find(key);
-    if(b != keyboardInputs_.end())
-        return b->second;
-    return RELEASE;
+    auto b = keyInputs_.find(key);
+    if(b != keyInputs_.end())
+        return &b->second;
+    else
+        return &(*keyInputs_.emplace(key, KeyValue()).first).second;
 }
 
-RInputEvent::ButtonAction RInputEvent::checkButton(RInputEvent::JoystickID jid, RInputEvent::GamepadButtons btn) const
+const RInputRegistry::GamePad RInputRegistry::registerGamepad(RInputRegistry::JoystickID jid)
 {
+#ifdef R_DEBUG
+    if(printError(!glfwJoystickIsGamepad(jid), "Invalid JID: " + std::to_string(jid)))
+        throw std::invalid_argument("Invalid JID: " + std::to_string(jid) + "!");
+#endif
+
     auto b = gamepadInputs_.find(jid);
     if(b != gamepadInputs_.end())
-        return toButtonAction(b->second.buttons[btn]);
-#ifdef R_DEBUG
-    printError("Access to a nonexistent JID: " + std::to_string(jid));
-#endif
-    return RELEASE;
+        return {jid, &b->second};
+    else
+    {
+        gamepadInputs_.emplace(jid, RGamepadStatus());
+        glfwGetGamepadState(jid, &gamepadInputs_[jid].status1);
+        gamepadInputs_[jid].status2 = gamepadInputs_[jid].status1;
+        return {jid, &gamepadInputs_[jid]};
+    }
 }
 
-float RInputEvent::checkGamepadAxis(RInputEvent::JoystickID jid, RInputEvent::GamepadAxes axis) const
-{
-    auto b = gamepadInputs_.find(jid);
-    if(b != gamepadInputs_.end())
-        return b->second.axes[axis];
-#ifdef R_DEBUG
-    printError("Access to a nonexistent JID: " + std::to_string(jid));
-#endif
-    return 0.0f;
-}
-
-void RInputEvent::updateKeyboardInput(RInputEvent::Keyboards key, RInputEvent::ButtonAction action_)
-{
-    keyboardInputs_[key] = action_;
-}
-
-void RInputEvent::updateMouseInput(RInputEvent::MouseButtons key, const RPoint2 &point)
-{
-    mouseInputs_[key] = point;
-}
-
-void RInputEvent::updateGamepadButtonInput(RInputEvent::JoystickID jid)
-{
-    if(!glfwGetGamepadState(jid, &gamepadInputs_[jid]))
-        deleteJoystick(jid);
-}
-
-void RInputEvent::deleteJoystick(RInputEvent::JoystickID jid)
+void RInputRegistry::unregisterGamepad(RInputRegistry::JoystickID jid)
 {
     auto n = gamepadInputs_.erase(jid);
 #ifdef R_DEBUG
-    printError(n == 0, "Delete to a nonexistent JID: " + std::to_string(jid));
+    printError(n == 0, "Unregister to a nonexistent JID: " + std::to_string(jid));
 #endif
 }
 
-const char *RInputEvent::gamepadMappingCode0 =
+void RInputRegistry::updateKeyboardInput(RInputRegistry::Keys key, RInputRegistry::ButtonAction action, RInputRegistry::Modifier mod)
+{
+    auto it = keyInputs_.find(key);
+    if(it == keyInputs_.end())
+        return;
+
+    it->second.preAction = it->second.action;
+    it->second.action = action;
+    it->second.preModifier = it->second.modifier;
+    it->second.modifier = mod;
+}
+
+void RInputRegistry::updateMouseInput(RInputRegistry::MouseButtons btn, ButtonAction action, Modifier mod, const RPoint2 &point)
+{
+    auto it = mouseInputs_.find(btn);
+    if(it == mouseInputs_.end())
+        return;
+
+    it->second.preAction = it->second.action;
+    it->second.action = action;
+    it->second.preModifier = it->second.modifier;
+    it->second.modifier = mod;
+    it->second.pos = point;
+}
+
+void RInputRegistry::updateGamepad(RInputRegistry::JoystickID jid)
+{
+    auto it = gamepadInputs_.find(jid);
+    if(it == gamepadInputs_.end())
+        return;
+
+#ifdef R_DEBUG
+    printError(!glfwGetGamepadState(jid, it->second.previous), "Update a nonexistent JID: " + std::to_string(jid));
+#else
+    glfwGetGamepadState(jid, it->second.previous);
+#endif
+    it->second.swapStatus();
+}
+
+RInputRegistry::RInputRegistry()
+{
+
+}
+
+const char *RInputRegistry::gamepadMappingCode0 =
 "# Game Controller DB for SDL in 2.0.9 format"
 "# Source: https://github.com/gabomdq/SDL_GameControllerDB"
 "# Windows"
@@ -615,7 +641,7 @@ const char *RInputEvent::gamepadMappingCode0 =
 "030000004f04000003d0000000000000,run'n'drive,a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b7,leftshoulder:a3,leftstick:b10,lefttrigger:b4,leftx:a0,lefty:a1,rightshoulder:a4,rightstick:b11,righttrigger:b5,rightx:a2,righty:a5,start:b9,x:b0,y:b3,platform:Windows,"
 "03000000a30600001af5000000000000,Saitek Cyborg,a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a3,righty:a4,start:b9,x:b0,y:b3,platform:Windows,";
 
-const char *RInputEvent::gamepadMappingCode1 =
+const char *RInputRegistry::gamepadMappingCode1 =
 "03000000a306000023f6000000000000,Saitek Cyborg V.1 Game pad,a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a4,start:b9,x:b0,y:b3,platform:Windows,"
 "03000000300f00001201000000000000,Saitek Dual Analog Pad,a:b2,b:b3,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,leftstick:b10,lefttrigger:b5,leftx:a0,lefty:a1,rightshoulder:b6,rightstick:b11,righttrigger:b7,rightx:a3,righty:a2,start:b9,x:b0,y:b1,platform:Windows,"
 "03000000a30600000701000000000000,Saitek P220,a:b2,b:b3,back:b4,dpdown:+a1,dpleft:-a0,dpright:+a0,dpup:-a1,leftshoulder:b6,rightshoulder:b7,start:b5,x:b0,y:b1,platform:Windows,"
@@ -826,7 +852,7 @@ const char *RInputEvent::gamepadMappingCode1 =
 "030000000d0f00009200000011010000,Hori Pokken Tournament DX Pro Pad,a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:b6,rightshoulder:b5,righttrigger:b7,start:b9,x:b0,y:b3,platform:Linux,"
 "030000000d0f00006e00000011010000,HORIPAD 4 (PS3),a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b0,y:b3,platform:Linux,";
 
-const char *RInputEvent::gamepadMappingCode2 =
+const char *RInputRegistry::gamepadMappingCode2 =
 "030000000d0f00006600000011010000,HORIPAD 4 (PS4),a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b4,leftstick:b10,lefttrigger:a3,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:a4,rightx:a2,righty:a5,start:b9,x:b0,y:b3,platform:Linux,"
 "030000000d0f0000ee00000011010000,HORIPAD mini4,a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a5,start:b9,x:b0,y:b3,platform:Linux,"
 "030000000d0f00006700000001010000,HORIPAD ONE,a:b0,b:b1,back:b6,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b8,leftshoulder:b4,leftstick:b9,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b10,righttrigger:a5,rightx:a3,righty:a4,start:b7,x:b2,y:b3,platform:Linux,"

@@ -22,7 +22,7 @@ protected:
     void closeEvent(RCloseEvent *event) override;
     void resizeEvent(RResizeEvent *event) override;
     void scrollEvent(RScrollEvent *event) override;
-    void inputEvent(const RInputEvent *event) override;
+    void inputEvent(const RInputRegistry *event) override;
 
 private:
     void checkScrollBarOffer();

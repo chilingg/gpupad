@@ -245,25 +245,25 @@ void RResourceWindow::scrollEvent(RScrollEvent *event)
     }
 }
 
-void RResourceWindow::inputEvent(const RInputEvent *event)
+void RResourceWindow::inputEvent(const RInputRegistry *event)
 {
     RCursor::CursorShape shape = RCursor::ARROW_CURSOR;
 
-    if(event->checkButton(RInputEvent::KEY_ESCAPE))
+    if(event->checkButton(RInputRegistry::KEY_ESCAPE))
         breakLoop();
 
-    if(RMath::abs(event->checkMouseButton(RInputEvent::Mouse_None).x() - rcWidgetWidth_) < rcListHResizeRange_)
+    if(RMath::abs(event->checkMouseButton(RInputRegistry::Mouse_None).x() - rcWidgetWidth_) < rcListHResizeRange_)
     {
         shape = RCursor::HRESIZE_CURSOR;
 
-        if(RMath::abs(event->checkMouseButton(RInputEvent::Mouse_Button_Left).x() - rcWidgetWidth_) < rcListHResizeRange_)
+        if(RMath::abs(event->checkMouseButton(RInputRegistry::Mouse_Button_Left).x() - rcWidgetWidth_) < rcListHResizeRange_)
             rcListHResizeRange_ = 1024;
 
-        if(event->checkMouseButton(RInputEvent::Mouse_Button_Left).isValid() && rcListHResizeRange_ > 3)
+        if(event->checkMouseButton(RInputRegistry::Mouse_Button_Left).isValid() && rcListHResizeRange_ > 3)
         {
-            if(event->checkMouseButton(RInputEvent::Mouse_None).x() > RCLIST_WIDTH)
+            if(event->checkMouseButton(RInputRegistry::Mouse_None).x() > RCLIST_WIDTH)
             {
-                rcWidgetWidth_ = event->checkMouseButton(RInputEvent::Mouse_None).x();
+                rcWidgetWidth_ = event->checkMouseButton(RInputRegistry::Mouse_None).x();
                 rcTitle_.setWidth(rcWidgetWidth_);
                 rcListBackground_.setWidth(rcWidgetWidth_ - RCSCROLL_BAR_WIDTH);
                 rcScrollBar_.setPositionX(rcListBackground_.width());

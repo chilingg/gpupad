@@ -51,22 +51,22 @@ void TestCtr::control()
     sprite_.render();
 }
 
-void TestCtr::inputEvent(const RInputEvent *event)
+void TestCtr::inputEvent(const RInputRegistry *event)
 {
-    if(event->checkButton(RInputEvent::KEY_ESCAPE) == RInputEvent::PRESS)
+    if(event->checkButton(RInputRegistry::KEY_ESCAPE) == RInputRegistry::PRESS)
         closed.emit();
 
-    if(event->checkButton(RInputEvent::KEY_F11) != fullScreenBtn_)
+    if(event->checkButton(RInputRegistry::KEY_F11) != fullScreenBtn_)
     {
-        if(fullScreenBtn_ == RInputEvent::PRESS)
+        if(fullScreenBtn_ == RInputRegistry::PRESS)
             if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(getParent()))
                 window->setFullScreenWindow(fullScreen_ = !fullScreen_);
-        fullScreenBtn_ = event->checkButton(RInputEvent::KEY_F11);
+        fullScreenBtn_ = event->checkButton(RInputRegistry::KEY_F11);
     }
 
-    if(event->checkButton(RInputEvent::KEY_F12) != debugWindowBtn_)
+    if(event->checkButton(RInputRegistry::KEY_F12) != debugWindowBtn_)
     {
-        if(debugWindowBtn_ == RInputEvent::PRESS)
+        if(debugWindowBtn_ == RInputRegistry::PRESS)
         {
             if(!debugWindow_)
             {
@@ -77,39 +77,42 @@ void TestCtr::inputEvent(const RInputEvent *event)
                 debugWindow_->showWindow();
             }
         }
-        debugWindowBtn_ = event->checkButton(RInputEvent::KEY_F12);
+        debugWindowBtn_ = event->checkButton(RInputRegistry::KEY_F12);
     }
 
-    if(event->checkButton(RInputEvent::KEY_P) != tickBtn_)
+    if(event->checkButton(RInputRegistry::KEY_P) != tickBtn_)
     {
-        if(event->checkButton(RInputEvent::KEY_P) == RInputEvent::PRESS)
+        if(event->checkButton(RInputRegistry::KEY_P) == RInputRegistry::PRESS)
         {
             tick_.setStreamTime();
             if(!tick_.isRunning()) tick_.startStream();
         }
-        tickBtn_ = event->checkButton(RInputEvent::KEY_P);
+        tickBtn_ = event->checkButton(RInputRegistry::KEY_P);
     }
-    if(event->checkButton(RInputEvent::KEY_O) != bgmBtn_)
+    if(event->checkButton(RInputRegistry::KEY_O) != bgmBtn_)
     {
-        if(event->checkButton(RInputEvent::KEY_O)  == RInputEvent::PRESS)
+        if(event->checkButton(RInputRegistry::KEY_O)  == RInputRegistry::PRESS)
         {
             if(!bgm_.isRunning()) bgm_.repeatStream();
             else bgm_.abortStream();
         }
-        bgmBtn_ = event->checkButton(RInputEvent::KEY_O);
+        bgmBtn_ = event->checkButton(RInputRegistry::KEY_O);
     }
 
-    if(event->checkMouseButton(RInputEvent::Mouse_Button_Right).isValid())
-        RDebug() << event->checkMouseButton(RInputEvent::Mouse_None);
+    if(event->checkButton(RInputRegistry::KEY_PAUSE) == RInputRegistry::PRESS)
+        bgm_.increaseVolume();
+
+    if(event->checkMouseButton(RInputRegistry::Mouse_Button_Right).isValid())
+        RDebug() << event->checkMouseButton(RInputRegistry::Mouse_None);
 
     if(gamepad_.connected)
     {
-        if(event->checkButton(gamepad_.jid, RInputEvent::GAMEPAD_BUTTON_A) == RInputEvent::PRESS)
+        if(event->checkButton(gamepad_.jid, RInputRegistry::GAMEPAD_BUTTON_A) == RInputRegistry::PRESS)
             RDebug() << "Gamepad button A";
-        if(event->checkGamepadAxis(gamepad_.jid, RInputEvent::GAMEPAD_AXIS_LEFT_X) >= 0.5f)
-            RDebug() << event->checkGamepadAxis(gamepad_.jid, RInputEvent::GAMEPAD_AXIS_LEFT_X);
-        if(event->checkGamepadAxis(gamepad_.jid, RInputEvent::GAMEPAD_AXIS_LEFT_TRIGGER) > 0.0f)
-            RDebug() << event->checkGamepadAxis(gamepad_.jid, RInputEvent::GAMEPAD_AXIS_LEFT_TRIGGER);
+        if(event->checkGamepadAxis(gamepad_.jid, RInputRegistry::GAMEPAD_AXIS_LEFT_X) >= 0.5f)
+            RDebug() << event->checkGamepadAxis(gamepad_.jid, RInputRegistry::GAMEPAD_AXIS_LEFT_X);
+        if(event->checkGamepadAxis(gamepad_.jid, RInputRegistry::GAMEPAD_AXIS_LEFT_TRIGGER) > 0.0f)
+            RDebug() << event->checkGamepadAxis(gamepad_.jid, RInputRegistry::GAMEPAD_AXIS_LEFT_TRIGGER);
     }
 }
 

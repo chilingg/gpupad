@@ -1,5 +1,5 @@
-#ifndef RINPUTEVENT_H
-#define RINPUTEVENT_H
+#ifndef RINPUTREGISTRY_H
+#define RINPUTREGISTRY_H
 
 #include <string>
 #include <map>
@@ -7,10 +7,10 @@
 #include "ROpenGL.h"
 #include "RPoint.h"
 
-class RInputEvent
+class RInputRegistry
 {
 public:
-    enum Keyboards
+    enum Keys
     {
         KEY_UNKNOWN = GLFW_KEY_UNKNOWN,
         //Printble key
@@ -138,6 +138,18 @@ public:
         //末尾
         KEY_LAST = GLFW_KEY_LAST
     };
+
+    enum Modifier
+    {
+        MOD_NONE = 0,
+        MOD_SHIFT = GLFW_MOD_SHIFT,
+        MOD_CONTROL = GLFW_MOD_CONTROL,
+        MOD_ALT = GLFW_MOD_ALT,
+        MOD_SUPER = GLFW_MOD_SUPER,
+        MOD_CAPS_LOCK = GLFW_MOD_CAPS_LOCK,
+        MOD_NUM_LOCK = GLFW_MOD_NUM_LOCK
+    };
+
     enum GamepadButtons
     {
         GAMEPAD_BUTTON_A,//GLFW_GAMEPAD_BUTTON_A,
@@ -157,6 +169,7 @@ public:
         GAMEPAD_BUTTON_DPAD_LEFT,
         GAMEPAD_BUTTON_LAST = GAMEPAD_BUTTON_DPAD_LEFT
     };
+
     enum GamepadAxes
     {
         GAMEPAD_AXIS_LEFT_X,//GLFW_GAMEPAD_AXIS_LEFT_X,
@@ -167,49 +180,95 @@ public:
         GAMEPAD_AXIS_RIGHT_TRIGGER,
         GAMEPAD_AXIS_LAST = GAMEPAD_AXIS_RIGHT_TRIGGER
     };
+
     enum MouseButtons
     {
-        Mouse_None = -1,
-        Mouse_Button_Left = GLFW_MOUSE_BUTTON_LEFT,
-        Mouse_Button_Right,
-        Mouse_Button_Middle,
-        Mouse_Last = Mouse_Button_Middle,
+        MOUSE_NONE = -1,
+        MOUSE_BUTTON_LEFT = GLFW_MOUSE_BUTTON_LEFT,
+        MOUSE_BUTTON_RIGHT,
+        MOUSE_BUTTON_MIDDLE,
+        MOUSE_LAST = MOUSE_BUTTON_MIDDLE,
     };
+
     enum ButtonAction
     {
         RELEASE = GLFW_RELEASE,
         PRESS = GLFW_PRESS,
         REPEAT = GLFW_REPEAT
     };
+
     enum JoystickID
     {
-        joystick1 = GLFW_JOYSTICK_1,
-        joystick2,
-        joystick3,
-        joystick4,
-        joystick5,
-        joystick6,
-        joystick7,
-        joystick8,
-        joystick9,
-        joystick10,
-        joystick11,
-        joystick12,
-        joystick13,
-        joystick14,
-        joystick15,
-        joystick16,
-        joystickMaxNum = joystick16
+        JOYSTICK_1 = GLFW_JOYSTICK_1,
+        JOYSTICK_2,
+        JOYSTICK_3,
+        JOYSTICK_4,
+        JOYSTICK_5,
+        JOYSTICK_6,
+        JOYSTICK_7,
+        JOYSTICK_8,
+        JOYSTICK_9,
+        JOYSTICK_10,
+        JOYSTICK_11,
+        JOYSTICK_12,
+        JOYSTICK_13,
+        JOYSTICK_14,
+        JOYSTICK_15,
+        JOYSTICK_16,
+        joystickMaxNum = JOYSTICK_16
     };
+
     enum RJoystickPresent
     {
-        joystickConnected = GLFW_CONNECTED,
-        joystickDisconnected = GLFW_DISCONNECTED
+        JOYSTICK_CONNECTED = GLFW_CONNECTED,
+        JOYSTICK_DISCONNECTED = GLFW_DISCONNECTED
     };
+
+    struct MouseButtonValue
+    {
+        ButtonAction action = RELEASE;
+        ButtonAction preAction = RELEASE;
+        Modifier modifier = MOD_NONE;
+        Modifier preModifier = MOD_NONE;
+        RPoint2 pos;
+    };
+
+    struct KeyValue
+    {
+        ButtonAction action = RELEASE;
+        ButtonAction preAction = RELEASE;
+        Modifier modifier = MOD_NONE;
+        Modifier preModifier = MOD_NONE;
+    };
+
+    class RGamepadStatus
+    {
+        friend RInputRegistry;
+    public:
+        ButtonAction button(GamepadButtons btn) { return toButtonAction((*current).buttons[btn]); }
+        ButtonAction preButton(GamepadButtons btn) { return toButtonAction((*previous).buttons[btn]); }
+        float axis(GamepadAxes axis) { return (*current).axes[axis]; }
+        float preAxis(GamepadAxes axis) { return (*previous).axes[axis]; }
+    private:
+        RGamepadStatus();
+        void swapStatus() { std::swap(current, previous); }
+        GLFWgamepadstate status1;
+        GLFWgamepadstate status2;
+        GLFWgamepadstate *current = &status1;
+        GLFWgamepadstate *previous = &status2;
+    };
+
+    struct GamePad
+    {
+        JoystickID jid;
+        RGamepadStatus* status;
+    };
+
+    static RInputRegistry& instance();
 
     static ButtonAction toButtonAction(unsigned char action);
     static ButtonAction toButtonAction(int action);
-    static Keyboards toKeyboards(int key);
+    static Keys toKey(int key);
     static MouseButtons toMouseButtons(int button);
     static JoystickID toJoystickID(int jid);
 
@@ -217,22 +276,21 @@ public:
     static const char *gamepadMappingCode1;
     static const char *gamepadMappingCode2;
 
-    RInputEvent();
+    const MouseButtonValue* registerMouseButton(MouseButtons btn);
+    const KeyValue* registerKey(Keys key);
+    const GamePad registerGamepad(JoystickID jid);
+    void unregisterGamepad(JoystickID jid);
 
-    RPoint2 checkMouseButton(const MouseButtons key) const;
-    ButtonAction checkButton(Keyboards key) const;
-    ButtonAction checkButton(JoystickID jid, GamepadButtons btn) const;
-    float checkGamepadAxis(JoystickID jid, GamepadAxes axis) const;
-
-    void updateKeyboardInput(Keyboards key, ButtonAction action_);
-    void updateMouseInput(MouseButtons key, const RPoint2 &point);
-    void updateGamepadButtonInput(JoystickID jid);
-    void deleteJoystick(JoystickID jid);
+    void updateKeyboardInput(Keys key, ButtonAction action, Modifier mod);
+    void updateMouseInput(MouseButtons btn, ButtonAction action, Modifier mod, const RPoint2 &point);
+    void updateGamepad(JoystickID jid);
 
 private:
-    std::map<Keyboards, ButtonAction> keyboardInputs_;
-    std::map<MouseButtons, RPoint2> mouseInputs_;
-    std::map<JoystickID, GLFWgamepadstate> gamepadInputs_;
+    RInputRegistry();
+
+    std::map<Keys, KeyValue> keyInputs_;
+    std::map<MouseButtons, MouseButtonValue> mouseInputs_;
+    std::map<JoystickID, RGamepadStatus> gamepadInputs_;
 };
 
-#endif // RINPUTEVENT_H
+#endif // RINPUTREGISTRY_H
