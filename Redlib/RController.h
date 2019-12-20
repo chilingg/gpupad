@@ -2,7 +2,6 @@
 #define RCONTRLLER_H
 
 #include "RNotifyEvent.h"
-#include "RInputRegistry.h"
 #include "RSigslot.h"
 
 #include <string>
@@ -50,13 +49,10 @@ public:
     void breakLoop();//退出exec循环
 
 protected:
-    static std::set<RInputRegistry::JoystickID> gamepads;//某个子类维护
-
     virtual std::string getDefaultName() const;//建议子类重写
 
     //事件响应。感兴趣的子类负责重写
-    virtual void inputEvent(const RInputRegistry *event);
-    virtual void joystickPresentEvent(RjoystickPresentEvent *event);
+    virtual void inputEvent(RInputEvent *event);
     virtual void resizeEvent(RResizeEvent *event);
     virtual void scrollEvent(RScrollEvent *event);
     virtual void initEvent(RInitEvent *event);//exec循环开始
@@ -66,12 +62,11 @@ protected:
 
     //事件截断。当前实例发布事件前调用，返回的事件传递给子结点发布，若返回nullptr则截断当前事件的发布
     virtual RResizeEvent* eventFilter(RResizeEvent *event);
-    virtual const RInputRegistry *eventFilter(const RInputRegistry *event);
+    virtual RInputEvent *eventFilter(RInputEvent *event);
 
     //事件发布接口 PS:深度优先、由下至上
     //由子类负责调用
-    void dispatchEvent(const RInputRegistry *event);
-    void dispatchEvent(RjoystickPresentEvent *event);
+    void dispatchEvent(RInputEvent *event);
     void dispatchEvent(RResizeEvent *event);
     void dispatchEvent(RScrollEvent *event);
     //已由RController负责调用

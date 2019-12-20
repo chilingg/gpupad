@@ -35,10 +35,10 @@ void RResourceWindow::control()
     if(isFocus())
     {
         //更新手柄输入
-        for(auto jid = gamepads.begin(); jid != gamepads.end();)
-            inputs.updateGamepadButtonInput(*jid++);
+        RInputModule::instance().updateGamepad();
         //发布输入事件
-        dispatchEvent(&inputs);
+        RInputEvent e(this);
+        dispatchEvent(&e);
     }
 
     //清屏 清除颜色缓冲和深度缓冲
@@ -245,25 +245,25 @@ void RResourceWindow::scrollEvent(RScrollEvent *event)
     }
 }
 
-void RResourceWindow::inputEvent(const RInputRegistry *event)
+void RResourceWindow::inputEvent(RInputEvent *event)
 {
     RCursor::CursorShape shape = RCursor::ARROW_CURSOR;
 
-    if(event->checkButton(RInputRegistry::KEY_ESCAPE))
+    if(event->press(RInputModule::KEY_ESCAPE))
         breakLoop();
 
-    if(RMath::abs(event->checkMouseButton(RInputRegistry::Mouse_None).x() - rcWidgetWidth_) < rcListHResizeRange_)
+    if(RMath::abs(event->cursorPos().x() - rcWidgetWidth_) < rcListHResizeRange_)
     {
         shape = RCursor::HRESIZE_CURSOR;
 
-        if(RMath::abs(event->checkMouseButton(RInputRegistry::Mouse_Button_Left).x() - rcWidgetWidth_) < rcListHResizeRange_)
+        if(event->press(RInputModule::MOUSE_BUTTON_LEFT) && RMath::abs(event->cursorPos().x() - rcWidgetWidth_) < rcListHResizeRange_)
             rcListHResizeRange_ = 1024;
 
-        if(event->checkMouseButton(RInputRegistry::Mouse_Button_Left).isValid() && rcListHResizeRange_ > 3)
+        if(event->press(RInputModule::MOUSE_BUTTON_LEFT) && rcListHResizeRange_ > 3)
         {
-            if(event->checkMouseButton(RInputRegistry::Mouse_None).x() > RCLIST_WIDTH)
+            if(event->cursorPos().x() > RCLIST_WIDTH)
             {
-                rcWidgetWidth_ = event->checkMouseButton(RInputRegistry::Mouse_None).x();
+                rcWidgetWidth_ = event->cursorPos().x();
                 rcTitle_.setWidth(rcWidgetWidth_);
                 rcListBackground_.setWidth(rcWidgetWidth_ - RCSCROLL_BAR_WIDTH);
                 rcScrollBar_.setPositionX(rcListBackground_.width());

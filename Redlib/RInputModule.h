@@ -1,14 +1,19 @@
-#ifndef RINPUTREGISTRY_H
-#define RINPUTREGISTRY_H
+#ifndef RINPUTMODULE_H
+#define RINPUTMODULE_H
 
 #include <string>
 #include <map>
+#include <vector>
 
 #include "ROpenGL.h"
 #include "RPoint.h"
 
-class RInputRegistry
+class RInputEvent;
+
+class RInputModule
 {
+    friend RInputEvent;
+
 public:
     enum Keys
     {
@@ -183,7 +188,6 @@ public:
 
     enum MouseButtons
     {
-        MOUSE_NONE = -1,
         MOUSE_BUTTON_LEFT = GLFW_MOUSE_BUTTON_LEFT,
         MOUSE_BUTTON_RIGHT,
         MOUSE_BUTTON_MIDDLE,
@@ -215,7 +219,7 @@ public:
         JOYSTICK_14,
         JOYSTICK_15,
         JOYSTICK_16,
-        joystickMaxNum = JOYSTICK_16
+        JOYSTICK_LAST = JOYSTICK_16
     };
 
     enum RJoystickPresent
@@ -228,69 +232,49 @@ public:
     {
         ButtonAction action = RELEASE;
         ButtonAction preAction = RELEASE;
-        Modifier modifier = MOD_NONE;
-        Modifier preModifier = MOD_NONE;
-        RPoint2 pos;
     };
 
-    struct KeyValue
-    {
-        ButtonAction action = RELEASE;
-        ButtonAction preAction = RELEASE;
-        Modifier modifier = MOD_NONE;
-        Modifier preModifier = MOD_NONE;
-    };
+    using KeyValue = MouseButtonValue;
 
-    class RGamepadStatus
+    struct GamepadValue
     {
-        friend RInputRegistry;
-    public:
-        ButtonAction button(GamepadButtons btn) { return toButtonAction((*current).buttons[btn]); }
-        ButtonAction preButton(GamepadButtons btn) { return toButtonAction((*previous).buttons[btn]); }
-        float axis(GamepadAxes axis) { return (*current).axes[axis]; }
-        float preAxis(GamepadAxes axis) { return (*previous).axes[axis]; }
-    private:
-        RGamepadStatus();
-        void swapStatus() { std::swap(current, previous); }
-        GLFWgamepadstate status1;
-        GLFWgamepadstate status2;
-        GLFWgamepadstate *current = &status1;
-        GLFWgamepadstate *previous = &status2;
-    };
+        GamepadValue(JoystickID jid): jid(jid) { glfwGetGamepadState(jid, &status); }
 
-    struct GamePad
-    {
+        GLFWgamepadstate status;
+        unsigned char preButtons[15];
         JoystickID jid;
-        RGamepadStatus* status;
     };
 
-    static RInputRegistry& instance();
+    static RInputModule& instance();
 
     static ButtonAction toButtonAction(unsigned char action);
     static ButtonAction toButtonAction(int action);
     static Keys toKey(int key);
     static MouseButtons toMouseButtons(int button);
+    static Modifier toKeyModifier(int mod);
     static JoystickID toJoystickID(int jid);
 
     static const char *gamepadMappingCode0;
     static const char *gamepadMappingCode1;
     static const char *gamepadMappingCode2;
 
-    const MouseButtonValue* registerMouseButton(MouseButtons btn);
-    const KeyValue* registerKey(Keys key);
-    const GamePad registerGamepad(JoystickID jid);
-    void unregisterGamepad(JoystickID jid);
+    RInputModule();
 
-    void updateKeyboardInput(Keys key, ButtonAction action, Modifier mod);
-    void updateMouseInput(MouseButtons btn, ButtonAction action, Modifier mod, const RPoint2 &point);
-    void updateGamepad(JoystickID jid);
+    void updateKeyboardInput(GLFWwindow *window);
+    void updateMouseInput(GLFWwindow *window);
+    void updateCursorPos(int x, int y);
+    void updateGamepad();
+    void addGamepad(JoystickID jid);
+    bool deleteGamepad(JoystickID jid);
+
+    int gamepadCount();
+    bool validJid(RInputModule::JoystickID jid);
 
 private:
-    RInputRegistry();
-
     std::map<Keys, KeyValue> keyInputs_;
     std::map<MouseButtons, MouseButtonValue> mouseInputs_;
-    std::map<JoystickID, RGamepadStatus> gamepadInputs_;
+    std::vector<GamepadValue> gamepadInputs_;
+    RPoint2 cursorPos_;
 };
 
-#endif // RINPUTREGISTRY_H
+#endif // RINPUTMODULE_H

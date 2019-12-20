@@ -14,11 +14,6 @@ TestCtr::TestCtr(const std::string &name, RController *parent):
     RController(name, parent),
     closed()
 {
-    if(!gamepads.empty())
-    {
-        gamepad_.jid = *gamepads.begin();
-        gamepad_.connected = true;
-    }
 }
 
 TestCtr::~TestCtr()
@@ -51,68 +46,69 @@ void TestCtr::control()
     sprite_.render();
 }
 
-void TestCtr::inputEvent(const RInputRegistry *event)
+void TestCtr::inputEvent(RInputEvent *event)
 {
-    if(event->checkButton(RInputRegistry::KEY_ESCAPE) == RInputRegistry::PRESS)
+    if(event->press(RInputModule::KEY_ESCAPE))
         closed.emit();
 
-    if(event->checkButton(RInputRegistry::KEY_F11) != fullScreenBtn_)
+    if(event->press(RInputModule::KEY_F11))
     {
-        if(fullScreenBtn_ == RInputRegistry::PRESS)
-            if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(getParent()))
-                window->setFullScreenWindow(fullScreen_ = !fullScreen_);
-        fullScreenBtn_ = event->checkButton(RInputRegistry::KEY_F11);
+        if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(getParent()))
+            window->setFullScreenWindow(fullScreen_ = !fullScreen_);
     }
 
-    if(event->checkButton(RInputRegistry::KEY_F12) != debugWindowBtn_)
+    if(event->press(RInputModule::KEY_F12))
     {
-        if(debugWindowBtn_ == RInputRegistry::PRESS)
+        if(!debugWindow_)
         {
-            if(!debugWindow_)
-            {
-                debugWindow_ = new RResourceWindow("Debug", this);
-                debugWindow_->setWindowTitle("Debug");
-                //debugWindow_->setWindowDecrate(false);
-                //debugWindow_->setWindowFloatOnTop(true);
-                debugWindow_->showWindow();
-            }
+            debugWindow_ = new RResourceWindow("Debug", this);
+            debugWindow_->setWindowTitle("Debug");
+            //debugWindow_->setWindowDecrate(false);
+            //debugWindow_->setWindowFloatOnTop(true);
+            debugWindow_->showWindow();
         }
-        debugWindowBtn_ = event->checkButton(RInputRegistry::KEY_F12);
     }
 
-    if(event->checkButton(RInputRegistry::KEY_P) != tickBtn_)
+    if(event->press(RInputModule::KEY_P))
     {
-        if(event->checkButton(RInputRegistry::KEY_P) == RInputRegistry::PRESS)
+        tick_.setStreamTime();
+        if(!tick_.isRunning()) tick_.startStream();
+    }
+    if(event->press(RInputModule::KEY_O))
+    {
+        if(!bgm_.isRunning()) bgm_.repeatStream();
+        else bgm_.abortStream();
+    }
+    if(event->status(RInputModule::KEY_KP_ADD) == RInputModule::PRESS)
+    {
+        if(bgmSetTimer_.elapsed() > .1)
         {
-            tick_.setStreamTime();
-            if(!tick_.isRunning()) tick_.startStream();
+            bgm_.increaseVolume();
+            RDebug() << bgm_.getVolume() * 100;
+            bgmSetTimer_.start();
         }
-        tickBtn_ = event->checkButton(RInputRegistry::KEY_P);
     }
-    if(event->checkButton(RInputRegistry::KEY_O) != bgmBtn_)
+    if(event->status(RInputModule::KEY_KP_SUBTRACT) == RInputModule::PRESS)
     {
-        if(event->checkButton(RInputRegistry::KEY_O)  == RInputRegistry::PRESS)
+        if(bgmSetTimer_.elapsed() > .1)
         {
-            if(!bgm_.isRunning()) bgm_.repeatStream();
-            else bgm_.abortStream();
+            bgm_.decreaseVolume();
+            RDebug() << bgm_.getVolume() * 100;
+            bgmSetTimer_.start();
         }
-        bgmBtn_ = event->checkButton(RInputRegistry::KEY_O);
     }
 
-    if(event->checkButton(RInputRegistry::KEY_PAUSE) == RInputRegistry::PRESS)
-        bgm_.increaseVolume();
+    if(event->press(RInputModule::MOUSE_BUTTON_RIGHT))
+        RDebug() << event->cursorPos();
 
-    if(event->checkMouseButton(RInputRegistry::Mouse_Button_Right).isValid())
-        RDebug() << event->checkMouseButton(RInputRegistry::Mouse_None);
-
-    if(gamepad_.connected)
+    if(RInputModule::instance().gamepadCount())
     {
-        if(event->checkButton(gamepad_.jid, RInputRegistry::GAMEPAD_BUTTON_A) == RInputRegistry::PRESS)
-            RDebug() << "Gamepad button A";
-        if(event->checkGamepadAxis(gamepad_.jid, RInputRegistry::GAMEPAD_AXIS_LEFT_X) >= 0.5f)
-            RDebug() << event->checkGamepadAxis(gamepad_.jid, RInputRegistry::GAMEPAD_AXIS_LEFT_X);
-        if(event->checkGamepadAxis(gamepad_.jid, RInputRegistry::GAMEPAD_AXIS_LEFT_TRIGGER) > 0.0f)
-            RDebug() << event->checkGamepadAxis(gamepad_.jid, RInputRegistry::GAMEPAD_AXIS_LEFT_TRIGGER);
+        if(event->press(RInputModule::GAMEPAD_BUTTON_A))
+            RDebug() << "Gamepad button A:" << event->status(RInputModule::GAMEPAD_BUTTON_A);
+        if(event->status(RInputModule::GAMEPAD_AXIS_LEFT_X) >= 0.5f)
+            RDebug() << event->status(RInputModule::GAMEPAD_AXIS_LEFT_X);
+        if(event->status(RInputModule::GAMEPAD_AXIS_LEFT_TRIGGER) > 0.0f)
+            RDebug() << event->status(RInputModule::GAMEPAD_AXIS_LEFT_TRIGGER);
     }
 }
 
@@ -225,18 +221,6 @@ void TestCtr::initEvent(RInitEvent *event)
 
     bgm_.openStream(RMp3(":/music/bgm.mp3","Test-BGM"));
     tick_.openStream(RMp3(":/music/tick.mp3","Test-tick"));
-}
-
-void TestCtr::joystickPresentEvent(RjoystickPresentEvent *event)
-{
-    if(event->connected && !gamepad_.connected)
-    {
-        gamepad_.jid = event->jid;
-        gamepad_.connected = true;
-    }
-    else if(!event->connected && event->jid == gamepad_.jid)
-        gamepad_.connected = false;
-    RDebug() << "JID: " << gamepad_.jid << " Present: " << gamepad_.connected;
 }
 
 void TestCtr::resizeEvent(RResizeEvent *event)

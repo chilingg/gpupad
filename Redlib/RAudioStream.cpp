@@ -71,6 +71,11 @@ double RAudioStream::getStreamTime() const
     return pa->getStreamTime();
 }
 
+float RAudioStream::getVolume() const
+{
+    return volume_;
+}
+
 void RAudioStream::setStreamTime(double time)
 {
     stream_.setStreamTime(time);

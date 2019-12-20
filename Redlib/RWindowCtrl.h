@@ -74,8 +74,8 @@ private:
     static void mouseMoveCallback(GLFWwindow *window, double xpos, double ypos);
     //键盘回调参数 = key：激发的键值，scancode：键值的系统扫描码，
     //action：GLFW_PRESS, GLFW_RELEASE or GLFW_REPEAT，modes：ALT，CTRL，SHIFT，META等
-    static void keyboardCollback(GLFWwindow *window, int key, int scancode, int action, int mods);
-    static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
+    //static void keyboardCollback(GLFWwindow *window, int key, int scancode, int action, int mods);
+    //static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
     static void mouseScrollCallback(GLFWwindow *window, double x, double y);
     static void windowFocusCallback(GLFWwindow *window, int focused);
 
@@ -83,7 +83,6 @@ private:
     static int count;
 
     GLFWwindow *window_;
-    //RInputEvent inputEvent;
 
     double viewportRatio_ = 16.0/9.0;
     ViewportPattern viewportPattern = KeepScale;

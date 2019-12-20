@@ -19,6 +19,7 @@ public:
     bool isOpen() const;
     bool isRunning() const;
     double getStreamTime() const;
+    float getVolume() const;
 
     void setStreamTime(double time = 0.0);
     float setVolume(float volume);
