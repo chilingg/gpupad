@@ -41,7 +41,7 @@ RFont::RFont(const RFont &font):
 }
 
 RFont::RFont(const RFont &&font):
-    RResource(font),
+    RResource(std::move(font)),
     fontData_(font.fontData_),
     ftFace_(font.ftFace_),
     fontFilePath_(font.fontFilePath_),

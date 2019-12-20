@@ -82,6 +82,7 @@ HEADERS += \
     Redlib/Extern/minimp3_ex.h \
     Redlib/RAudioStream.h \
     Redlib/RInputModule.h \
+    Redlib/RJoiningThread.h \
     Redlib/RRect.h \
     Redlib/RResource/RCursor.h \
     Redlib/RResource/RMp3.h \

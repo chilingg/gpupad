@@ -84,7 +84,7 @@ void TestCtr::inputEvent(RInputEvent *event)
         if(bgmSetTimer_.elapsed() > .1)
         {
             bgm_.increaseVolume();
-            RDebug() << bgm_.getVolume() * 100;
+            RDebug() << "BGM Volume: " << bgm_.getVolume() * 100;
             bgmSetTimer_.start();
         }
     }
@@ -93,7 +93,7 @@ void TestCtr::inputEvent(RInputEvent *event)
         if(bgmSetTimer_.elapsed() > .1)
         {
             bgm_.decreaseVolume();
-            RDebug() << bgm_.getVolume() * 100;
+            RDebug() << "BGM Volume: " << bgm_.getVolume() * 100;
             bgmSetTimer_.start();
         }
     }

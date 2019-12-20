@@ -44,7 +44,7 @@ RTexture::RTexture(const RTexture &texture):
 }
 
 RTexture::RTexture(const RTexture &&texture):
-    RResource(texture),
+    RResource(std::move(texture)),
     textureID_(texture.textureID_),
     wrapS_(texture.wrapS_),
     wrapT_(texture.wrapT_),

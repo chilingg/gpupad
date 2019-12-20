@@ -21,7 +21,7 @@ RResource::RResource(const RResource &rc):
 }
 
 RResource::RResource(const RResource &&rc):
-    name_(rc.name_),
+    name_(std::move(rc.name_)),
     resourceID_(creatorResourceID(this))
 {
 

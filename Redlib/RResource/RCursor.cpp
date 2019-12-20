@@ -38,7 +38,7 @@ RCursor::RCursor(const RCursor &cursor):
 }
 
 RCursor::RCursor(const RCursor &&cursor):
-    RResource(cursor),
+    RResource(std::move(cursor)),
     data_(cursor.data_)
 {
 

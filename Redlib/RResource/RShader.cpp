@@ -59,7 +59,7 @@ RShader::RShader(const RShader &shader):
 }
 
 RShader::RShader(const RShader &&shader):
-    RResource(shader),
+    RResource(std::move(shader)),
     shaderID_(shader.shaderID_),
     type_(shader.type_)
 {

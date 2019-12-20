@@ -52,7 +52,7 @@ RImage::RImage(const RImage &img):
 }
 
 RImage::RImage(const RImage &&img):
-    RResource(img),
+    RResource(std::move(img)),
     data_(img.data_),
     width_(img.width_),
     height_(img.height_),

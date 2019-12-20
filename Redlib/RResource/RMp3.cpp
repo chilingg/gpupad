@@ -27,7 +27,7 @@ RMp3::RMp3(const RMp3 &mp3):
 }
 
 RMp3::RMp3(const RMp3 &&mp3):
-    RResource(mp3),
+    RResource(std::move(mp3)),
     hz_(mp3.hz_),
     samples_(mp3.samples_),
     channel_(mp3.channel_),

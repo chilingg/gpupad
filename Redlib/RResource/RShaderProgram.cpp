@@ -51,7 +51,7 @@ RShaderProgram::RShaderProgram(const RShaderProgram &program):
 }
 
 RShaderProgram::RShaderProgram(const RShaderProgram &&program):
-    RResource(program),
+    RResource(std::move(program)),
     progID_(program.progID_),
     shaders_(program.shaders_)
 {
