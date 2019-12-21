@@ -43,6 +43,7 @@ public:
     int getChildrenSize() const;
     RController* getParent();
     const std::list<RController*>& getChildren() const;
+    RController *getTreeNode(const std::string &path);
 
     //执行函数
     int exec();//调用allAction()循环调用子孙节点的control()

@@ -1,5 +1,5 @@
 #include <RWindowCtrl.h>
-#include <RJoiningThread.h>
+#include <RThread.h>
 #include "Testctr.h"
 
 #include <RDebug.h>

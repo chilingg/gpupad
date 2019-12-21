@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <thread>
 
 #include "RPoint.h"
 #include "RColor.h"
@@ -42,6 +43,7 @@ public:
     const RDebug& operator<<(const std::wstring &str) const;
 
     const RDebug& operator<<(std::ios_base &(*base)(std::ios_base &)) const;
+    const RDebug& operator<<(std::thread::id id) const;
 
     const RDebug& operator<<(const RPoint2 &p) const;
     const RDebug& operator<<(const RPoint3 &p) const;

@@ -50,10 +50,11 @@ void TestCtr::inputEvent(RInputEvent *event)
 
     if(event->press(RInputModule::KEY_F12))
     {
-        if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(getParent()))
+        RDebug() << getFreeTree()->getTreeNode("WindowCtrl/TestCtrl");
+        if(!getFreeTree()->getTreeNode("ResourceWindow"))
         {
-            reWindowThread_ = RJoiningThread([window](){
-                RResourceWindow reWindow("Resource Window", nullptr, window->getWindowHandle());
+            reWindowThread_ = RThread([](){
+                RResourceWindow reWindow;
                 reWindow.showWindow();
                 reWindow.exec();
             });
@@ -106,7 +107,9 @@ void TestCtr::inputEvent(RInputEvent *event)
 void TestCtr::initEvent(RInitEvent *event)
 {
     RDebug() << "Initialization " << event->sender->name() << " in " << getPathName();
+
     closed.connect(event->sender, &RController::breakLoop);
+
     if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(event->sender))
     {
         //connect(window, &RWindowCtrl::scrolled, this, &TestCtr::scrollNotify);

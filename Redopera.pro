@@ -20,7 +20,8 @@ CONFIG(debug, debug|release){
 unix:!macx:{
 LIBS += -lglfw \
     -ldl \
-    -lfreetype
+    -lfreetype \
+    -lpthread
 
 # Specify the API or multiple API to use under Linux:
 DEFINES += __LINUX_PULSE__
@@ -36,7 +37,6 @@ contains(DEFINES, __LINUX_ALSA__) {
 contains(DEFINES, __UNIX_JACK__) {
     LIBS += $$system(pkg-config --cflags --libs jack)
 }
-LIBS += -lpthread
 
 INCLUDEPATH += /usr/include/freetype2
 }
@@ -72,7 +72,6 @@ SOURCES += \
         Redlib/RResource/RTexture.cpp \
         Redlib/RTextPlane.cpp \
         Redlib/RWindowCtrl.cpp \
-        TestWindow.cpp \
         Testctr.cpp \
         main.cpp
 
@@ -83,7 +82,6 @@ HEADERS += \
     Redlib/Extern/minimp3_ex.h \
     Redlib/RAudioStream.h \
     Redlib/RInputModule.h \
-    Redlib/RJoiningThread.h \
     Redlib/RRect.h \
     Redlib/RResource/RCursor.h \
     Redlib/RResource/RMp3.h \
@@ -107,10 +105,10 @@ HEADERS += \
     Redlib/RResource/RTexture.h \
     Redlib/RSize.h \
     Redlib/RTextPlane.h \
+    Redlib/RThread.h \
     Redlib/RTimer.h \
     Redlib/RWindowCtrl.h \
     Redlib/RSigslot.h \
-    TestWindow.h \
     Testctr.h
 
 DISTFILES += \

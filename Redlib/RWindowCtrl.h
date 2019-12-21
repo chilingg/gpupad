@@ -20,7 +20,7 @@ public:
         KeepScale
     };
 
-    explicit RWindowCtrl(const std::string &name = "WindowCtrl", RController *parent = nullptr, GLFWwindow *share = nullptr);
+    explicit RWindowCtrl(const std::string &name = "WindowCtrl", RController *parent = nullptr);
     ~RWindowCtrl() override;
 
     void control() override;
@@ -58,6 +58,7 @@ public:
 protected:
     //获取与窗口绑定的WindowCtrl
     static RWindowCtrl* getWindowUserCtrl(GLFWwindow *window);
+    static GLFWwindow *shareContext;
 
     std::string getDefaultName() const override;
     void initEvent(RInitEvent *event) override;
@@ -80,7 +81,6 @@ private:
     static void windowFocusCallback(GLFWwindow *window, int focused);
 
     static bool vSync_;//默认锁60FPS
-    static int count;
 
     GLFWwindow *window_;
 

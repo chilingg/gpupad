@@ -4,16 +4,14 @@
 
 #include "RDebug.h"
 
-int RWindowCtrl::count = 0;
 bool RWindowCtrl::vSync_ = true;
+GLFWwindow *RWindowCtrl::shareContext = nullptr;
 
-auto *ppp = &RInputModule::instance();
-
-RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindow *share):
+RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     RController(name, parent),
     window_(nullptr)
 {
-    if(++count == 1)
+    if(!shareContext)
     {
         //glfw错误回调
         glfwSetErrorCallback(glfwErrorCallback);
@@ -35,6 +33,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindo
             if(glfwJoystickIsGamepad(i))
                 RInputModule::instance().addGamepad(RInputModule::toJoystickID(i));
         }
+        //GLFW事件触发
         poolEvent = &glfwPollEvents;
     }
 
@@ -46,13 +45,15 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindo
         terminateFreeTree();
     }
 
-    window_ = glfwCreateWindow(width_, height_, "Redopera", nullptr, share);
+    window_ = glfwCreateWindow(width_, height_, "Redopera", nullptr, shareContext);
     if(!window_)
     {
         printError("Fainled to create GLFW window!");
         glfwTerminate();
         terminateFreeTree();
     }
+    if(!shareContext) shareContext = window_;
+
     //绑定上下文与this指针
     glfwSetWindowUserPointer(window_, this);
     //glfwGetWindowSize(window_, &width_, &height_);
@@ -110,16 +111,19 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindo
     RImage img = RImage::getRedoperaIcon();
     GLFWimage icon{ img.width(), img.height(), img.data() };
     glfwSetWindowIcon(window_, 1, &icon);
-    //GLFW事件触发
 }
 
 RWindowCtrl::~RWindowCtrl()
 {
     assert(window_);
-    glfwDestroyWindow(window_);
 
-    if(--count == 0)
+    if(shareContext == window_)
+    {
         glfwTerminate();
+        shareContext = nullptr;
+    }
+
+    if(shareContext) glfwDestroyWindow(window_);
 }
 
 void RWindowCtrl::control()
@@ -142,7 +146,7 @@ void RWindowCtrl::control()
     allChildrenActive();
     glfwSwapBuffers(window_);
 
-    if(glfwWindowShouldClose(window_))
+    if(glfwWindowShouldClose(window_) || glfwWindowShouldClose(shareContext))
         breakLoop();
 }
 

@@ -1,4 +1,5 @@
 #include "RController.h"
+#include <regex>
 
 #include "RDebug.h"
 
@@ -282,6 +283,41 @@ void RController::terminateFreeTree()
     freeTree->state_ = Failure;
     RCloseEvent e(freeTree);
     freeTree->dispatchEvent(&e);
+}
+
+RController *RController::getTreeNode(const std::string &path)
+{
+    static std::regex rPath("(\\.\\./)*([a-z][-_ a-z0-9]*/)*[a-z][-_ a-z0-9]*", std::regex::icase|std::regex::optimize);
+    static std::regex rNode("[a-z][-_ a-z0-9]*|\\.\\.", std::regex::icase|std::regex::optimize);
+
+    if(std::regex_match(path, rPath))
+    {
+        RController *result = nullptr;
+        RController *pos = this;
+        for(std::sregex_iterator it(path.begin(), path.end(), rNode), end; it != end; ++it)
+        {
+            if(it->str() == "..")
+            {
+                if(!parent_) return parent_;
+                pos = parent_;
+            }
+            result = pos;
+            for(auto child : pos->children_)
+            {
+                //RDebug() << it->str() << ' ' << child->name_ << (it->str() == child->name_);
+                if(it->str() == child->name_)
+                {
+                    pos = child;
+                    break;
+                }
+            }
+            if(result == pos) return nullptr;
+        }
+
+        return result;
+    } else {
+        return nullptr;
+    }
 }
 
 bool RController::isLooped() const

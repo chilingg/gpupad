@@ -212,6 +212,14 @@ const RDebug &RDebug::operator<<(std::ios_base &(*base)(std::ios_base &)) const
     return *this;
 }
 
+const RDebug &RDebug::operator<<(std::thread::id id) const
+{
+#ifdef R_DEBUG
+    std::cout << id << ' ';
+#endif
+    return *this;
+}
+
 const RDebug &RDebug::operator<<(const RPoint2 &p) const
 {
 #ifdef R_DEBUG

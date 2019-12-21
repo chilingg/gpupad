@@ -11,7 +11,7 @@
 #include <RResourceWindow.h>
 #include <RResource/RMp3.h>
 #include <RAudioStream.h>
-#include <RJoiningThread.h>
+#include <RThread.h>
 
 class TestCtr : public RController
 {
@@ -58,7 +58,7 @@ private:
     RTimer bgmSetTimer_;
     RAudioStream tick_;
 
-    RJoiningThread reWindowThread_;
+    RThread reWindowThread_;
 };
 
 #endif // TESTCTR_H

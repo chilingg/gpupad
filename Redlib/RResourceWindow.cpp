@@ -16,11 +16,10 @@ const RColor BACKGROUND_TOW_COLOR(40, 40, 40);
 const RColor CONTENT_COLOR(30, 30, 30);
 const RColor FONT_COLOR(220, 220, 220);
 
-RResourceWindow::RResourceWindow(const std::string &name, RController *parent, GLFWwindow *share):
-    RWindowCtrl(name, parent, share)
+RResourceWindow::RResourceWindow(const std::string &name, RController *parent):
+    RWindowCtrl(name, parent)
 {
     setViewportPattern(RWindowCtrl::FullWindow);
-    setWindowTitle("Debug Window");
     setWindowMinimumSize(960, 540);
     setBackgroundColor(CONTENT_COLOR);
 }
@@ -78,7 +77,7 @@ void RResourceWindow::control()
 
     glfwSwapBuffers(getWindowHandle());
 
-    if(glfwWindowShouldClose(getWindowHandle()))
+    if(glfwWindowShouldClose(getWindowHandle()) || glfwWindowShouldClose(shareContext))
         breakLoop();
 }
 
