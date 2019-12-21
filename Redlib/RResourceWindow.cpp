@@ -16,8 +16,8 @@ const RColor BACKGROUND_TOW_COLOR(40, 40, 40);
 const RColor CONTENT_COLOR(30, 30, 30);
 const RColor FONT_COLOR(220, 220, 220);
 
-RResourceWindow::RResourceWindow(const std::string &name, RController *parent):
-    RWindowCtrl(name, parent)
+RResourceWindow::RResourceWindow(const std::string &name, RController *parent, GLFWwindow *share):
+    RWindowCtrl(name, parent, share)
 {
     setViewportPattern(RWindowCtrl::FullWindow);
     setWindowTitle("Debug Window");
@@ -36,6 +36,9 @@ void RResourceWindow::control()
     {
         //更新手柄输入
         RInputModule::instance().updateGamepad();
+        //更新键鼠输入
+        RInputModule::instance().updateKeyboardInput(getWindowHandle());
+        RInputModule::instance().updateMouseInput(getWindowHandle());
         //发布输入事件
         RInputEvent e(this);
         dispatchEvent(&e);
@@ -114,16 +117,20 @@ void RResourceWindow::updateReSourceList()
     }
 }
 
-void RResourceWindow::updateControllerTree(RController *node, RPoint2 pos)
+int RResourceWindow::updateControllerTree(RController *node, RPoint2 pos)
 {
-    for(auto child : node->getChildren())
+    auto tree = node->getChildren();
+    int posOffset = 0;
+    for(auto child : tree)
     {
-        updateControllerTree(child, RPoint2(pos.x() + CHILD_NODE_OFFSET, pos.y() - CHILD_NODE_OFFSET));
+        posOffset += updateControllerTree(child, RPoint2(pos.x() + CHILD_NODE_OFFSET, pos.y() - CHILD_NODE_OFFSET - posOffset));
+        posOffset += CHILD_NODE_OFFSET;
     }
     auto name = node->name();
     nodeLabel_.setTexts(std::wstring(name.begin(), name.end()));
     nodeLabel_.setPosition(pos.x(), pos.y());
     nodeLabel_.render();
+    return posOffset;
 }
 
 std::string RResourceWindow::getDefaultName() const
@@ -259,7 +266,7 @@ void RResourceWindow::inputEvent(RInputEvent *event)
         if(event->press(RInputModule::MOUSE_BUTTON_LEFT) && RMath::abs(event->cursorPos().x() - rcWidgetWidth_) < rcListHResizeRange_)
             rcListHResizeRange_ = 1024;
 
-        if(event->press(RInputModule::MOUSE_BUTTON_LEFT) && rcListHResizeRange_ > 3)
+        if(event->status(RInputModule::MOUSE_BUTTON_LEFT) == RInputModule::PRESS && rcListHResizeRange_ > 3)
         {
             if(event->cursorPos().x() > RCLIST_WIDTH)
             {
@@ -272,6 +279,8 @@ void RResourceWindow::inputEvent(RInputEvent *event)
 
                 ctrlTreeTitle_.setPositionX(rcTitle_.width() + 1);
                 ctrlTreeTitle_.setWidth(width() - ctrlTreeTitle_.x());
+
+                nodeLabel_.setPositionX(ctrlTreeTitle_.x() + RCLIST_LEFT_ALIGNMENT);
             }
         }
         else {

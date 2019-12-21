@@ -7,6 +7,8 @@
 int RWindowCtrl::count = 0;
 bool RWindowCtrl::vSync_ = true;
 
+auto *ppp = &RInputModule::instance();
+
 RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindow *share):
     RController(name, parent),
     window_(nullptr)
@@ -33,6 +35,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindo
             if(glfwJoystickIsGamepad(i))
                 RInputModule::instance().addGamepad(RInputModule::toJoystickID(i));
         }
+        poolEvent = &glfwPollEvents;
     }
 
     //一个线程窗口只能有一个上下文
@@ -52,7 +55,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindo
     }
     //绑定上下文与this指针
     glfwSetWindowUserPointer(window_, this);
-    glfwGetWindowSize(window_, &width_, &height_);
+    //glfwGetWindowSize(window_, &width_, &height_);
 
     glfwMakeContextCurrent(window_);
     //初始化glad
@@ -75,6 +78,8 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindo
         glDebugMessageCallback(openglDebugMessageCallback, nullptr);
         //过滤着色器编译成功消息通知
         glDebugMessageControl(GL_DEBUG_SOURCE_SHADER_COMPILER, GL_DEBUG_TYPE_OTHER,
+                              GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+        glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_OTHER,
                               GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
     }
 #endif
@@ -106,7 +111,6 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent, GLFWwindo
     GLFWimage icon{ img.width(), img.height(), img.data() };
     glfwSetWindowIcon(window_, 1, &icon);
     //GLFW事件触发
-    poolEvent = &glfwPollEvents;
 }
 
 RWindowCtrl::~RWindowCtrl()
@@ -414,7 +418,7 @@ void RWindowCtrl::openglDebugMessageCallback(GLenum source, GLenum type, GLuint 
     case GL_DEBUG_SEVERITY_MEDIUM:
         std::cerr << '(' << id << ')' << sourceStr << typeStr << "-medium " << ">> "
                   << message << std::endl;
-        terminateFreeTree();
+        //terminateFreeTree();
         break;
     case GL_DEBUG_SEVERITY_LOW:
         std::cout << format::yellow << format::bold << '(' << id << ')' << sourceStr << typeStr << "-low "

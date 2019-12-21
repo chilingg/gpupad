@@ -1,12 +1,14 @@
+#include <RWindowCtrl.h>
+#include <RJoiningThread.h>
 #include "Testctr.h"
 
 #include <RDebug.h>
 
-int main()
+int main(void)
 {
     RWindowCtrl window;
     window.showWindow();
-    TestCtr ctrl("Test", &window);
+    TestCtr t("TestCtrl", &window);
 
     return window.exec();
 }

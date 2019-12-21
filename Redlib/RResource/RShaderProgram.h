@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <map>
+#include <thread>
 
 class RUniformLocation;
 
@@ -69,8 +70,10 @@ public:
 
 private:
     static void deleteShaderProgram(GLuint *ID);
+    static GLuint getUsingProgramID();//当前线程使用的着色器程序ID
+    static void setUsingProgramID(GLuint ID);
 
-    static GLuint usingProgramID;//当前使用的着色器程序ID
+    static std::map<std::thread::id, GLuint> usingProgramID;
 
     std::shared_ptr<GLuint> progID_;
     std::map<ShaderType, RShader> shaders_;

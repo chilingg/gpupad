@@ -18,20 +18,11 @@ TestCtr::TestCtr(const std::string &name, RController *parent):
 
 TestCtr::~TestCtr()
 {
-    if(debugWindow_)
-        delete debugWindow_;
 }
 
 void TestCtr::control()
 {
     allChildrenActive();
-    if(debugWindow_ && debugWindow_->isShouldCloused())
-    {
-        RDebug() << "Delete a Debug Window";
-        delete debugWindow_;
-        debugWindow_ = nullptr;
-    }
-
     bColor_.render();
 
     plane_->rotateX(static_cast<float>(glfwGetTime()*2));
@@ -59,13 +50,13 @@ void TestCtr::inputEvent(RInputEvent *event)
 
     if(event->press(RInputModule::KEY_F12))
     {
-        if(!debugWindow_)
+        if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(getParent()))
         {
-            debugWindow_ = new RResourceWindow("Debug", this);
-            debugWindow_->setWindowTitle("Debug");
-            //debugWindow_->setWindowDecrate(false);
-            //debugWindow_->setWindowFloatOnTop(true);
-            debugWindow_->showWindow();
+            reWindowThread_ = RJoiningThread([window](){
+                RResourceWindow reWindow("Resource Window", nullptr, window->getWindowHandle());
+                reWindow.showWindow();
+                reWindow.exec();
+            });
         }
     }
 

@@ -2,6 +2,11 @@
 
 #include "RDebug.h"
 
+RShaderProgram *RPlane::planeSProgram = nullptr;
+RShaderProgram *RPlane::lineBoxsProgram;
+GLuint RPlane::lineBoxVAO = 0;
+std::map<std::thread::id, RPlane::PlaneData> RPlane::threadData;
+
 void RPlane::setPlaneDefaultViewprot(float left, float right, float bottom, float top, float near, float far)
 {
     bool b = true;
@@ -56,7 +61,6 @@ RPlane::RPlane(const RPlane &plane):
     maxHeight_(plane.maxHeight_)
 {
     texture_.rename("Plane-Texture");
-    ++count;
 }
 
 RPlane::RPlane():
@@ -75,26 +79,8 @@ RPlane::RPlane(int width, int height, const std::string &name, const RPoint &pos
     height_(height),
     pos_(pos)
 {
-    if(++count == 1)
+    if(!planeSProgram)
     {
-        glGenVertexArrays(1, &planeVAO);
-        glGenBuffers(1, &planeVBO);
-        glBindVertexArray(planeVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-
-        float plane[24]{
-                0.5f,-0.5f, 0.0f, 1.0f, 0.0f,//右下
-                0.5f, 0.5f, 0.0f, 1.0f, 1.0f,//右上
-               -0.5f,-0.5f, 0.0f, 0.0f, 0.0f,//左下
-               -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,//左上
-        };
-        glBufferData(GL_ARRAY_BUFFER, sizeof(plane), plane, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), nullptr);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), offsetBuffer(3*sizeof(float)));
-        glBindVertexArray(0);
-
         planeSProgram = new RShaderProgram(RShaderProgram::getStanderdShaderProgram());
         planeSProgram->rename("DefaultPlaneProgram");
 
@@ -114,19 +100,19 @@ RPlane::RPlane(int width, int height, const std::string &name, const RPoint &pos
 
 RPlane::~RPlane()
 {
-    if(--count == 0)
-    {
-        delete planeSProgram;
-        glDeleteBuffers(1, &planeVBO);
-        glDeleteVertexArrays(1, &planeVAO);
+    //if(--count == 0)
+    //{
+        //delete planeSProgram;
+        //glDeleteBuffers(1, &planeVBO);
+        //glDeleteVertexArrays(1, &planeVAO);
 #ifdef R_DEBUG
-        if(lineBoxVAO)
-        {
-            delete lineBoxsProgram;
-            glDeleteVertexArrays(1, &lineBoxVAO);
-        }
+        //if(lineBoxVAO)
+        //{
+            //delete lineBoxsProgram;
+            //glDeleteVertexArrays(1, &lineBoxVAO);
+        //}
 #endif
-    }
+    //}
 }
 
 void RPlane::setSize(int width, int height)
@@ -335,7 +321,7 @@ void RPlane::rotateZ(float value)
 
 void RPlane::render()
 {
-    glBindVertexArray(planeVAO);
+    glBindVertexArray(getThreadVAO());
     shaders_.use();
 
     if(dirty_) updateModelMatNow();
@@ -345,12 +331,14 @@ void RPlane::render()
     texture_.bind();
 
     renderControl();
+
+    shaders_.nonuse();
     glBindVertexArray(0);
 }
 
 void RPlane::render(RMatrix4 &modelMat)
 {
-    glBindVertexArray(planeVAO);
+    glBindVertexArray(getThreadVAO());
     shaders_.use();
 
     if(dirty_) updateModelMatNow();
@@ -359,12 +347,14 @@ void RPlane::render(RMatrix4 &modelMat)
     texture_.bind();
 
     renderControl();
+
+    shaders_.nonuse();
     glBindVertexArray(0);
 }
 
 void RPlane::renderUseSizeModel(RMatrix4 modelMat)
 {
-    glBindVertexArray(planeVAO);
+    glBindVertexArray(getThreadVAO());
     shaders_.use();
 
     if(dirty_) updateModelMatNow();
@@ -374,12 +364,14 @@ void RPlane::renderUseSizeModel(RMatrix4 modelMat)
     texture_.bind();
 
     renderControl();
+
+    shaders_.nonuse();
     glBindVertexArray(0);
 }
 
 void RPlane::renderUsePositionAndSizeModel(RMatrix4 modelMat)
 {
-    glBindVertexArray(planeVAO);
+    glBindVertexArray(getThreadVAO());
     shaders_.use();
 
     if(dirty_) updateModelMatNow();
@@ -389,6 +381,8 @@ void RPlane::renderUsePositionAndSizeModel(RMatrix4 modelMat)
     texture_.bind();
 
     renderControl();
+
+    shaders_.nonuse();
     glBindVertexArray(0);
 }
 
@@ -545,6 +539,37 @@ void RPlane::renderLineBox(int left, int right, int buttom, int top, RPoint pos)
     renderLineBox(projection, view);
 }
 
+GLuint RPlane::getThreadVAO()
+{
+    auto it = threadData.find(std::this_thread::get_id());
+    if(it == threadData.end())
+    {
+        GLuint planeVAO, planeVBO;
+
+        glGenVertexArrays(1, &planeVAO);
+        glGenBuffers(1, &planeVBO);
+        glBindVertexArray(planeVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+
+        float plane[24]{
+                0.5f,-0.5f, 0.0f, 1.0f, 0.0f,//右下
+                0.5f, 0.5f, 0.0f, 1.0f, 1.0f,//右上
+               -0.5f,-0.5f, 0.0f, 0.0f, 0.0f,//左下
+               -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,//左上
+        };
+        glBufferData(GL_ARRAY_BUFFER, sizeof(plane), plane, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), nullptr);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), offsetBuffer(3*sizeof(float)));
+        glBindVertexArray(0);
+
+        it = threadData.emplace(std::thread::id(), PlaneData{planeVAO, planeVBO}).first;
+    }
+
+    return it->second.VAO;
+}
+
 void RPlane::renderControl()
 {
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -641,9 +666,3 @@ void RPlane::updateModelMatNow()
     dirty_ = false;
 }
 #endif
-
-RShaderProgram *RPlane::lineBoxsProgram;
-GLuint RPlane::lineBoxVAO = 0;
-RShaderProgram *RPlane::planeSProgram;
-GLuint RPlane::planeVAO = 0, RPlane::planeVBO = 0;
-unsigned long RPlane::count = 0;

@@ -17,7 +17,7 @@ public:
         t_(std::move(t)) {}
 
     RJoiningThread(RJoiningThread &&other) noexcept:
-        t_(std::move(other)) {}
+        t_(std::move(other.t_)) {}
 
     RJoiningThread& operator=(RJoiningThread &&other) noexcept
     {

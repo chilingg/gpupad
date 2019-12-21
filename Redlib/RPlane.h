@@ -8,6 +8,7 @@
 #include "RSize.h"
 #include "RMaths.h"
 #include "RRect.h"
+#include <thread>
 
 #define offsetBuffer(offset) ( reinterpret_cast<void*>(offset) )
 
@@ -123,6 +124,8 @@ public:
 #endif
 
 protected:
+    static GLuint getThreadVAO();
+
     virtual void renderControl();
     void updateModelMatOver();
 
@@ -133,11 +136,15 @@ protected:
     RUniformLocation modelLoc_;
 
 private:
+    struct PlaneData {
+        GLuint VAO;
+        GLuint VBO;
+    };
+
     static RShaderProgram *lineBoxsProgram;
     static GLuint lineBoxVAO;
     static RShaderProgram *planeSProgram;
-    static GLuint planeVAO, planeVBO;
-    static unsigned long count;
+    static std::map<std::thread::id, PlaneData> threadData;
 
     std::string name_;
     int width_;

@@ -9,12 +9,12 @@
 class RResourceWindow : public RWindowCtrl
 {
 public:
-    explicit RResourceWindow(const std::string &name = "ResourceWindow", RController *parent = nullptr);
+    explicit RResourceWindow(const std::string &name = "WindowCtrl", RController *parent = nullptr, GLFWwindow *share = nullptr);
     ~RResourceWindow() override;
 
     void control() override;
     void updateReSourceList();
-    void updateControllerTree(RController* node, RPoint2 pos);
+    int updateControllerTree(RController* node, RPoint2 pos);
 
 protected:
     std::string getDefaultName() const override;

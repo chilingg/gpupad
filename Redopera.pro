@@ -72,6 +72,7 @@ SOURCES += \
         Redlib/RResource/RTexture.cpp \
         Redlib/RTextPlane.cpp \
         Redlib/RWindowCtrl.cpp \
+        TestWindow.cpp \
         Testctr.cpp \
         main.cpp
 
@@ -109,6 +110,7 @@ HEADERS += \
     Redlib/RTimer.h \
     Redlib/RWindowCtrl.h \
     Redlib/RSigslot.h \
+    TestWindow.h \
     Testctr.h
 
 DISTFILES += \
