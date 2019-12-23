@@ -68,13 +68,13 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     }
 
 #ifdef R_DEBUG
-    RDebug() << format::green << format::bold << name << ": " << glGetString(GL_VERSION) << format::non;
+    RDebug() << printFormat::green << printFormat::bold << name << ": " << glGetString(GL_VERSION) << printFormat::non;
     //若启用OpenGL Debug
     GLint flags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
     if(flags & GL_CONTEXT_FLAG_DEBUG_BIT)
     {
-        RDebug() << format::green << format::bold << "Enable OpenGL debug output" << format::non;
+        RDebug() << printFormat::green << printFormat::bold << "Enable OpenGL debug output" << printFormat::non;
         glEnable(GL_DEBUG_OUTPUT);
         glDebugMessageCallback(openglDebugMessageCallback, nullptr);
         //过滤着色器编译成功消息通知
@@ -425,12 +425,12 @@ void RWindowCtrl::openglDebugMessageCallback(GLenum source, GLenum type, GLuint 
         //terminateFreeTree();
         break;
     case GL_DEBUG_SEVERITY_LOW:
-        std::cout << format::yellow << format::bold << '(' << id << ')' << sourceStr << typeStr << "-low "
-                  << ">> " << message << format::non << std::endl;
+        std::cout << printFormat::yellow << printFormat::bold << '(' << id << ')' << sourceStr << typeStr << "-low "
+                  << ">> " << message << printFormat::non << std::endl;
         break;
     case GL_DEBUG_SEVERITY_NOTIFICATION:
-        std::cout << format::green << format::bold << '(' << id << ')' << sourceStr << typeStr << "-notification "
-                  << ">> " << message << format::non << std::endl;
+        std::cout << printFormat::green << printFormat::bold << '(' << id << ')' << sourceStr << typeStr << "-notification "
+                  << ">> " << message << printFormat::non << std::endl;
         break;
     }
 }

@@ -1,39 +1,28 @@
 #ifndef RTIMER_H
 #define RTIMER_H
 
-#ifdef win32
-#include <windows.h>
-#elif linux
-#include <unistd.h>
-#endif
-
-#include "ROpenGL.h"
+#include "thread"
 
 class RTimer
 {
+    using milliseconds =  std::chrono::milliseconds;//毫秒
+    using clock =  std::chrono::high_resolution_clock;
+
 public:
-    static double getTime() { return glfwGetTime(); }
+    RTimer(): startTime(std::chrono::duration_cast<milliseconds>(clock::now().time_since_epoch()).count()) {}
 
-    RTimer(): startTime(glfwGetTime()) {}
+    long long elapsed() { return std::chrono::duration_cast<milliseconds>(clock::now().time_since_epoch()).count() - startTime; }
 
-    double elapsed() { return glfwGetTime() - startTime; }
-    double elapsed(double time){
-        double elp = glfwGetTime() - startTime;
-        if(elp <= time) rsleep(time - elp);
-        return glfwGetTime() - startTime;
+    long long elapsed(long long time){
+        long long elp = std::chrono::duration_cast<milliseconds>(clock::now().time_since_epoch()).count() - startTime;
+        if(elp <= time) std::this_thread::sleep_for(milliseconds(time - elp));
+        return std::chrono::duration_cast<milliseconds>(clock::now().time_since_epoch()).count() - startTime;
     }
-    void rsleep(double seconds) {
-#ifdef win32
-    unsigned ms = seconds * 1000;
-    sleep(ms);
-#elif linux
-    unsigned us = static_cast<unsigned>(seconds * 1000000); usleep(us);
-#endif
-    }
-    void start() { startTime = glfwGetTime(); }
+
+    void start() { startTime = std::chrono::duration_cast<milliseconds>(clock::now().time_since_epoch()).count(); }
 
 private:
-    double startTime = 0.0;
+    long long startTime;
 };
 
 #endif // RTIMER_H

@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += c++11
+CONFIG += c++17
 CONFIG -= console
 CONFIG -= app_bundle
 CONFIG -= qt
@@ -106,6 +106,7 @@ HEADERS += \
     Redlib/RSize.h \
     Redlib/RTextPlane.h \
     Redlib/RThread.h \
+    Redlib/RTime.h \
     Redlib/RTimer.h \
     Redlib/RWindowCtrl.h \
     Redlib/RSigslot.h \

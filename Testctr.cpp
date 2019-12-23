@@ -73,7 +73,7 @@ void TestCtr::inputEvent(RInputEvent *event)
     }
     if(event->status(RInputModule::KEY_KP_ADD) == RInputModule::PRESS)
     {
-        if(bgmSetTimer_.elapsed() > .1)
+        if(bgmSetTimer_.elapsed() > 100)
         {
             bgm_.increaseVolume();
             RDebug() << "BGM Volume: " << bgm_.getVolume() * 100;
@@ -82,7 +82,7 @@ void TestCtr::inputEvent(RInputEvent *event)
     }
     if(event->status(RInputModule::KEY_KP_SUBTRACT) == RInputModule::PRESS)
     {
-        if(bgmSetTimer_.elapsed() > .1)
+        if(bgmSetTimer_.elapsed() > 100)
         {
             bgm_.decreaseVolume();
             RDebug() << "BGM Volume: " << bgm_.getVolume() * 100;
@@ -251,7 +251,7 @@ void TestCtr::FPS()
 {
     static int count = 0;
     ++count;
-    if(timer_.elapsed() > 1.0)
+    if(timer_.elapsed() > 1000)
     {
         fpsPlane_.setTexts(L"FPS:" + std::to_wstring(count));
         timer_.start();

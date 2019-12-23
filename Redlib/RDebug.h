@@ -13,6 +13,7 @@
 #include "RColor.h"
 #include "RRect.h"
 #include "RMaths.h"
+#include "RTime.h"
 
 class RDebug
 {
@@ -53,6 +54,8 @@ public:
     const RDebug& operator<<(const RVector4 &vec) const;
     const RDebug& operator<<(const RMatrix4 &mat) const;
 
+    const RDebug& operator<<(const RTime &time) const;
+
 private:
 };
 
@@ -68,7 +71,7 @@ inline bool printError(bool b, const std::string &err)
     return b;
 }
 
-namespace format
+namespace printFormat
 {
 static const char non[] = "\033[0m"; //关闭所有属性
 static const char bold[] = "\033[1m"; //高亮

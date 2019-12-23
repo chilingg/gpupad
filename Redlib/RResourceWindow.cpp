@@ -47,7 +47,7 @@ void RResourceWindow::control()
     glStencilMask(0xFF); // 启用模板缓冲写入
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    if(timer_.elapsed() > 1.0)
+    if(timer_.elapsed() > 1000)
     {
         updateReSourceList();
         timer_.start();
