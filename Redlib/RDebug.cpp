@@ -287,8 +287,7 @@ const RDebug &RDebug::operator<<(const RMatrix4 &mat) const
 const RDebug &RDebug::operator<<(const RTime &time) const
 {
 #ifdef R_DEBUG
-    std::cout << time.year() << '-' << time.month() << '-' << time.day() << ' '
-              << time.hour() << ':' << time.minute() << ':' << time.second() << ' ';
+    std::cout << time.toString() << ' ';
 #endif
     return *this;
 }

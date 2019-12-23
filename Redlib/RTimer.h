@@ -1,7 +1,8 @@
 #ifndef RTIMER_H
 #define RTIMER_H
 
-#include "thread"
+#include <thread>
+#include <chrono>
 
 class RTimer
 {
