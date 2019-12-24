@@ -71,6 +71,7 @@ SOURCES += \
         Redlib/RResource/RShaderProgram.cpp \
         Redlib/RResource/RTexture.cpp \
         Redlib/RTextPlane.cpp \
+        Redlib/RThreadPool.cpp \
         Redlib/RWindowCtrl.cpp \
         Testctr.cpp \
         main.cpp
@@ -106,6 +107,9 @@ HEADERS += \
     Redlib/RSize.h \
     Redlib/RTextPlane.h \
     Redlib/RThread.h \
+    Redlib/RThreadPool.h \
+    Redlib/RThreadQueue.h \
+    Redlib/RThreadStack.h \
     Redlib/RTime.h \
     Redlib/RTimer.h \
     Redlib/RWindowCtrl.h \
