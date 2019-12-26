@@ -4,7 +4,9 @@
 #include <thread>
 #include <atomic>
 #include <future>
-#include "RThreadQueue.h"
+#include <vector>
+
+#include "RThreadStack.h"
 #include "RThread.h"
 
 class RThreadPool
@@ -32,13 +34,10 @@ class RThreadPool
     public:
         FunctionWrapper() = default;
         FunctionWrapper(FunctionWrapper&& func): impl_(std::move(func.impl_)) {}
+        FunctionWrapper& operator=(FunctionWrapper&& func) { impl_ = std::move(func.impl_); return *this; }
+
         template<typename F>
         FunctionWrapper(F&& f): impl_(new ImplementType<F>(std::move(f))) {}
-        FunctionWrapper& operator=(FunctionWrapper&& func)
-        {
-            impl_ = std::move(func.impl_);
-            return *this;
-        }
 
         void operator()() { impl_->call(); }
 
@@ -51,56 +50,23 @@ class RThreadPool
     };
 
 public:
-    static unsigned getHardwareConcurrency()
-    {
-        static unsigned count = std::thread::hardware_concurrency() > 0 ? std::thread::hardware_concurrency() : 1;
-        return count;
-    }
+    static int threadNumber();
 
-    RThreadPool(): done_(false)
-    {
-        const unsigned threadCount = getHardwareConcurrency();
-        try {
-            for(unsigned i = 0; i < threadCount; ++i)
-                threads.push_back(RThread(&RThreadPool::workerThread, this));
-        } catch(...) {
-            done_ = true;
-            throw;
-        }
-    }
-
-    ~RThreadPool() { done_ = true; }
+    RThreadPool();
+    ~RThreadPool();
 
     template<typename FuncType>
-    std::future<typename std::result_of<FuncType()>::type> submit(FuncType f)
-    {
-        typedef typename std::result_of<FuncType()>::type resultType;
-        std::packaged_task<resultType()> task(std::move(f));
-        std::future<resultType> res(task.get_future());
-        queue_.push(std::move(task));
-        return res;
-    }
+    std::future<typename std::result_of<FuncType()>::type> submit(FuncType f);
 
-    void runTask() //主动扒拉一个任务到一个线程处理
-    {
-        FunctionWrapper task;
-        if(queue_.tryPop(task)) task();
-        else std::this_thread::yield();
-    }
+    bool runOneTask(); //主动扒拉一个任务到当前线程处理
+    bool isIdle() const;
 
 private:
-    void workerThread()
-    {
-        while(!done_)
-        {
-            FunctionWrapper task;
-            if(queue_.tryPop(task)) task();
-            else std::this_thread::yield();
-        }
-    }
+    void workerThread(RThreadStack<FunctionWrapper> *queue, unsigned index);
 
     std::atomic_bool done_;
-    RThreadQueue<FunctionWrapper> queue_;
+    std::atomic_uint index_; //标记一个最近完成任务的线程
+    std::vector<std::unique_ptr<RThreadStack<FunctionWrapper>>> queues_;
     std::vector<RThread> threads;
 };
 
