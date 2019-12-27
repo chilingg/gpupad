@@ -10,6 +10,14 @@
 class RController: public RSigslot
 {
 public:
+    struct TranslationInfo
+    {
+        const RController *sender;
+        RSize size;
+        RPoint pos = RPoint(0);
+        RVector3 rotate { 0.0f, 0.0f, 0.0f};
+    };
+
     enum Status {
         Normal = EXIT_SUCCESS,
         Failure = EXIT_FAILURE,
@@ -26,6 +34,8 @@ public:
 
     //控制类最主要函数，需子类自己实现
     virtual void control();
+    //变化信息传递，默认为原样转递给子结点
+    virtual void translation(const TranslationInfo &info);
 
     //设置函数
     void addChild(RController *child);
@@ -57,7 +67,6 @@ protected:
 
     //事件响应。感兴趣的子类负责重写
     virtual void inputEvent(RInputEvent *event);
-    virtual void resizeEvent(RResizeEvent *event);
     virtual void scrollEvent(RScrollEvent *event);
     virtual void startEvent(RStartEvent *event);//exec循环开始
     virtual void closeEvent(RCloseEvent *event);//尝试终止exec循环
@@ -66,13 +75,11 @@ protected:
     virtual void exitedTreeEvent(RExitedTreeEvent *event);
 
     //事件截断。当前实例发布事件前调用，返回的事件传递给子结点发布，若返回nullptr则截断当前事件的发布
-    virtual RResizeEvent* eventFilter(RResizeEvent *event);
     virtual RInputEvent *eventFilter(RInputEvent *event);
 
     //事件发布接口 PS:深度优先、由下至上
     //由子类负责调用
     void dispatchEvent(RInputEvent *event);
-    void dispatchEvent(RResizeEvent *event);
     void dispatchEvent(RScrollEvent *event);
     void dispatchEvent(RCloseEvent *event);
     //已由RController负责调用

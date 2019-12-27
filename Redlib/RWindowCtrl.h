@@ -25,6 +25,7 @@ public:
     ~RWindowCtrl() override;
 
     void control() override;
+    void translation(const TranslationInfo &info) override;
 
     int width() const { return width_; }
     int height() const { return height_; }
@@ -67,7 +68,6 @@ protected:
     void startEvent(RStartEvent *event) override;
     void finishEvent(RFinishEvent *event) override;
     //void closeEvent(RCloseEvent *event) override;
-    RResizeEvent* eventFilter(RResizeEvent *event) override;
 
 private:
     //与窗口绑定的回调

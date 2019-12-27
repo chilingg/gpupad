@@ -60,18 +60,6 @@ public:
     RController *sender;
 };
 
-class RResizeEvent
-{
-public:
-    RResizeEvent(RController *sender, int width, int height):
-        sender(sender),
-        width(width),
-        height(height) {}
-    RController *sender;
-    const int width;
-    const int height;
-};
-
 class RScrollEvent
 {
 public:

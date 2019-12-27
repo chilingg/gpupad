@@ -26,10 +26,10 @@ public:
     ~TestCtr() override;
 
     void control() override;
+    void translation(const TranslationInfo &info) override;
 
 protected:
     void inputEvent(RInputEvent *event) override;
-    void resizeEvent(RResizeEvent *event) override;
     void exitedTreeEvent(RExitedTreeEvent *event) override;
     void enteredTreeEvent(REnteredTreeEvent *event) override;
     void startEvent(RStartEvent *event) override;

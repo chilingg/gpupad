@@ -10,7 +10,7 @@ public:
     WeiqiBoard(RController *parent, const RShaderProgram &shaders);
 
     void control() override;
-    void resizeEvent(RResizeEvent *event) override;
+    void translation(const TranslationInfo &info) override;
 
 private:
     RPlane board_;

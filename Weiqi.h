@@ -12,10 +12,11 @@ class Weiqi : public RWindowCtrl
 public:
     Weiqi();
 
-protected:
     void control() override;
+    void translation(const TranslationInfo &info) override;
+
+protected:
     void inputEvent(RInputEvent *event) override;
-    void resizeEvent(RResizeEvent *event) override;
 
 private:
     RShaderProgram shaders_;

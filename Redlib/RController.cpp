@@ -347,6 +347,11 @@ void RController::control()
 
 }
 
+void RController::translation(const RController::TranslationInfo &info)
+{
+    std::for_each(children_.begin(), children_.end(), [&info](RController *child){ child->translation(info); });
+}
+
 void RController::inputEvent(RInputEvent *)
 {
 
@@ -377,19 +382,9 @@ void RController::exitedTreeEvent(RExitedTreeEvent *)
 
 }
 
-RResizeEvent* RController::eventFilter(RResizeEvent *event)
-{
-    return event;
-}
-
 RInputEvent* RController::eventFilter(RInputEvent *event)
 {
     return event;
-}
-
-void RController::resizeEvent(RResizeEvent *)
-{
-
 }
 
 void RController::scrollEvent(RScrollEvent *)
@@ -473,18 +468,6 @@ void RController::parentToNull()
         }
     }
     parent_ = nullptr;
-}
-
-void RController::dispatchEvent(RResizeEvent *event)
-{
-    if(!(event = eventFilter(event)))
-        return;
-
-    for(auto child : children_)
-    {
-        child->dispatchEvent(event);
-    }
-    resizeEvent(event);
 }
 
 void RController::dispatchEvent(RScrollEvent *event)

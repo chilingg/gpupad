@@ -133,6 +133,12 @@ void RWindowCtrl::control()
 
 }
 
+void RWindowCtrl::translation(const RController::TranslationInfo &info)
+{
+    if(info.sender == this) //窗口默认只传递自己发送的变化信息
+        RController::translation(info);
+}
+
 void RWindowCtrl::setWindowSize(int width, int height)
 {
     width_ = width;
@@ -382,12 +388,6 @@ void RWindowCtrl::finishEvent(RFinishEvent *)
 
 }
 
-RResizeEvent *RWindowCtrl::eventFilter(RResizeEvent *event)
-{
-    if(event->sender == this) return event;
-    else return nullptr;
-}
-
 RWindowCtrl *RWindowCtrl::getWindowUserCtrl(GLFWwindow *window)
 {
     return static_cast<RWindowCtrl*>(glfwGetWindowUserPointer(window));
@@ -485,8 +485,8 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
     case FullWindow:
     {
         glViewport(0, 0, width, height);
-        RResizeEvent e(wctrl, width, height);
-        wctrl->dispatchEvent(&e);
+        TranslationInfo info { wctrl, {width, height} };
+        wctrl->translation(info);
         break;
     }
     case KeepScale:
@@ -506,15 +506,15 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
         }
         wctrl->width_ = newW;
         wctrl->height_ = newH;
-        RResizeEvent e(wctrl, newW, newH);
-        wctrl->dispatchEvent(&e);
+        TranslationInfo info { wctrl, {width, height} };
+        wctrl->translation(info);
         break;
     }
     case FixedSize:
     {
         glViewport((width - wctrl->width_) / 2.0, (height - wctrl->height_) / 2.0, wctrl->width_, wctrl->height_);
-        RResizeEvent e(wctrl, wctrl->width_, wctrl->height_);
-        wctrl->dispatchEvent(&e);
+        TranslationInfo info { wctrl, {width, height} };
+        wctrl->translation(info);
         break;
     }
     }

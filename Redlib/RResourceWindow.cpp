@@ -2,6 +2,7 @@
 
 #include "RDebug.h"
 
+namespace  {
 constexpr int RCLIST_WIDTH = 180;
 constexpr int RCLIST_TITLE_HEIGHT = 26;
 constexpr int RCLIST_LEFT_ALIGNMENT = 10;
@@ -15,6 +16,7 @@ const RColor KEY_COLOR(70, 70, 70);
 const RColor BACKGROUND_TOW_COLOR(40, 40, 40);
 const RColor CONTENT_COLOR(30, 30, 30);
 const RColor FONT_COLOR(220, 220, 220);
+}
 
 RResourceWindow::RResourceWindow(const std::string &name, RController *parent):
     RWindowCtrl(name, parent)
@@ -55,6 +57,23 @@ void RResourceWindow::control()
 
     //rcListPlane_.renderLineBox(0, width(), 0, height());
     //rcListBackground_.renderLineBox(0, width(), 0, height());
+}
+
+void RResourceWindow::translation(const RController::TranslationInfo &info)
+{
+    windowShaders_.use();
+    windowShaders_.setViewprot("projection", 0, width(), 0, height());
+    windowShaders_.nonuse();
+
+    rcListBackground_.setHeight(info.size.height() - RCLIST_TITLE_HEIGHT*2);
+    rcScrollBarBack_.setHeight(rcListBackground_.height());
+    rcTitle_.setPositionY(info.size.height() - RCLIST_TITLE_HEIGHT);
+    updateReSourceList();
+
+    ctrlTreeTitle_.setPositionY(rcTitle_.y());
+    ctrlTreeTitle_.setPositionX(rcTitle_.width() + 1);
+    ctrlTreeTitle_.setWidth(width() - ctrlTreeTitle_.x());
+    nodeLabel_.setPosition(ctrlTreeTitle_.x() + RCLIST_LEFT_ALIGNMENT, height() - RCLIST_TITLE_HEIGHT*2 - RCLIST_LEFT_ALIGNMENT);
 }
 
 void RResourceWindow::updateReSourceList()
@@ -194,23 +213,6 @@ void RResourceWindow::startEvent(RStartEvent *)
 void RResourceWindow::finishEvent(RFinishEvent *)
 {
 
-}
-
-void RResourceWindow::resizeEvent(RResizeEvent *event)
-{
-    windowShaders_.use();
-    windowShaders_.setViewprot("projection", 0, width(), 0, height());
-    windowShaders_.nonuse();
-
-    rcListBackground_.setHeight(event->height - RCLIST_TITLE_HEIGHT*2);
-    rcScrollBarBack_.setHeight(rcListBackground_.height());
-    rcTitle_.setPositionY(event->height - RCLIST_TITLE_HEIGHT);
-    updateReSourceList();
-
-    ctrlTreeTitle_.setPositionY(rcTitle_.y());
-    ctrlTreeTitle_.setPositionX(rcTitle_.width() + 1);
-    ctrlTreeTitle_.setWidth(width() - ctrlTreeTitle_.x());
-    nodeLabel_.setPosition(ctrlTreeTitle_.x() + RCLIST_LEFT_ALIGNMENT, height() - RCLIST_TITLE_HEIGHT*2 - RCLIST_LEFT_ALIGNMENT);
 }
 
 void RResourceWindow::scrollEvent(RScrollEvent *event)

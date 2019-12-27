@@ -38,6 +38,20 @@ void TestCtr::control()
     sprite_.render();
 }
 
+void TestCtr::translation(const RController::TranslationInfo &info)
+{
+    width_ = info.size.width(); height_ = info.size.height();
+    RMatrix4 projection = RMath::ortho(0.0f, static_cast<float>(width_), 0.0f, static_cast<float>(height_), -127.0f, 128.0f);
+    uiShaders_.use();
+    uiShaders_.setUniformMatrix(uiShaders_.getUniformLocation("projection"), 4, RMath::value_ptr(projection));
+    uiShaders_.nonuse();
+
+    fpsPlane_.setOuterPositionY(info.size.height() - fpsPlane_.outerHeight());
+    bColor_.setSize(info.size.width(), info.size.height());
+
+    RDebug() << info.size.width() << info.size.height() << "Resize event";
+}
+
 void TestCtr::inputEvent(RInputEvent *event)
 {
     if(event->press(RInputModule::KEY_ESCAPE))
@@ -216,20 +230,6 @@ void TestCtr::startEvent(RStartEvent *event)
 
     bgm_.openStream(RMp3(":/music/bgm.mp3","Test-BGM"));
     tick_.openStream(RMp3(":/music/tick.mp3","Test-tick"));
-}
-
-void TestCtr::resizeEvent(RResizeEvent *event)
-{
-    width_ = event->width; height_ = event->height;
-    RMatrix4 projection = RMath::ortho(0.0f, static_cast<float>(width_), 0.0f, static_cast<float>(height_), -127.0f, 128.0f);
-    uiShaders_.use();
-    uiShaders_.setUniformMatrix(uiShaders_.getUniformLocation("projection"), 4, RMath::value_ptr(projection));
-    uiShaders_.nonuse();
-
-    fpsPlane_.setOuterPositionY(event->height - fpsPlane_.outerHeight());
-    bColor_.setSize(event->width, event->height);
-
-    RDebug() << event->width << event->height << "Resize event";
 }
 
 void TestCtr::exitedTreeEvent(RExitedTreeEvent *event)

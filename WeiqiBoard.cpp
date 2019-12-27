@@ -13,7 +13,7 @@ void WeiqiBoard::control()
     board_.render();
 }
 
-void WeiqiBoard::resizeEvent(RResizeEvent *event)
+void WeiqiBoard::translation(const RController::TranslationInfo &info)
 {
-    board_.setSize(event->width, event->height);
+    board_.setSize(info.size);
 }

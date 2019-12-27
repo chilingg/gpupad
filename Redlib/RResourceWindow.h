@@ -13,6 +13,8 @@ public:
     ~RResourceWindow() override;
 
     void control() override;
+    void translation(const TranslationInfo &info) override;
+
     void updateReSourceList();
     int updateControllerTree(RController* node, RPoint2 pos);
 
@@ -20,7 +22,6 @@ protected:
     std::string getDefaultName() const override;
     void startEvent(RStartEvent *event) override;
     void finishEvent(RFinishEvent *event) override;
-    void resizeEvent(RResizeEvent *event) override;
     void scrollEvent(RScrollEvent *event) override;
     void inputEvent(RInputEvent *event) override;
 

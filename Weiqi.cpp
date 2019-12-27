@@ -25,6 +25,16 @@ void Weiqi::control()
 
 }
 
+void Weiqi::translation(const RController::TranslationInfo &info)
+{
+    if(info.sender != this)
+        return;
+
+    shaders_.use();
+    shaders_.setViewprot("projection", 0, width(), 0, height());
+    shaders_.nonuse();
+}
+
 void Weiqi::inputEvent(RInputEvent *event)
 {
     if(event->press(RInputModule::KEY_F12))
@@ -44,11 +54,4 @@ void Weiqi::inputEvent(RInputEvent *event)
     {
         breakLoop();
     }
-}
-
-void Weiqi::resizeEvent(RResizeEvent *event)
-{
-    shaders_.use();
-    shaders_.setViewprot("projection", 0, event->width, 0, event->height);
-    shaders_.nonuse();
 }
