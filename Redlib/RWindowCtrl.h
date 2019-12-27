@@ -17,7 +17,8 @@ public:
     enum ViewportPattern
     {
         FullWindow,
-        KeepScale
+        KeepScale,
+        FixedSize
     };
 
     explicit RWindowCtrl(const std::string &name = "WindowCtrl", RController *parent = nullptr);
@@ -34,13 +35,14 @@ public:
     void setBackgroundColor(RColor color);
     void setViewportRatio(double ratio);//视口比例，窗口KeepScale时用
     void setViewportPattern(ViewportPattern pattern);
-    void setVSync(bool enable);//垂直同步
-    void setFullScreenWindow(bool b);
+    void setVSync(bool enable = true);//垂直同步
+    void setFullScreenWindow(bool b = true);
     void setWindowMinimumSize(int minW, int minH);
     void setWindowMaximumSize(int maxW, int maxH);
-    void setWindowSizeFixed(bool b);
-    void setWindowDecrate(bool b);
-    void setWindowFloatOnTop(bool b);
+    void setWindowSizeFixed(bool b = true);
+    void setWindowDecrate(bool b = true);
+    void setWindowFloatOnTop(bool b = true);
+    void setWindowIcon(const RImage &img);
     void setCursor(RCursor &cursor);
     void setCursor();
     //查询函数
@@ -54,6 +56,7 @@ public:
     void untrackCursor();
     void showWindow();
     void hideWindow();
+    int exec();
 
 protected:
     //获取与窗口绑定的WindowCtrl
@@ -61,8 +64,9 @@ protected:
     static GLFWwindow *shareContext;
 
     std::string getDefaultName() const override;
-    void initEvent(RInitEvent *event) override;
-    void closeEvent(RCloseEvent *event) override;
+    void startEvent(RStartEvent *event) override;
+    void finishEvent(RFinishEvent *event) override;
+    //void closeEvent(RCloseEvent *event) override;
     RResizeEvent* eventFilter(RResizeEvent *event) override;
 
 private:
@@ -79,10 +83,12 @@ private:
     //static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
     static void mouseScrollCallback(GLFWwindow *window, double x, double y);
     static void windowFocusCallback(GLFWwindow *window, int focused);
+    static void windowCloseCallback(GLFWwindow *window);
 
     static bool vSync_;//默认锁60FPS
 
     GLFWwindow *window_;
+    void (*eventPool)(); //主线程中为glfwPoolEvent，其余线程中为空
 
     double viewportRatio_ = 16.0/9.0;
     ViewportPattern viewportPattern = KeepScale;

@@ -19,10 +19,18 @@ public:
     const bool connected;
 };
 
-class RInitEvent
+class RStartEvent
 {
 public:
-    explicit RInitEvent(RController *sender):
+    explicit RStartEvent(RController *sender):
+        sender(sender) {}
+    RController *sender;
+};
+
+class RFinishEvent
+{
+public:
+    explicit RFinishEvent(RController *sender):
         sender(sender) {}
     RController *sender;
 };
@@ -33,6 +41,7 @@ public:
     explicit RCloseEvent(RController *sender):
         sender(sender) {}
     RController *sender;
+    bool stop = false;
 };
 
 class REnteredTreeEvent

@@ -74,6 +74,8 @@ SOURCES += \
         Redlib/RThreadPool.cpp \
         Redlib/RWindowCtrl.cpp \
         Testctr.cpp \
+        Weiqi.cpp \
+        WeiqiBoard.cpp \
         main.cpp
 
 HEADERS += \
@@ -114,7 +116,9 @@ HEADERS += \
     Redlib/RTimer.h \
     Redlib/RWindowCtrl.h \
     Redlib/RSigslot.h \
-    Testctr.h
+    Testctr.h \
+    Weiqi.h \
+    WeiqiBoard.h
 
 DISTFILES += \
     Resource/StackList.txt \

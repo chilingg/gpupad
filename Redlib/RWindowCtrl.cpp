@@ -9,7 +9,8 @@ GLFWwindow *RWindowCtrl::shareContext = nullptr;
 
 RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     RController(name, parent),
-    window_(nullptr)
+    window_(nullptr),
+    eventPool([](){})
 {
     if(!shareContext)
     {
@@ -34,7 +35,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
                 RInputModule::instance().addGamepad(RInputModule::toJoystickID(i));
         }
         //GLFW事件触发
-        poolEvent = &glfwPollEvents;
+        eventPool = &glfwPollEvents;
     }
 
     //一个线程窗口只能有一个上下文
@@ -106,6 +107,7 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     glfwSetScrollCallback(window_, mouseScrollCallback);
     glfwSetCursorPosCallback(window_, mouseMoveCallback);
     glfwSetWindowFocusCallback(window_, windowFocusCallback);
+    glfwSetWindowCloseCallback(window_, windowCloseCallback);
     trackCursor();
 
     RImage img = RImage::getRedoperaIcon();
@@ -128,30 +130,13 @@ RWindowCtrl::~RWindowCtrl()
 
 void RWindowCtrl::control()
 {
-    if(focused_)
-    {
-        //更新手柄输入
-        RInputModule::instance().updateGamepad();
-        //更新键鼠输入
-        RInputModule::instance().updateKeyboardInput(window_);
-        RInputModule::instance().updateMouseInput(window_);
-        //发布输入事件
-        RInputEvent e(this);
-        dispatchEvent(&e);
-    }
 
-    //清屏 清除颜色缓冲和深度缓冲
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //调动子结点控制
-    allChildrenActive();
-    glfwSwapBuffers(window_);
-
-    if(glfwWindowShouldClose(window_) || glfwWindowShouldClose(shareContext))
-        breakLoop();
 }
 
 void RWindowCtrl::setWindowSize(int width, int height)
 {
+    width_ = width;
+    height_ = height;
     glfwSetWindowSize(window_, width, height);
 }
 
@@ -178,6 +163,7 @@ void RWindowCtrl::setViewportRatio(double ratio)
 void RWindowCtrl::setViewportPattern(RWindowCtrl::ViewportPattern pattern)
 {
     viewportPattern = pattern;
+    glfwSetWindowSize(window_, width_, height_);
 }
 
 void RWindowCtrl::setVSync(bool enable)
@@ -249,6 +235,12 @@ void RWindowCtrl::setWindowDecrate(bool b)
 void RWindowCtrl::setWindowFloatOnTop(bool b)
 {
     glfwSetWindowAttrib(window_, GLFW_FLOATING, b ? GLFW_TRUE: GLFW_FALSE);
+}
+
+void RWindowCtrl::setWindowIcon(const RImage &img)
+{
+    GLFWimage icon{ img.width(), img.height(), const_cast<unsigned char*>(img.cdata()) };
+    glfwSetWindowIcon(window_, 1, &icon);
 }
 
 void RWindowCtrl::setCursor()
@@ -336,21 +328,58 @@ void RWindowCtrl::hideWindow()
     glfwHideWindow(window_);
 }
 
+int RWindowCtrl::exec()
+{
+    assert(!isLooped());
+    RStartEvent initEvent(this);
+    dispatchEvent(&initEvent);
+    while(isLooped())
+    {
+        eventPool(); //更新事件
+
+        if(focused_) //更新输入
+        {
+            //更新手柄输入
+            RInputModule::instance().updateGamepad();
+            //更新键鼠输入
+            RInputModule::instance().updateKeyboardInput(window_);
+            RInputModule::instance().updateMouseInput(window_);
+            //发布输入事件
+            RInputEvent e(this);
+            dispatchEvent(&e);
+        }
+
+        //清屏 清除颜色缓冲和深度缓冲
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        allChildrenActive();
+        control();
+
+        glfwSwapBuffers(window_);
+    }
+    RFinishEvent closeEvent(this);
+    dispatchEvent(&closeEvent);
+    finished.emit();
+
+    printError(isFailur(), "The Loop has unexpectedly finished");
+    return status();
+}
+
 std::string RWindowCtrl::getDefaultName() const
 {
     return "WindowCtrl";
 }
 
-void RWindowCtrl::initEvent(RInitEvent *)
+void RWindowCtrl::startEvent(RStartEvent *)
 {
 #ifdef R_DEBUG
     printError(!glfwGetWindowAttrib(window_, GLFW_VISIBLE), name() + "Window is hide! in initialization Event");
 #endif
 }
 
-void RWindowCtrl::closeEvent(RCloseEvent *)
+void RWindowCtrl::finishEvent(RFinishEvent *)
 {
-    glfwSetWindowShouldClose(window_, GLFW_TRUE);
+
 }
 
 RResizeEvent *RWindowCtrl::eventFilter(RResizeEvent *event)
@@ -451,15 +480,16 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
 
-    if(wctrl->viewportPattern == FullWindow)
+    switch(wctrl->viewportPattern)
     {
-        wctrl->width_ = width;
-        wctrl->height_ = height;
+    case FullWindow:
+    {
         glViewport(0, 0, width, height);
         RResizeEvent e(wctrl, width, height);
         wctrl->dispatchEvent(&e);
+        break;
     }
-    else if(wctrl->viewportPattern == KeepScale)
+    case KeepScale:
     {
         double ratio = static_cast<double>(width) / height;
         int newW = width;
@@ -467,7 +497,7 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
         if(ratio > wctrl->viewportRatio_)
         {
             newW = static_cast<int>(height * wctrl->viewportRatio_);
-            //glViewport((width - newW) / 2.0, 0, newW, newH);
+            glViewport((width - newW) / 2.0, 0, newW, newH);
         }
         else
         {
@@ -478,6 +508,15 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
         wctrl->height_ = newH;
         RResizeEvent e(wctrl, newW, newH);
         wctrl->dispatchEvent(&e);
+        break;
+    }
+    case FixedSize:
+    {
+        glViewport((width - wctrl->width_) / 2.0, (height - wctrl->height_) / 2.0, wctrl->width_, wctrl->height_);
+        RResizeEvent e(wctrl, wctrl->width_, wctrl->height_);
+        wctrl->dispatchEvent(&e);
+        break;
+    }
     }
 }
 
@@ -500,4 +539,12 @@ void RWindowCtrl::windowFocusCallback(GLFWwindow *window, int focused)
 {
     RWindowCtrl *wctrl = getWindowUserCtrl(window);
     wctrl->focused_ = focused;
+}
+
+void RWindowCtrl::windowCloseCallback(GLFWwindow *window)
+{
+    RWindowCtrl *wctrl = getWindowUserCtrl(window);
+    wctrl->breakLoop();
+
+    if(wctrl->isLooped()) glfwSetWindowShouldClose(window, GLFW_FALSE);
 }

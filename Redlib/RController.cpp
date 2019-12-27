@@ -5,8 +5,7 @@
 
 const std::string RController::FREE_TREE_NAME = "_FreeTree_";
 
-RController::RController(const std::string &name, RController *parent):
-    poolEvent([](){})
+RController::RController(const std::string &name, RController *parent)
 {
     //所有未指定父节点且名非FREE_TREE_NAME的，都挂在自由树下
     if(parent == nullptr && name != FREE_TREE_NAME)
@@ -208,8 +207,8 @@ void RController::changeParent(RController *parent)
     dispatchEvent(&e);
     if(state_ != parent_->state_)
     {
-        RInitEvent initEvent(parent);
-        RCloseEvent closeEvent(parent);
+        RStartEvent initEvent(parent);
+        RFinishEvent closeEvent(parent);
         parent_->state_ == Looping ? this->dispatchEvent(&initEvent) : this->dispatchEvent(&closeEvent);
     }
 }
@@ -236,19 +235,25 @@ void RController::rename(std::string name)
     name_.swap(name);
 }
 
+RController::Status RController::status() const
+{
+    return state_;
+}
+
 int RController::exec()
 {
     assert(state_ != Looping);
-    RInitEvent initEvent(this);
+    RStartEvent initEvent(this);
     dispatchEvent(&initEvent);
+    started.emit();
     while(state_ == Looping)
     {
-        //需要的子类负责此函数指针的赋值
-        poolEvent();
+        allChildrenActive();
         control();
     }
-    RCloseEvent closeEvent(this);
+    RFinishEvent closeEvent(this);
     dispatchEvent(&closeEvent);
+    finished.emit();
 
     printError(state_ == Failure, "The Loop has unexpectedly finished");
     return state_;
@@ -256,7 +261,9 @@ int RController::exec()
 
 void RController::breakLoop()
 {
-    if(state_ == Looping) state_ = Success;
+    RCloseEvent e(this);
+    dispatchEvent(&e);
+    if(!e.stop && state_ == Looping) state_ = Normal;
 }
 
 void RController::allChildrenActive()
@@ -281,7 +288,7 @@ void RController::terminateFreeTree()
     if(freeTree->state_ == Failure)
         return;
     freeTree->state_ = Failure;
-    RCloseEvent e(freeTree);
+    RFinishEvent e(freeTree);
     freeTree->dispatchEvent(&e);
 }
 
@@ -325,9 +332,19 @@ bool RController::isLooped() const
     return state_ == Looping;
 }
 
+bool RController::isNormal() const
+{
+    return state_ == Normal;
+}
+
+bool RController::isFailur() const
+{
+    return state_ == Failure;
+}
+
 void RController::control()
 {
-    allChildrenActive();
+
 }
 
 void RController::inputEvent(RInputEvent *)
@@ -335,12 +352,17 @@ void RController::inputEvent(RInputEvent *)
 
 }
 
-void RController::initEvent(RInitEvent *)
+void RController::startEvent(RStartEvent *)
 {
 
 }
 
 void RController::closeEvent(RCloseEvent *)
+{
+
+}
+
+void RController::finishEvent(RFinishEvent *)
 {
 
 }
@@ -387,7 +409,7 @@ void RController::dispatchEvent(RInputEvent *event)
     inputEvent(event);
 }
 
-void RController::dispatchEvent(RInitEvent *event)
+void RController::dispatchEvent(RStartEvent *event)
 {
     assert(state_ != Looping);
     if(state_ == Failure) return;//错误状态无法进入循环
@@ -397,10 +419,10 @@ void RController::dispatchEvent(RInitEvent *event)
     {
         child->dispatchEvent(event);
     }
-    initEvent(event);
+    startEvent(event);
 }
 
-void RController::dispatchEvent(RCloseEvent *event)
+void RController::dispatchEvent(RFinishEvent *event)
 {
     assert(state_ != Looping);
     for(auto child : children_)
@@ -408,7 +430,7 @@ void RController::dispatchEvent(RCloseEvent *event)
         child->state_ = state_;
         child->dispatchEvent(event);
     }
-    closeEvent(event);
+    finishEvent(event);
 }
 
 void RController::dispatchEvent(REnteredTreeEvent *event)
@@ -472,4 +494,13 @@ void RController::dispatchEvent(RScrollEvent *event)
         child->dispatchEvent(event);
     }
     scrollEvent(event);
+}
+
+void RController::dispatchEvent(RCloseEvent *event)
+{
+    for(auto child : children_)
+    {
+        child->dispatchEvent(event);
+    }
+    closeEvent(event);
 }

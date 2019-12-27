@@ -23,6 +23,7 @@ TestCtr::~TestCtr()
 void TestCtr::control()
 {
     allChildrenActive();
+
     bColor_.render();
 
     plane_->rotateX(static_cast<float>(glfwGetTime()*2));
@@ -50,7 +51,6 @@ void TestCtr::inputEvent(RInputEvent *event)
 
     if(event->press(RInputModule::KEY_F12))
     {
-        RDebug() << getFreeTree()->getTreeNode("WindowCtrl/TestCtrl");
         if(!getFreeTree()->getTreeNode("ResourceWindow"))
         {
             reWindowThread_ = RThread([](){
@@ -104,7 +104,7 @@ void TestCtr::inputEvent(RInputEvent *event)
     }
 }
 
-void TestCtr::initEvent(RInitEvent *event)
+void TestCtr::startEvent(RStartEvent *event)
 {
     RDebug() << "Initialization " << event->sender->name() << " in " << getPathName();
 
@@ -212,6 +212,7 @@ void TestCtr::initEvent(RInitEvent *event)
     bColor_.setSize(width_, height_);
     bColor_.setColorTexture(28, 28, 28);
     bColor_.setPosition(0, 0, -127);
+    bColor_.setShaderProgram(uiShaders_, uiShaders_.getUniformLocation("model"));
 
     bgm_.openStream(RMp3(":/music/bgm.mp3","Test-BGM"));
     tick_.openStream(RMp3(":/music/tick.mp3","Test-tick"));
@@ -220,7 +221,7 @@ void TestCtr::initEvent(RInitEvent *event)
 void TestCtr::resizeEvent(RResizeEvent *event)
 {
     width_ = event->width; height_ = event->height;
-    RMatrix4 projection = RMath::ortho(0.0f, static_cast<float>(width_), 0.0f, static_cast<float>(height_));
+    RMatrix4 projection = RMath::ortho(0.0f, static_cast<float>(width_), 0.0f, static_cast<float>(height_), -127.0f, 128.0f);
     uiShaders_.use();
     uiShaders_.setUniformMatrix(uiShaders_.getUniformLocation("projection"), 4, RMath::value_ptr(projection));
     uiShaders_.nonuse();
@@ -241,7 +242,7 @@ void TestCtr::enteredTreeEvent(REnteredTreeEvent *event)
     RDebug() << "Entered tree with the " << event->sender->name() << " of the " << getPathName();
 }
 
-void TestCtr::closeEvent(RCloseEvent *event)
+void TestCtr::finishEvent(RFinishEvent *event)
 {
     RDebug() << "Close " << event->sender->name() << " in " << getPathName();
     closed.disconnect(event->sender);

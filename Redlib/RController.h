@@ -11,7 +11,7 @@ class RController: public RSigslot
 {
 public:
     enum Status {
-        Success = EXIT_SUCCESS,
+        Normal = EXIT_SUCCESS,
         Failure = EXIT_FAILURE,
         Looping,
     };
@@ -34,7 +34,10 @@ public:
     void changeParent(RController *parent);
     void rename(std::string name);
     //查询函数
+    Status status() const;
     bool isLooped() const;
+    bool isNormal() const;
+    bool isFailur() const;
     bool isChild(RController *child) const;
     bool isAncestor(RController *node) const;//祖辈
     bool isFree() const;
@@ -46,7 +49,7 @@ public:
     RController *getTreeNode(const std::string &path);
 
     //执行函数
-    int exec();//调用allAction()循环调用子孙节点的control()
+    int exec(); //调用自身及所有子节点的contral()
     void breakLoop();//退出exec循环
 
 protected:
@@ -56,8 +59,9 @@ protected:
     virtual void inputEvent(RInputEvent *event);
     virtual void resizeEvent(RResizeEvent *event);
     virtual void scrollEvent(RScrollEvent *event);
-    virtual void initEvent(RInitEvent *event);//exec循环开始
-    virtual void closeEvent(RCloseEvent *event);//exec循环终止
+    virtual void startEvent(RStartEvent *event);//exec循环开始
+    virtual void closeEvent(RCloseEvent *event);//尝试终止exec循环
+    virtual void finishEvent(RFinishEvent *event);//exec循环终止
     virtual void enteredTreeEvent(REnteredTreeEvent *event);
     virtual void exitedTreeEvent(RExitedTreeEvent *event);
 
@@ -70,17 +74,18 @@ protected:
     void dispatchEvent(RInputEvent *event);
     void dispatchEvent(RResizeEvent *event);
     void dispatchEvent(RScrollEvent *event);
-    //已由RController负责调用
-    void dispatchEvent(RInitEvent *event);
     void dispatchEvent(RCloseEvent *event);
+    //已由RController负责调用
+    void dispatchEvent(RStartEvent *event);
+    void dispatchEvent(RFinishEvent *event);
     void dispatchEvent(REnteredTreeEvent *event);
     void dispatchEvent(RExitedTreeEvent *event);
 
-    void allChildrenActive();//调用所有子节点的contral()
-
-    void (*poolEvent)();//exec循环中调用的一个零参无返函数
+    void allChildrenActive(); //调用所有子节点的contral()
 
     //信号
+    Signal0 started;
+    Signal0 finished;
     Signal0 treeEntered;
     Signal0 treeExited;
 
@@ -93,7 +98,7 @@ private:
     std::string name_;
     std::list<RController*> children_;
     RController *parent_ = nullptr;
-    Status state_ = Success;
+    Status state_ = Normal;
 };
 
 #endif // RCONTRLLER_H

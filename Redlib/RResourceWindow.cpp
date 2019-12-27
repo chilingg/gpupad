@@ -31,22 +31,6 @@ RResourceWindow::~RResourceWindow()
 
 void RResourceWindow::control()
 {
-    if(isFocus())
-    {
-        //更新手柄输入
-        RInputModule::instance().updateGamepad();
-        //更新键鼠输入
-        RInputModule::instance().updateKeyboardInput(getWindowHandle());
-        RInputModule::instance().updateMouseInput(getWindowHandle());
-        //发布输入事件
-        RInputEvent e(this);
-        dispatchEvent(&e);
-    }
-
-    //清屏 清除颜色缓冲和深度缓冲
-    glStencilMask(0xFF); // 启用模板缓冲写入
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
     if(timer_.elapsed() > 1000)
     {
         updateReSourceList();
@@ -71,14 +55,6 @@ void RResourceWindow::control()
 
     //rcListPlane_.renderLineBox(0, width(), 0, height());
     //rcListBackground_.renderLineBox(0, width(), 0, height());
-
-    //调动子结点控制
-    allChildrenActive();
-
-    glfwSwapBuffers(getWindowHandle());
-
-    if(glfwWindowShouldClose(getWindowHandle()) || glfwWindowShouldClose(shareContext))
-        breakLoop();
 }
 
 void RResourceWindow::updateReSourceList()
@@ -137,7 +113,7 @@ std::string RResourceWindow::getDefaultName() const
     return "ResourceWindow";
 }
 
-void RResourceWindow::initEvent(RInitEvent *)
+void RResourceWindow::startEvent(RStartEvent *)
 {
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -215,7 +191,7 @@ void RResourceWindow::initEvent(RInitEvent *)
     timer_.start();
 }
 
-void RResourceWindow::closeEvent(RCloseEvent *)
+void RResourceWindow::finishEvent(RFinishEvent *)
 {
 
 }

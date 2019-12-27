@@ -1,14 +1,11 @@
-#include <RWindowCtrl.h>
-#include <RThread.h>
-#include "Testctr.h"
+#include "Weiqi.h"
 
 #include <RDebug.h>
 
 int main(void)
 {
-    RWindowCtrl window;
-    window.showWindow();
-    TestCtr t("TestCtrl", &window);
+    Weiqi weiqi;
+    weiqi.showWindow();
 
-    return window.exec();
+    return weiqi.exec();
 }

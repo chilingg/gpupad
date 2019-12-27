@@ -2,7 +2,7 @@
 
 #include "RDebug.h"
 
-std::map<std::thread::id, GLuint> RShaderProgram::usingProgramID;
+std::map<std::thread::id, GLuint> *RShaderProgram::usingProgramID = nullptr;
 
 void swap(RShaderProgram &prog1, RShaderProgram &prog2)
 {
@@ -649,8 +649,9 @@ void RShaderProgram::deleteShaderProgram(GLuint *ID)
 
 GLuint RShaderProgram::getUsingProgramID()
 {
-    auto it = usingProgramID.find(std::this_thread::get_id());
-    if(it == usingProgramID.end())
+    if(!usingProgramID) usingProgramID = new std::map<std::thread::id, GLuint>;
+    auto it = usingProgramID->find(std::this_thread::get_id());
+    if(it == usingProgramID->end())
     {
         return 0;
     }
@@ -659,7 +660,8 @@ GLuint RShaderProgram::getUsingProgramID()
 
 void RShaderProgram::setUsingProgramID(GLuint ID)
 {
-    usingProgramID[std::this_thread::get_id()] = ID;
+    if(!usingProgramID) usingProgramID = new std::map<std::thread::id, GLuint>;
+    (*usingProgramID)[std::this_thread::get_id()] = ID;
 }
 
 RShaderProgram RShaderProgram::getStanderdShaderProgram()

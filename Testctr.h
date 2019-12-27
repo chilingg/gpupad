@@ -32,8 +32,8 @@ protected:
     void resizeEvent(RResizeEvent *event) override;
     void exitedTreeEvent(RExitedTreeEvent *event) override;
     void enteredTreeEvent(REnteredTreeEvent *event) override;
-    void initEvent(RInitEvent *event) override;
-    void closeEvent(RCloseEvent *event) override;
+    void startEvent(RStartEvent *event) override;
+    void finishEvent(RFinishEvent *event) override;
 
     Signal0 closed;
 

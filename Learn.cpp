@@ -28,7 +28,7 @@ void Learn::control()
     RDebug() << feedback[0] << feedback[1] << feedback[2] << feedback[3] << feedback[4];
 }
 
-void Learn::initEvent(RInitEvent *event)
+void Learn::startEvent(RStartEvent *event)
 {
     render_prog.attachShaderCode(render_vs, ShaderType::VertexShader);
 

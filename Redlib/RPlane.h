@@ -29,9 +29,6 @@ public:
         Align_Bottom
     };
 
-    static void setPlaneDefaultViewprot(float left, float right, float bottom, float top, float near= -1, float far = 1);
-    static void setPlaneDefaultCameraPos(float x, float y, float z = 0);
-
     RPlane();
     RPlane(const RPlane &plane);
     RPlane(int width, int height, const std::string &name, const RPoint &pos);
@@ -100,6 +97,8 @@ public:
     int& rx() { return pos_.rx(); }
     int y() const { return pos_.y(); }
     int& ry() { return pos_.ry(); }
+    int z() const { return pos_.z(); }
+    int& rz() { return pos_.rz(); }
 
     bool isFlipV() const { return flipV_; }
     bool isFlipH() const { return flipH_; }
@@ -125,6 +124,8 @@ public:
 
 protected:
     static GLuint getThreadVAO();
+    static GLuint getThreadVBO();
+    static int getThreadUser();
 
     virtual void renderControl();
     void updateModelMatOver();
@@ -139,11 +140,14 @@ private:
     struct PlaneData {
         GLuint VAO;
         GLuint VBO;
+        int user;
     };
+
+    static void registration();
+    static int unregistration();
 
     static RShaderProgram *lineBoxsProgram;
     static GLuint lineBoxVAO;
-    static RShaderProgram *planeSProgram;
     static std::map<std::thread::id, PlaneData> threadData;
 
     std::string name_;

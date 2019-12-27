@@ -18,8 +18,8 @@ public:
 
 protected:
     std::string getDefaultName() const override;
-    void initEvent(RInitEvent *event) override;
-    void closeEvent(RCloseEvent *event) override;
+    void startEvent(RStartEvent *event) override;
+    void finishEvent(RFinishEvent *event) override;
     void resizeEvent(RResizeEvent *event) override;
     void scrollEvent(RScrollEvent *event) override;
     void inputEvent(RInputEvent *event) override;

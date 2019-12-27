@@ -2,34 +2,9 @@
 
 #include "RDebug.h"
 
-RShaderProgram *RPlane::planeSProgram = nullptr;
 RShaderProgram *RPlane::lineBoxsProgram;
 GLuint RPlane::lineBoxVAO = 0;
 std::map<std::thread::id, RPlane::PlaneData> RPlane::threadData;
-
-void RPlane::setPlaneDefaultViewprot(float left, float right, float bottom, float top, float near, float far)
-{
-    bool b = true;
-    if(!planeSProgram->isUsed())
-        planeSProgram->use();
-    else
-        b = false;
-    RMatrix4 projection = RMath::ortho(left, right, bottom, top, near, far);
-    planeSProgram->setUniformMatrix(planeSProgram->getUniformLocation("projection"), 4, RMath::value_ptr(projection));
-    if(b) planeSProgram->nonuse();
-}
-
-void RPlane::setPlaneDefaultCameraPos(float x, float y, float z)
-{
-    bool b = true;
-    if(!planeSProgram->isUsed())
-        planeSProgram->use();
-    else
-        b = false;
-    RMatrix4 view = RMath::translate(RMatrix4(1), {-x, -y, -z});
-    planeSProgram->setUniformMatrix(planeSProgram->getUniformLocation("view"), 4, RMath::value_ptr(view));
-    if(b) planeSProgram->nonuse();
-}
 
 RPlane::RPlane(const RPlane &plane):
     rotateMat_(plane.rotateMat_),
@@ -60,7 +35,7 @@ RPlane::RPlane(const RPlane &plane):
     maxWidth_(plane.maxWidth_),
     maxHeight_(plane.maxHeight_)
 {
-    texture_.rename("Plane-Texture");
+    registration();
 }
 
 RPlane::RPlane():
@@ -79,27 +54,21 @@ RPlane::RPlane(int width, int height, const std::string &name, const RPoint &pos
     height_(height),
     pos_(pos)
 {
-    if(!planeSProgram)
-    {
-        planeSProgram = new RShaderProgram(RShaderProgram::getStanderdShaderProgram());
-        planeSProgram->rename("DefaultPlaneProgram");
-
-        planeSProgram->use();
-        //默认视口
-        setPlaneDefaultViewprot(0, 960, 0, 540, -127, 128);
-        //planeSProgram->setViewpro("projection", 960, 0, 540, -127, 128);
-        planeSProgram->setCameraPos("view", 0, 0);
-    }
-
-    shaders_ = *planeSProgram;
+    registration();
 
     texture_.rename(this->name() + "-ColorTexture");
     setColorTexture(0xffffffff);
-    setShaderProgram(*planeSProgram, shaders_.getUniformLocation("model"));
 }
 
 RPlane::~RPlane()
 {
+    if(unregistration() < 1)
+    {
+        GLuint VAO = getThreadVAO(), VBO = getThreadVBO();
+        glDeleteBuffers(1, &VBO);
+        glDeleteVertexArrays(1, &VAO);
+        threadData.erase(std::this_thread::get_id());
+    }
     //if(--count == 0)
     //{
         //delete planeSProgram;
@@ -542,6 +511,42 @@ void RPlane::renderLineBox(int left, int right, int buttom, int top, RPoint pos)
 GLuint RPlane::getThreadVAO()
 {
     auto it = threadData.find(std::this_thread::get_id());
+    assert(it != threadData.end());
+    return it->second.VAO;
+}
+
+GLuint RPlane::getThreadVBO()
+{
+    auto it = threadData.find(std::this_thread::get_id());
+    assert(it != threadData.end());
+    return it->second.VBO;
+}
+
+int RPlane::getThreadUser()
+{
+    auto it = threadData.find(std::this_thread::get_id());
+    assert(it != threadData.end());
+    return it->second.VBO;
+}
+
+void RPlane::renderControl()
+{
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+void RPlane::updateModelMat()
+{
+    dirty_ = true;
+}
+
+void RPlane::updateModelMatOver()
+{
+    dirty_ = false;
+}
+
+void RPlane::registration()
+{
+    auto it = threadData.find(std::this_thread::get_id());
     if(it == threadData.end())
     {
         GLuint planeVAO, planeVBO;
@@ -564,25 +569,16 @@ GLuint RPlane::getThreadVAO()
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), offsetBuffer(3*sizeof(float)));
         glBindVertexArray(0);
 
-        it = threadData.emplace(std::thread::id(), PlaneData{planeVAO, planeVBO}).first;
+        it = threadData.emplace(std::this_thread::get_id(), PlaneData{planeVAO, planeVBO, 0}).first;
     }
-
-    return it->second.VAO;
+    ++it->second.user;
 }
 
-void RPlane::renderControl()
+int RPlane::unregistration()
 {
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-}
-
-void RPlane::updateModelMat()
-{
-    dirty_ = true;
-}
-
-void RPlane::updateModelMatOver()
-{
-    dirty_ = false;
+    auto it = threadData.find(std::this_thread::get_id());
+    assert(it != threadData.end());
+    return --it->second.user;
 }
 
 void RPlane::updateModelMatNow()

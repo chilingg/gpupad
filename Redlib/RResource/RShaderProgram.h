@@ -43,8 +43,8 @@ public:
 
     RUniformLocation getUniformLocation(const std::string &name) const;
 
-    bool setViewprot(const std::string name, float left, float right, float bottom, float top, float near = -1, float far = 1);
-    bool setViewprot(const RUniformLocation &location, float left, float right, float bottom, float top, float near = -1, float far = 1);
+    bool setViewprot(const std::string name, float left, float right, float bottom, float top, float near = -127, float far = 128);
+    bool setViewprot(const RUniformLocation &location, float left, float right, float bottom, float top, float near = -127, float far = 128);
     bool setCameraPos(const std::string name, float x, float y, float z = 0);
     bool setCameraPos(const RUniformLocation &location, float x, float y, float z = 0);
 
@@ -73,7 +73,7 @@ private:
     static GLuint getUsingProgramID();//当前线程使用的着色器程序ID
     static void setUsingProgramID(GLuint ID);
 
-    static std::map<std::thread::id, GLuint> usingProgramID;
+    static std::map<std::thread::id, GLuint> *usingProgramID;
 
     std::shared_ptr<GLuint> progID_;
     std::map<ShaderType, RShader> shaders_;

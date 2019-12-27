@@ -15,7 +15,7 @@ public:
     void control() override;
 
 protected:
-    void initEvent(RInitEvent *event) override;
+    void startEvent(RStartEvent *event) override;
 
 private:
     static const char render_vs[];
