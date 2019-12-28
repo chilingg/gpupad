@@ -21,7 +21,7 @@ protected:
 private:
     RShaderProgram shaders_;
     RThread reWindowThread_;
-    WeiqiBoard board;
+    WeiqiBoard board_;
 };
 
 #endif // WEIQI_H

@@ -29,6 +29,7 @@ public:
 
     int width() const { return width_; }
     int height() const { return height_; }
+    RSize size() const { return RSize(width_, height_);}
     //设置函数
     void setWindowSize(int width, int height);
     void setWindowTitle(const std::string &title);
@@ -45,7 +46,9 @@ public:
     void setWindowFloatOnTop(bool b = true);
     void setWindowIcon(const RImage &img);
     void setCursor(RCursor &cursor);
-    void setCursor();
+    void setDefaultCursor();
+    void enableDepthTest();
+    void disableDepthTest();
     //查询函数
     double getViewportRatio() const;
     GLFWwindow* getWindowHandle() const;
@@ -53,8 +56,6 @@ public:
     bool isShouldCloused() const;
     //执行函数
     void closeWindow();
-    void trackCursor();
-    void untrackCursor();
     void showWindow();
     void hideWindow();
     int exec();
@@ -67,7 +68,6 @@ protected:
     std::string getDefaultName() const override;
     void startEvent(RStartEvent *event) override;
     void finishEvent(RFinishEvent *event) override;
-    //void closeEvent(RCloseEvent *event) override;
 
 private:
     //与窗口绑定的回调
@@ -76,7 +76,7 @@ private:
                                            GLsizei length, const GLchar *message, const void *userParam);
     static void joystickPresentCallback(int jid, int event);
     static void resizeCallback(GLFWwindow *window, int width, int height);
-    static void mouseMoveCallback(GLFWwindow *window, double xpos, double ypos);
+    //static void mouseMoveCallback(GLFWwindow *window, double xpos, double ypos);
     //键盘回调参数 = key：激发的键值，scancode：键值的系统扫描码，
     //action：GLFW_PRESS, GLFW_RELEASE or GLFW_REPEAT，modes：ALT，CTRL，SHIFT，META等
     //static void keyboardCollback(GLFWwindow *window, int key, int scancode, int action, int mods);
@@ -90,11 +90,14 @@ private:
     GLFWwindow *window_;
     void (*eventPool)(); //主线程中为glfwPoolEvent，其余线程中为空
 
+    RPoint2 viewportOffset_;
     double viewportRatio_ = 16.0/9.0;
     ViewportPattern viewportPattern = KeepScale;
     int width_ = 960;
     int height_ = 540;
     bool focused_ = true;
+
+    GLbitfield clearMask = GL_COLOR_BUFFER_BIT;
 };
 
 #endif // RWINDOW_H

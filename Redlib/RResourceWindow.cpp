@@ -39,11 +39,13 @@ void RResourceWindow::control()
         timer_.start();
     }
 
+    glStencilMask(0xFF); // 启用模板缓冲写入
+    glClearBufferiv(GL_STENCIL, 0, &zero); //清除模板缓存
     rcListBackground_.render();
     glStencilFunc(GL_EQUAL, 1, 0xFF);
     glStencilMask(0x00); // 禁止模板缓冲的写入
     rcListPlane_.render();
-    glStencilFunc(GL_ALWAYS, 1, 0xFF); // 所有的片段都通过
+    glStencilFunc(GL_ALWAYS, 1, 0xFF); //所有的片段都通过
 
     rcTitle_.render();
     rcScrollBarBack_.render();

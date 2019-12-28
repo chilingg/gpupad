@@ -1,13 +1,23 @@
 #ifndef RPOINT_H
 #define RPOINT_H
 
+#include <functional>
+
 class RPoint2
 {
+    friend std::hash<RPoint2>;
+
 public:
     explicit RPoint2(int x, int y = 0)
         : x_(x), y_(y) {}
-    explicit RPoint2()
+
+    RPoint2()
         : x_(INVALID_POINT_VALUE), y_(INVALID_POINT_VALUE) {}
+
+    bool operator==(const RPoint2 &pos) const
+    {
+        return x_ == pos.x_ && y_ == pos.y_;
+    }
 
     int x() const { return x_; }
     int y() const { return y_; }
@@ -28,14 +38,23 @@ protected:
 
 class RPoint3 : public RPoint2
 {
+    friend std::hash<RPoint3>;
+
 public:
     explicit RPoint3(int x, int y = 0, int z = 0)
         : RPoint2(x, y), z_(z) {}
-    explicit RPoint3()
+
+    RPoint3()
         : RPoint2(), z_(INVALID_POINT_VALUE) {}
+
+    bool operator==(const RPoint3 &pos) const
+    {
+        return x_ == pos.x_ && y_ == pos.y_ && z_ == pos.z_;
+    }
 
     int z() const { return z_; }
     int& rz() { return z_; }
+
     bool isValid() const {
         return x_ != INVALID_POINT_VALUE && y_ != INVALID_POINT_VALUE && z_ != INVALID_POINT_VALUE;
     }
@@ -49,4 +68,31 @@ protected:
 
 using RPoint = RPoint3;
 
+namespace std {
+
+template <>
+struct hash<RPoint2>
+{
+    typedef size_t result_type;
+    typedef RPoint2 argument_type;
+
+    size_t operator()(const RPoint2 &pos) const
+    {
+        return hash<int>()(pos.x_) ^ hash<int>()(pos.y_);
+    }
+};
+
+template <>
+struct hash<RPoint3>
+{
+    typedef size_t result_type;
+    typedef RPoint3 argument_type;
+
+    size_t operator()(const RPoint3 &pos) const
+    {
+        return hash<int>()(pos.x_) ^ hash<int>()(pos.y_) ^ hash<int>()(pos.z_);
+    }
+};
+
+}
 #endif // RPOINT_H

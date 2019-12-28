@@ -43,6 +43,7 @@ public:
 
     RTexture();
     RTexture(const RImage &img, const std::string &name);
+    RTexture(const std::string &path, const std::string &name);
     RTexture(const RTexture &texture);
     RTexture(const RTexture &&texture);
     RTexture& operator=(RTexture texture);

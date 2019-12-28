@@ -236,10 +236,18 @@ const RDebug &RDebug::operator<<(const RPoint3 &p) const
     return *this;
 }
 
+const RDebug &RDebug::operator<<(const RSize &size) const
+{
+#ifdef R_DEBUG
+    std::cout << "(W: " << size.width() << " H: " << size.height() << ") ";
+#endif
+    return *this;
+}
+
 const RDebug &RDebug::operator<<(const RRect &rect) const
 {
 #ifdef R_DEBUG
-    std::cout << "(" << rect.left() << ", " << rect.bottom() << ")W:" << rect.width() << " H:" << rect.height() << ' ';
+    std::cout << "(" << rect.left() << ", " << rect.bottom() << " | W: " << rect.width() << " H: " << rect.height() << ") ";
 #endif
     return *this;
 }

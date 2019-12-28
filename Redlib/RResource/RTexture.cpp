@@ -26,6 +26,12 @@ RTexture::RTexture(const RImage &img, const std::string &name):
     generate(img.width(), img.height(), img.channel(), img.cdata(), img.channel());
 }
 
+RTexture::RTexture(const std::string &path, const std::string &name):
+    RTexture(RImage(path, "TextureImage"), name)
+{
+
+}
+
 RTexture::RTexture(const RTexture &texture):
     RResource(texture),
     textureID_(texture.textureID_),

@@ -31,7 +31,8 @@ public:
 
     RPlane();
     RPlane(const RPlane &plane);
-    RPlane(int width, int height, const std::string &name, const RPoint &pos);
+    RPlane(int width, int height, const std::string &name, const RPoint &pos); //之后删掉
+    RPlane(int width, int height, const RTexture &tex, const RShaderProgram &prog, const std::string &name, const RPoint &pos);
     virtual ~RPlane();
 
     void setSize(int width, int height);

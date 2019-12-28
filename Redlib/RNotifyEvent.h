@@ -126,6 +126,7 @@ public:
     RPoint2 cursorPos() { return RInputModule::instance().cursorPos_; }
 
     RController *sender;
+    void *userData;
 };
 
 #endif // REVENT_H

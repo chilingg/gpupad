@@ -26,6 +26,8 @@ protected:
     void inputEvent(RInputEvent *event) override;
 
 private:
+    static constexpr GLint zero = 0;
+
     void checkScrollBarOffer();
 
     RShaderProgram windowShaders_;

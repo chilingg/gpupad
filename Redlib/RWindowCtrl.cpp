@@ -10,7 +10,8 @@ GLFWwindow *RWindowCtrl::shareContext = nullptr;
 RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     RController(name, parent),
     window_(nullptr),
-    eventPool([](){})
+    eventPool([](){}),
+    viewportOffset_(0)
 {
     if(!shareContext)
     {
@@ -93,22 +94,10 @@ RWindowCtrl::RWindowCtrl(const std::string &name, RController *parent):
     //设置混合
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //忽略不必要的Z轴片段
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);//小于或等于时通过
     //默认背景色
     glClearColor(0.07f, 0.07f, 0.07f, 1.0f);
     //禁用字节对齐限制
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    glfwSetFramebufferSizeCallback(window_, resizeCallback);
-    //glfwSetKeyCallback(window_, keyboardCollback);
-    //glfwSetMouseButtonCallback(window_, mouseButtonCallback);
-    glfwSetScrollCallback(window_, mouseScrollCallback);
-    glfwSetCursorPosCallback(window_, mouseMoveCallback);
-    glfwSetWindowFocusCallback(window_, windowFocusCallback);
-    glfwSetWindowCloseCallback(window_, windowCloseCallback);
-    trackCursor();
 
     RImage img = RImage::getRedoperaIcon();
     GLFWimage icon{ img.width(), img.height(), img.data() };
@@ -249,9 +238,22 @@ void RWindowCtrl::setWindowIcon(const RImage &img)
     glfwSetWindowIcon(window_, 1, &icon);
 }
 
-void RWindowCtrl::setCursor()
+void RWindowCtrl::setDefaultCursor()
 {
     glfwSetCursor(window_, nullptr);
+}
+
+void RWindowCtrl::enableDepthTest()
+{
+    //忽略不必要的Z轴片段
+    glEnable(GL_DEPTH_TEST);
+    clearMask = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+}
+
+void RWindowCtrl::disableDepthTest()
+{
+    glDisable(GL_DEPTH_TEST);
+    clearMask = GL_COLOR_BUFFER_BIT;
 }
 
 void RWindowCtrl::setCursor(RCursor &cursor)
@@ -314,23 +316,27 @@ void RWindowCtrl::closeWindow()
     glfwSetWindowShouldClose(window_, GLFW_TRUE);
 }
 
-void RWindowCtrl::trackCursor()
-{
-    glfwSetCursorPosCallback(window_, mouseMoveCallback);
-}
-
-void RWindowCtrl::untrackCursor()
-{
-    glfwSetCursorPosCallback(window_, [](GLFWwindow *, double , double) {});
-}
-
 void RWindowCtrl::showWindow()
 {
+    //不在构造函数时设置回调，防止多线程中在未构造完成时被调用
+    glfwSetFramebufferSizeCallback(window_, resizeCallback);
+    glfwSetScrollCallback(window_, mouseScrollCallback);
+    glfwSetWindowFocusCallback(window_, windowFocusCallback);
+    glfwSetWindowCloseCallback(window_, windowCloseCallback);
+    //glfwSetKeyCallback(window_, keyboardCollback);
+    //glfwSetMouseButtonCallback(window_, mouseButtonCallback);
+    //glfwSetCursorPosCallback(window_, mouseMoveCallback);
+
     glfwShowWindow(window_);
 }
 
 void RWindowCtrl::hideWindow()
 {
+    glfwSetFramebufferSizeCallback(window_, [](GLFWwindow *, int , int ){});
+    glfwSetScrollCallback(window_, [](GLFWwindow *, double , double ){});
+    glfwSetWindowFocusCallback(window_, [](GLFWwindow *, int ){});
+    glfwSetWindowCloseCallback(window_, [](GLFWwindow *){});
+
     glfwHideWindow(window_);
 }
 
@@ -350,13 +356,18 @@ int RWindowCtrl::exec()
             //更新键鼠输入
             RInputModule::instance().updateKeyboardInput(window_);
             RInputModule::instance().updateMouseInput(window_);
+            //光标位置
+            double xpos, ypos;
+            glfwGetCursorPos(window_, &xpos, &ypos);
+            RInputModule::instance().updateCursorPos(static_cast<int>(xpos) - viewportOffset_.x(),
+                                                     static_cast<int>(ypos) - viewportOffset_.y());
             //发布输入事件
             RInputEvent e(this);
             dispatchEvent(&e);
         }
 
         //清屏 清除颜色缓冲和深度缓冲
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(clearMask);
 
         allChildrenActive();
         control();
@@ -485,6 +496,7 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
     case FullWindow:
     {
         glViewport(0, 0, width, height);
+        wctrl->viewportOffset_.setPoint(0, 0);
         TranslationInfo info { wctrl, {width, height} };
         wctrl->translation(info);
         break;
@@ -497,12 +509,14 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
         if(ratio > wctrl->viewportRatio_)
         {
             newW = static_cast<int>(height * wctrl->viewportRatio_);
-            glViewport((width - newW) / 2.0, 0, newW, newH);
+            glViewport((width - newW) / 2, 0, newW, newH);
+            wctrl->viewportOffset_.setPoint((width - newW) / 2, 0);
         }
         else
         {
             newH = static_cast<int>(width / wctrl->viewportRatio_);
-            glViewport(0, (height - newH) / 2.0, newW, newH);
+            glViewport(0, (height - newH) / 2, newW, newH);
+            wctrl->viewportOffset_.setPoint(0, (height - newH) / 2);
         }
         wctrl->width_ = newW;
         wctrl->height_ = newH;
@@ -513,16 +527,12 @@ void RWindowCtrl::resizeCallback(GLFWwindow *window, int width, int height)
     case FixedSize:
     {
         glViewport((width - wctrl->width_) / 2.0, (height - wctrl->height_) / 2.0, wctrl->width_, wctrl->height_);
-        TranslationInfo info { wctrl, {width, height} };
+        wctrl->viewportOffset_.setPoint((width - wctrl->width_) / 2.0, (height - wctrl->height_) / 2.0);
+        TranslationInfo info { wctrl, {wctrl->width_, wctrl->height_} };
         wctrl->translation(info);
         break;
     }
     }
-}
-
-void RWindowCtrl::mouseMoveCallback(GLFWwindow *, double xpos, double ypos)
-{
-    RInputModule::instance().updateCursorPos(static_cast<int>(xpos), static_cast<int>(ypos));
 }
 
 void RWindowCtrl::mouseScrollCallback(GLFWwindow *window, double , double y)

@@ -5,11 +5,10 @@
 Weiqi::Weiqi():
     RWindowCtrl("WeiQi-Core"),
     shaders_(RShaderProgram::getStanderdShaderProgram()),
-    board(this, shaders_)
+    board_(this, shaders_)
 {
     setWindowSize(540, 540);
     setWindowTitle("WeiQi");
-    setVSync();
     setViewportPattern(RWindowCtrl::FixedSize);
     setWindowIcon(RImage(":/image/WeiQi-icon-32x32.png", "WeiQi-icon"));
 
@@ -33,6 +32,8 @@ void Weiqi::translation(const RController::TranslationInfo &info)
     shaders_.use();
     shaders_.setViewprot("projection", 0, width(), 0, height());
     shaders_.nonuse();
+
+    board_.translation({this, info.size, info.pos});
 }
 
 void Weiqi::inputEvent(RInputEvent *event)

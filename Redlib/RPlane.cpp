@@ -56,8 +56,22 @@ RPlane::RPlane(int width, int height, const std::string &name, const RPoint &pos
 {
     registration();
 
-    texture_.rename(this->name() + "-ColorTexture");
     setColorTexture(0xffffffff);
+    texture_.rename(this->name() + "-ColorTexture");
+}
+
+RPlane::RPlane(int width, int height, const RTexture &tex, const RShaderProgram &prog, const std::string &name, const RPoint &pos):
+    rotateMat_(1.0f),
+    modelMat_(1.0f),
+    shaders_(prog),
+    texture_(tex),
+    modelLoc_(prog.getUniformLocation("model")),
+    name_(name),
+    width_(width),
+    height_(height),
+    pos_(pos)
+{
+    registration();
 }
 
 RPlane::~RPlane()
