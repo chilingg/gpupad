@@ -11,8 +11,7 @@ RSprite::RSprite(const RSprite &sprite):
     textures_(sprite.textures_),
     interval_(sprite.interval_),
     delta_(sprite.delta_),
-    textureIndex_(sprite.textureIndex_),
-    played_(sprite.played_)
+    textureIndex_(sprite.textureIndex_)
 {
 
 }
@@ -28,27 +27,33 @@ RSprite::~RSprite()
 
 }
 
+size_t RSprite::getFrameCount()
+{
+    return textures_.size();
+}
+
+size_t RSprite::getCurrentFrameIndex()
+{
+    return textureIndex_;
+}
+
 void RSprite::setInterval(int interval)
 {
     interval_ = interval;
     delta_ = 0;
 }
 
-void RSprite::addFrame(const RTexture &frame)
+size_t RSprite::addFrame(const RTexture &frame)
 {
     textures_.push_back(frame);
     texture_ = frame;
+    textureIndex_ = textures_.size();
+    return textures_.size();
 }
 
-void RSprite::clearFrameSequence()
+void RSprite::play()
 {
-    std::vector<RTexture> textures;
-    textures_.swap(textures);
-}
-
-void RSprite::renderControl()
-{
-    RPlane::renderControl();
+    render();
 
     if(delta_ < interval_)
         ++delta_;
@@ -61,4 +66,19 @@ void RSprite::renderControl()
             texture_ = textures_[textureIndex_];
         }
     }
+}
+
+bool RSprite::setFrame(size_t n)
+{
+    if(n > textures_.size())
+        return false;
+    texture_ = textures_[n];
+    textureIndex_ = n;
+    return true;
+}
+
+void RSprite::clearFrameSequence()
+{
+    std::vector<RTexture> textures;
+    textures_.swap(textures);
 }

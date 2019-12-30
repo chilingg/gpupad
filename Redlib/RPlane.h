@@ -36,13 +36,14 @@ public:
     virtual ~RPlane();
 
     void setSize(int width, int height);
-    void setSize(RSize size);
+    void setSize(const RSize &size);
     void setWidth(int width);
     void setHeight(int height);
 
     void setMinimumSize(int minW, int minH);
     void setMaximumSize(int maxW, int maxH);
 
+    void setPosition(const RPoint &pos);
     void setPosition(int x, int y, int z = 0);
     void setPositionX(int value);
     void setPositionY(int value);
@@ -81,6 +82,7 @@ public:
 
     RRect getPlaneRect() const { return RRect(x(), y(), width_, height_);}
 
+    RSize size() const { return { width_, height_ }; }
     int width() const { return width_; }
     int height() const { return height_; }
     int innerWidth() const { return width_ - paddingLeft_ - paddingRight_; }

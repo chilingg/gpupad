@@ -109,7 +109,7 @@ void RPlane::setSize(int width, int height)
     updateModelMat();
 }
 
-void RPlane::setSize(RSize size)
+void RPlane::setSize(const RSize &size)
 {
     int width = size.width();
     int height = size.height();
@@ -159,6 +159,11 @@ void RPlane::setMaximumSize(int maxW, int maxH)
 
     if(width_ > maxW) width_ = maxW;
     if(height_ > maxH) height_ = maxH;
+}
+
+void RPlane::setPosition(const RPoint &pos)
+{
+    pos_ = pos;
 }
 
 void RPlane::setPosition(int x, int y, int z)

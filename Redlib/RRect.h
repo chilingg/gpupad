@@ -36,6 +36,9 @@ public:
     bool contains(const RPoint2 &pos) { return pos.x() >= x_ && pos.y() >= y_ && pos.x() <= right() && pos.y() <= top(); }
     bool contains(int x, int y) { return x >= x_ && y >= y_ && x <= right() && y <= top(); }
 
+    RRect MirrorH(int axis = 0) { int x = (axis-x_)*2 + x_ + -width_; return RRect(x, y_, width_, height_); }
+    RRect MirrorV(int axis = 0) { int y = (axis-y_)*2 + y_ + -height_; return RRect(x_, y, width_, height_); }
+
 private:
     int x_;
     int y_;

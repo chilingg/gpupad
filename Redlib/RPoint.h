@@ -29,6 +29,9 @@ public:
     void setX(int x) { x_ = x; }
     void setY(int y) { y_ = y; }
 
+    RPoint2 MirrorH(int axis = 0) { return RPoint2((axis-x_)*2 + x_, y_); }
+    RPoint2 MirrorV(int axis = 0) { return RPoint2(x_, (axis-y_)*2 + y_); }
+
 protected:
     constexpr static int INVALID_POINT_VALUE = ~0u >> 1;
 
