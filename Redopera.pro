@@ -75,7 +75,7 @@ SOURCES += \
         Redlib/RWindowCtrl.cpp \
         Testctr.cpp \
         Weiqi.cpp \
-        WeiqiBoard.cpp \
+        WeiqiGoban.cpp \
         main.cpp
 
 HEADERS += \
@@ -118,7 +118,7 @@ HEADERS += \
     Redlib/RSigslot.h \
     Testctr.h \
     Weiqi.h \
-    WeiqiBoard.h
+    WeiqiGoban.h
 
 DISTFILES += \
     Resource/StackList.txt \

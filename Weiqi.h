@@ -5,7 +5,7 @@
 #include <RResource/RShaderProgram.h>
 #include <RThread.h>
 
-#include "WeiqiBoard.h"
+#include "WeiqiGoban.h"
 
 class Weiqi : public RWindowCtrl
 {
@@ -21,7 +21,7 @@ protected:
 private:
     RShaderProgram shaders_;
     RThread reWindowThread_;
-    WeiqiBoard board_;
+    WeiqiGoban board_;
 };
 
 #endif // WEIQI_H
