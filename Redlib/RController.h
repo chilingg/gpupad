@@ -56,7 +56,7 @@ public:
     int getChildrenSize() const;
     RController* getParent();
     const std::list<RController*>& getChildren() const;
-    RController *getTreeNode(const std::string &path);
+    RController *getTreeNode(const std::string &path);//改改改改改改改改改改改改改改改改改改改改改改改
 
     //执行函数
     int exec(); //调用自身及所有子节点的contral()

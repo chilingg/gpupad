@@ -99,7 +99,7 @@ RFontGlyph RFont::getFontGlyph(wchar_t c)
         return fd;
 #endif
 
-    assert(!FT_Load_Char(*ftFace_, static_cast<FT_ULong>(c), FT_LOAD_RENDER));
+    FT_Load_Char(*ftFace_, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
     fd.width = (*ftFace_)->glyph->bitmap.width;
     fd.height = (*ftFace_)->glyph->bitmap.rows;
     fd.bearingX = (*ftFace_)->glyph->bitmap_left;
@@ -138,7 +138,7 @@ void RFont::setAsDefualtFont(unsigned size)
     if(printError(FT_New_Memory_Face(ftLibrary, Font_SourceCodePro, Font_FileSize, 0, ftFace_.get()), "Cannot set default font!"))
         throw("Cannot set default font!");
 #else
-    FT_New_Memory_Face(ftLibrary, defaultFont, size, 0 , face_);
+    FT_New_Memory_Face(ftLibrary, Font_SourceCodePro, size, 0 , ftFace_.get());
 #endif
 
     FT_Set_Pixel_Sizes(*ftFace_, 0, size);

@@ -27,10 +27,10 @@ void TestCtr::control()
     bColor_.render();
 
     plane_->rotateX(static_cast<float>(glfwGetTime()*2));
-    plane_->renderLineBox(0, 960, 0, 540);
+    //plane_->renderLineBox(0, 960, 0, 540);
     plane_->render();
 
-    textPlane_.renderLineBox(0, width_, 0, height_);
+    //textPlane_.renderLineBox(0, width_, 0, height_);
     textPlane_.render();
 
     FPS();

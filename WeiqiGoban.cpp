@@ -1,4 +1,5 @@
 #include "WeiqiGoban.h"
+#include <RPackFile.h>
 
 WeiqiGoban::WeiqiGoban(RController *parent, const RShaderProgram &shaders):
     RController("WeiqiBoard", parent),
@@ -18,7 +19,15 @@ WeiqiGoban::WeiqiGoban(RController *parent, const RShaderProgram &shaders):
     startOption_(L"开局", 108, 40, "StartOption", RPoint(216, 95)),
     startBack_(108, 40, "StartBack", RPoint(216, 92))
 {
-    goban_.setTexture(RImage(":/image/board.png", "BoardImg", true));
+    RPackFile pack("sources");
+    pack.packing("/home/carper/Code/Redopera/Redopera/Resource/image/board.png");
+    if(!pack.fileCheck("sources"))
+        pack.save();
+
+    RImage img;
+    auto info = pack.getFileInfo("/home/carper/Code/Redopera/Redopera/Resource/image/board.png");
+    img.load(info->data.get(), info->size, true);
+    goban_.setTexture(img);
     goban_.setShaderProgram(shaders, "model");
 
     unit_ = goban_.width() / 20;

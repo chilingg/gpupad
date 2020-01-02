@@ -30,6 +30,7 @@ public:
     const unsigned char* cdata() const;
 
     bool load(std::string path, bool flip = false);
+    bool load(const unsigned char *buf, size_t size, bool flip = false);
     bool load(int width, int height, int channel, unsigned char *data);
     void flipVertical();
     void freeImage();

@@ -87,12 +87,29 @@ bool RImage::load(std::string path, bool flip)
         return false;
 
     stbi_set_flip_vertically_on_load(flip);
-    data_.reset(stbi_load(path.c_str(), &width_, &height_, &channel_,0), stbi_image_free);
+    data_.reset(stbi_load(path.c_str(), &width_, &height_, &channel_, 0), stbi_image_free);
 
     if(!data_)
     {
 #ifdef R_DEBUG
         printError(nameID() + ": Image failed to load at path: " + path);
+#endif
+        data_.reset();
+        return false;
+    }
+
+    return true;
+}
+
+bool RImage::load(const unsigned char *buf, size_t size, bool flip)
+{
+    stbi_set_flip_vertically_on_load(flip);
+    data_.reset(stbi_load_from_memory(buf, size, &width_, &height_, &channel_, 0), stbi_image_free);
+
+    if(!data_)
+    {
+#ifdef R_DEBUG
+        printError(nameID() + ": Image failed to load at memory");
 #endif
         data_.reset();
         return false;

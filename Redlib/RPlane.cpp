@@ -526,6 +526,7 @@ void RPlane::renderLineBox(int left, int right, int buttom, int top, RPoint pos)
     RMatrix4 view = RMath::translate(RMatrix4(1), { pos.x(), pos.y(), 0 });
     renderLineBox(projection, view);
 }
+#endif
 
 GLuint RPlane::getThreadVAO()
 {
@@ -680,4 +681,3 @@ void RPlane::updateModelMatNow()
     }
     dirty_ = false;
 }
-#endif

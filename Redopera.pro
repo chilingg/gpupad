@@ -13,7 +13,7 @@ CONFIG(debug, debug|release){
     DEFINES += R_DEBUG
     DEFINES += __RTAUDIO_DEBUG__
 } else {
-    DESTDIR = bin_release
+    DESTDIR = $$PWD/bin_release
     DEFINES += NDEBUG
 }
 
@@ -53,6 +53,7 @@ SOURCES += \
         Redlib/Extern/RtAudio.cpp \
         Redlib/RAudioStream.cpp \
         Redlib/RInputModule.cpp \
+        Redlib/RPackFile.cpp \
         Redlib/RResource/RCursor.cpp \
         Redlib/RResource/RMp3.cpp \
         Redlib/Extern/minimp3_implementation.cpp \
@@ -85,6 +86,7 @@ HEADERS += \
     Redlib/Extern/minimp3_ex.h \
     Redlib/RAudioStream.h \
     Redlib/RInputModule.h \
+    Redlib/RPackFile.h \
     Redlib/RRect.h \
     Redlib/RResource/RCursor.h \
     Redlib/RResource/RMp3.h \
@@ -121,7 +123,6 @@ HEADERS += \
     WeiqiGoban.h
 
 DISTFILES += \
-    Resource/StackList.txt \
     Resource/shader/Fragment.frag \
     Resource/shader/LineBox.frag \
     Resource/shader/LineBox.geom \
