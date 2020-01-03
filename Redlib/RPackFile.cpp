@@ -6,7 +6,7 @@
 
 uint64_t RPackFile::generateCheckCode(const RByte *buffer, size_t size)
 {
-    static const int concurrency = std::thread::hardware_concurrency() > 1 ? std::thread::hardware_concurrency() - 1 : 1;
+    static const int concurrency = std::thread::hardware_concurrency() > 0 ? std::thread::hardware_concurrency(): 1;
     size_t num = size / 64;
     const uint64_t *p = reinterpret_cast<const uint64_t*>(buffer);
     int count = 1;
@@ -17,7 +17,7 @@ uint64_t RPackFile::generateCheckCode(const RByte *buffer, size_t size)
 
     { //线程开始
     std::vector<RThread> threads(count);
-    for(int i = 0; i < count; ++i)
+    for(int i = 1; i < count; ++i)
     {
         threads[i] = RThread([&check, i, range](const uint64_t *p)
         {
@@ -26,6 +26,9 @@ uint64_t RPackFile::generateCheckCode(const RByte *buffer, size_t size)
         },
         p+range*i);
     }
+
+    for(size_t j = 0; j < range; ++j)
+        check[0] ^= *p++;
     } //线程结束
 
     uint64_t result = 0;
@@ -83,12 +86,6 @@ RPackFile::RPackFile(const std::string &path):
         printError("Error reading pack file in " + path);
     }
 
-    //若包数据是压缩的
-    if(head.compress)
-    {
-        throw "Undefinition compressed pack process!";
-    }
-
     path_ = path;
 }
 
@@ -132,7 +129,7 @@ bool RPackFile::packing(const std::string &sourcePath)
     if(!file)
     {
 #ifdef R_DEBUG
-        printError("Pack file done not exist: " + sourcePath);
+        printError("File done not exist: " + sourcePath);
 #endif
         return false;
     }
@@ -156,7 +153,7 @@ bool RPackFile::packing(const std::string &sourcePath)
     return true;
 }
 
-bool RPackFile::save(RPackFile::PackFormat format)
+bool RPackFile::save()
 {
     std::ofstream file(path_, std::ios::binary);
     if(printError(!file, "Failure save pack file <" + path_ + "> in opening!"))
@@ -166,8 +163,7 @@ bool RPackFile::save(RPackFile::PackFormat format)
     try {
         //写入文件头
         PackFileHead head { headformat,
-                    static_cast<uint32_t>(fileInfo_.size()),
-                    format == compressed ? static_cast<uint8_t>(1) : static_cast<uint8_t>(0), 0, 0, 0 };
+                    static_cast<uint32_t>(fileInfo_.size()) };
         file.write(reinterpret_cast<char*>(&head), sizeof(PackFileHead));
         for(auto &info : fileInfo_)
         {
@@ -179,11 +175,6 @@ bool RPackFile::save(RPackFile::PackFormat format)
         {
             char *buf = reinterpret_cast<char*>(info.second.data.get());
             size_t size = info.second.size;
-            //压缩数据
-            if(format == compressed)
-            {
-                throw "Undefinition compressed pack process!";
-            }
             file.write(buf, size);
         }
 
@@ -196,6 +187,7 @@ bool RPackFile::save(RPackFile::PackFormat format)
         return false;
     }
 
+    RDebug() << "Save pack file as <" + path_ + '>';
     return true;
 }
 

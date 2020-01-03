@@ -15,10 +15,6 @@ class RPackFile
     {
         uint32_t headformat;    //文件头校验码
         uint32_t fileNum;       //包内文件数量
-        uint8_t compress;       //压缩标志
-        uint8_t none1;          //填充数据
-        uint8_t none2;
-        uint8_t none3;
     };
 
     //包内各文件数据
@@ -38,12 +34,6 @@ class RPackFile
     };
 
 public:
-    enum PackFormat
-    {
-        uncompressed,
-        compressed
-    };
-
     static uint64_t generateCheckCode(const RByte *buffer, size_t size);
 
     RPackFile();
@@ -56,7 +46,7 @@ public:
     void packing(const RByte *buffer, size_t size, const std::string &sourceName);
     void packing(std::unique_ptr<RByte[]> &&buffer, size_t size, const std::string &sourceName);
     bool packing(const std::string &sourcePath);
-    bool save(PackFormat format = uncompressed);
+    bool save();
     bool fileCheck(const RPackFile &pack);
     bool fileCheck(const std::string &file);
 
