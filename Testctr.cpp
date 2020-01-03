@@ -122,7 +122,7 @@ void TestCtr::startEvent(RStartEvent *event)
 {
     RDebug() << "Initialization " << event->sender->name() << " in " << getPathName();
 
-    closed.connect(event->sender, &RController::breakLoop);
+    RSigSlot::connect(&closed, event->sender, &RController::breakLoop);
 
     if(RWindowCtrl *window = dynamic_cast<RWindowCtrl*>(event->sender))
     {
@@ -245,7 +245,7 @@ void TestCtr::enteredTreeEvent(REnteredTreeEvent *event)
 void TestCtr::finishEvent(RFinishEvent *event)
 {
     RDebug() << "Close " << event->sender->name() << " in " << getPathName();
-    closed.disconnect(event->sender);
+    RSigSlot::disconnect(&closed, event->sender, &RController::breakLoop);
 }
 
 void TestCtr::FPS()

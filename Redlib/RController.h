@@ -7,7 +7,7 @@
 #include <string>
 #include <list>
 
-class RController: public RSigslot
+class RController: public RSlot
 {
 public:
     struct TranslationInfo
@@ -91,10 +91,10 @@ protected:
     void allChildrenActive(); //调用所有子节点的contral()
 
     //信号
-    Signal0 started;
-    Signal0 finished;
-    Signal0 treeEntered;
-    Signal0 treeExited;
+    RSignal<> started;
+    RSignal<> finished;
+    RSignal<> treeEntered;
+    RSignal<> treeExited;
 
 private:
     static const std::string FREE_TREE_NAME;

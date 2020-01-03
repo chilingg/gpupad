@@ -44,7 +44,7 @@ void Weiqi::inputEvent(RInputEvent *event)
         {
             reWindowThread_ = RThread([this](){
                 RResourceWindow reWindow;
-                finished.connect(dynamic_cast<RController*>(&reWindow), &RResourceWindow::breakLoop);
+                RSigSlot::connect(&finished, &reWindow, &RResourceWindow::breakLoop);
                 reWindow.showWindow();
                 reWindow.exec();
             });

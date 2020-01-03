@@ -35,7 +35,7 @@ protected:
     void startEvent(RStartEvent *event) override;
     void finishEvent(RFinishEvent *event) override;
 
-    Signal0 closed;
+    RSignal<> closed;
 
 private:
     void FPS();
