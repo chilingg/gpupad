@@ -59,6 +59,8 @@ private:
     RAudioStream tick_;
 
     RThread reWindowThread_;
+
+    _RSLOT_TAIL_
 };
 
 #endif // TESTCTR_H

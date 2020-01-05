@@ -67,6 +67,8 @@ private:
     RPlane startBack_;
 
     GameStatus status_ = Mune;
+
+    _RSLOT_TAIL_
 };
 
 #endif // WEIQIGOBAN_H

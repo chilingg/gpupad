@@ -51,6 +51,8 @@ private:
     RCursor cursor_;
 
     RTimer timer_;
+
+    _RSLOT_TAIL_
 };
 
 #endif // RRESOURCEWINDOW_H

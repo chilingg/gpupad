@@ -98,6 +98,8 @@ private:
     bool focused_ = true;
 
     GLbitfield clearMask = GL_COLOR_BUFFER_BIT;
+
+    _RSLOT_TAIL_
 };
 
 #endif // RWINDOW_H

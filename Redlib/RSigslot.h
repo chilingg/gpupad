@@ -13,6 +13,10 @@ namespace RSigSlot {
 template<typename Sloter, typename Sloter2, typename ... Args>
 void connect(RSignal<Args ...> *signal, Sloter *sloter, void (Sloter2::*slot)(Args ... args))
 {
+    //继承RSlot的子类需要在声明尾部展开宏 _RSLOT_TAIL_
+    if(typeid(sloter).name() != sloter->TYPE_PTR_NAME)
+        throw std::logic_error("Derived class of the RSlot needs to expand _RSLOT_TAIL_ in the tail!");
+
     auto weakptr = sloter->clone();
     auto func = std::function<bool(Args ... args)>([weakptr, sloter, slot](Args ... args){
         if(weakptr.expired())
@@ -52,18 +56,21 @@ void disconnect(RSignal<Args ...> *signal, Sloter *sloter, void (Sloter2::*slot)
 
 } // namespace RSigSlot
 
-#define _RSLOT_CLONE_ public: virtual std::weak_ptr<RSlotFlag> clone() { if(!_FLAG_) _FLAG_ = std::make_shared<RSlotFlag>(true); return std::weak_ptr<RSlotFlag>(_FLAG_); }
-#define _RSLOT_TAIL_ _RSLOT_CLONE_ private: std::shared_ptr<RSlotFlag> _FLAG_;
+#define _RSLOT_CLONE_ public: std::weak_ptr<RSlotFlag> clone() { if(!_FLAG_) _FLAG_ = std::make_shared<RSlotFlag>(true); return std::weak_ptr<RSlotFlag>(_FLAG_); }
+#define _RSLOT_TYPEID_ const char *TYPE_PTR_NAME = typeid(this).name();
+#define _RSLOT_TAIL_ _RSLOT_CLONE_ _RSLOT_TYPEID_ private: std::shared_ptr<RSlotFlag> _FLAG_;
 
 class RSlot
 {
+    template<typename Sloter, typename Sloter2, typename ... Args>
+    friend void RSigSlot::connect(RSignal<Args ...> *signal, Sloter *sloter, void (Sloter2::*slot)(Args ... args));
+
 public:
     using RSlotFlag = bool;
 
     RSlot() = default;
     ~RSlot() = default;
 
-protected:
     _RSLOT_TAIL_  //继承的子类都需要在声明尾部调用此宏
 };
 

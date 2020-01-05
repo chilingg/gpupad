@@ -106,6 +106,8 @@ private:
     std::list<RController*> children_;
     RController *parent_ = nullptr;
     Status state_ = Normal;
+
+    _RSLOT_TAIL_
 };
 
 #endif // RCONTRLLER_H
