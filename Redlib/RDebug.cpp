@@ -292,6 +292,14 @@ const RDebug &RDebug::operator<<(const RMatrix4 &mat) const
     return *this;
 }
 
+const RDebug &RDebug::operator<<(const RJosn &json) const
+{
+#ifdef R_DEBUG
+    std::cout << json;
+#endif
+    return *this;
+}
+
 const RDebug &RDebug::operator<<(const RTime &time) const
 {
 #ifdef R_DEBUG

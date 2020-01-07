@@ -14,6 +14,7 @@
 #include "RRect.h"
 #include "RMaths.h"
 #include "RTime.h"
+#include "RJson.h"
 
 class RDebug
 {
@@ -54,6 +55,7 @@ public:
     const RDebug& operator<<(const RVector3 &vec) const;
     const RDebug& operator<<(const RVector4 &vec) const;
     const RDebug& operator<<(const RMatrix4 &mat) const;
+    const RDebug& operator<<(const RJosn &json) const;
 
     const RDebug& operator<<(const RTime &time) const;
 

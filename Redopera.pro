@@ -51,6 +51,7 @@ DEFINES += __WINDOWS_ASIO__
 SOURCES += \
         Learn.cpp \
         Redlib/Extern/RtAudio.cpp \
+        Redlib/Extern/stb_truetype.cpp \
         Redlib/RAudioStream.cpp \
         Redlib/RInputModule.cpp \
         Redlib/RPackFile.cpp \
@@ -82,10 +83,13 @@ SOURCES += \
 HEADERS += \
     Learn.h \
     Redlib/Extern/RtAudio.h \
+    Redlib/Extern/json.hpp \
     Redlib/Extern/minimp3.h \
     Redlib/Extern/minimp3_ex.h \
+    Redlib/Extern/stb_truetype.h \
     Redlib/RAudioStream.h \
     Redlib/RInputModule.h \
+    Redlib/RJson.h \
     Redlib/RPackFile.h \
     Redlib/RRect.h \
     Redlib/RResource/RCursor.h \
@@ -127,4 +131,5 @@ DISTFILES += \
     Resource/shader/LineBox.frag \
     Resource/shader/LineBox.geom \
     Resource/shader/LineBox.vert \
-    Resource/shader/Vertex.vert
+    Resource/shader/Vertex.vert \
+    config.json

@@ -37,7 +37,7 @@ RThreadPool::RThreadPool(int tNum):
         for(int i = 0; i < tNum; ++i)
         {
             stacks_.emplace_back(std::make_unique<RThreadStack<FunctionWrapper>>());
-            threads_.emplace_back(&RThreadPool::workerThread, this, stacks_[i]);
+            threads_.emplace_back(&RThreadPool::workerThread, this, stacks_[i].get());
         }
     } catch(...) {
         done_ = true;

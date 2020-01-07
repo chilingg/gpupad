@@ -1,6 +1,8 @@
 #include "Weiqi.h"
 
 #include <RResourceWindow.h>
+#include <RJson.h>
+#include <fstream>
 
 Weiqi::Weiqi():
     RWindowCtrl("WeiQi-Core"),
@@ -17,6 +19,15 @@ Weiqi::Weiqi():
     shaders_.setCameraPos("view", 0, 0);
     shaders_.nonuse();
 
+    std::ifstream config("../config.json");
+    RJosn j;
+    config >> j;
+    config.close();
+
+    RDebug() << '<' << j["Name"].get<std::string>() << "> "
+            << "Author: " << j["Author"].get<std::string>() << ' '
+            << "Vertion: " << j["Vertion"][0] << '.' << j["Vertion"][1] << ' '
+            << "Date: " << j["Date"].get<std::string>();
 }
 
 void Weiqi::control()
