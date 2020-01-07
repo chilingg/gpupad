@@ -1,22 +1,43 @@
 #include "RThreadPool.h"
 
-int RThreadPool::threadNumber()
+#include "RDebug.h"
+
+RThreadPool* RThreadPool::threadPool = nullptr;
+
+int RThreadPool::initiation(int tNum)
 {
-    static int count = std::thread::hardware_concurrency() > 1 ? std::thread::hardware_concurrency() - 1 : 1;
-    return count; //线程池至少有一个线程
+    if(!threadPool)
+        threadPool = new RThreadPool(tNum);
+
+    return threadPool->threadNumber();
 }
 
-RThreadPool::RThreadPool():
+RThreadPool *RThreadPool::instance()
+{
+    return threadPool;
+}
+
+int RThreadPool::threadNumber() const
+{
+    //static int count = std::thread::hardware_concurrency() > 1 ? std::thread::hardware_concurrency() - 1 : 1;
+    return threads_.size();
+}
+
+RThreadPool::RThreadPool(int tNum):
     done_(false),
     index_(0)
 {
-    unsigned count = threadNumber();
-    queues_.reserve(count);
+    if(tNum < 1)
+        tNum = std::thread::hardware_concurrency() > 1 ? std::thread::hardware_concurrency() - 1 : 1;
+    assert(tNum > 0);
+
+    stacks_.reserve(tNum);
+    threads_.reserve(tNum);
     try {
-        for(unsigned i = 0; i < count; ++i)
+        for(int i = 0; i < tNum; ++i)
         {
-            queues_.emplace_back(new RThreadStack<FunctionWrapper>);
-            threads.push_back(RThread(&RThreadPool::workerThread, this, queues_.back().get(), i));
+            stacks_.emplace_back(std::make_unique<RThreadStack<FunctionWrapper>>());
+            threads_.emplace_back(&RThreadPool::workerThread, this, stacks_[i]);
         }
     } catch(...) {
         done_ = true;
@@ -32,9 +53,9 @@ RThreadPool::~RThreadPool()
 bool RThreadPool::runOneTask()
 {
     FunctionWrapper task;
-    for(auto &queue : queues_)
+    for(auto &stack : stacks_)
     {
-        if(queue->tryPop(task))
+        if(stack->tryPop(task))
         {
             task();
             return true;
@@ -45,24 +66,21 @@ bool RThreadPool::runOneTask()
 
 bool RThreadPool::isIdle() const
 {
-    for(auto &queue : queues_)
+    for(auto &stack : stacks_)
     {
-        if(!queue->empty())
+        if(!stack->empty())
             return false;
     }
     return true;
 }
 
-void RThreadPool::workerThread(RThreadStack<RThreadPool::FunctionWrapper> *queue, unsigned index)
+void RThreadPool::workerThread(RThreadStack<RThreadPool::FunctionWrapper> *stack)
 {
     while(!done_)
     {
         FunctionWrapper task;
-        if(queue->tryPop(task))
-        {
+        if(stack->tryPop(task))
             task();
-            index_ = index;
-        }
         else if(!runOneTask())
             std::this_thread::yield();
     }
@@ -75,16 +93,16 @@ std::future<typename std::result_of<FuncType()>::type> RThreadPool::submit(FuncT
     std::packaged_task<resultType()> task(std::move(f));
     std::future<resultType> res(task.get_future());
 
-    for(auto &queue : queues_)
+    for(auto &stack : stacks_)
     {
-        if(queue->empty())
+        if(stack->empty())
         {
-            queue->push(std::move(task));
+            stack->push(std::move(task));
             return res;
         }
     }
-    //若无空闲线程，则交给最近完成任务的线程
-    queues_[index_]->push(std::move(task));
+    //若无空闲线程，则轮次循环递交
+    stacks_[++index_ % threads_.size()]->push(std::move(task));
     return res;
 }
 

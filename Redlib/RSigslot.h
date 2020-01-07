@@ -13,19 +13,22 @@ namespace RSigSlot {
 template<typename Sloter, typename Sloter2, typename ... Args>
 void connect(RSignal<Args ...> *signal, Sloter *sloter, void (Sloter2::*slot)(Args ... args))
 {
-    //继承RSlot的子类需要在声明尾部展开宏 _RSLOT_TAIL_
-    if(typeid(sloter).name() != sloter->TYPE_PTR_NAME)
-        throw std::logic_error("Derived class of the RSlot needs to expand _RSLOT_TAIL_ in the tail!");
+    // 使用槽函数的类需要在声明尾部展开宏_RSLOT_TAIL_
+    if(typeid(Sloter*).hash_code() != sloter->__RSLOT__.sloterTypeHash)
+        throw std::logic_error(std::string(typeid(Sloter).name())
+                               + ": Using slot functions need to expand the macro _RSLOT_TAIL_ at the tail of the declaration");
 
-    auto weakptr = sloter->clone();
+    auto weakptr = sloter->__RSLOT__.clone();
     auto func = std::function<bool(Args ... args)>([weakptr, sloter, slot](Args ... args){
-        if(weakptr.expired())
-            return false;
+        auto sp = weakptr.lock();
+        //RDebug() << !sp;
+        if(!sp) return false;
+
         (sloter->*slot)(std::forward<Args>(args)...);
         return true;
     });
 
-    std::lock_guard guard(signal->mutex);
+    std::lock_guard guard(signal->mutex_);
     auto it = signal->slots_.find(sloter);
     while(it != signal->slots_.end())
     {
@@ -39,10 +42,10 @@ void connect(RSignal<Args ...> *signal, Sloter *sloter, void (Sloter2::*slot)(Ar
 template<typename Sloter, typename Sloter2, typename ... Args>
 void disconnect(RSignal<Args ...> *signal, Sloter *sloter, void (Sloter2::*slot)(Args ... args))
 {
-    auto weakptr = sloter->clone();
+    auto weakptr = sloter->__RSLOT__.clone();
     auto func = std::function<bool(Args ... args)>([weakptr, slot](Args ... ){ return true; });
 
-    std::lock_guard guard(signal->mutex);
+    std::lock_guard guard(signal->mutex_);
     auto it = signal->slots_.find(sloter);
     while(it != signal->slots_.end())
     {
@@ -54,25 +57,38 @@ void disconnect(RSignal<Args ...> *signal, Sloter *sloter, void (Sloter2::*slot)
     }
 }
 
-} // namespace RSigSlot
-
-#define _RSLOT_CLONE_ public: std::weak_ptr<RSlotFlag> clone() { if(!_FLAG_) _FLAG_ = std::make_shared<RSlotFlag>(true); return std::weak_ptr<RSlotFlag>(_FLAG_); }
-#define _RSLOT_TYPEID_ const char *TYPE_PTR_NAME = typeid(this).name();
-#define _RSLOT_TAIL_ _RSLOT_CLONE_ _RSLOT_TYPEID_ private: std::shared_ptr<RSlotFlag> _FLAG_;
-
 class RSlot
 {
-    template<typename Sloter, typename Sloter2, typename ... Args>
-    friend void RSigSlot::connect(RSignal<Args ...> *signal, Sloter *sloter, void (Sloter2::*slot)(Args ... args));
+    template<typename Sloter, typename Sloter2, typename ... Args2>
+    friend void RSigSlot::connect(RSignal<Args2 ...> *signal, Sloter *sloter, void (Sloter2::*slot)(Args2 ... args));
+
+    template<typename Sloter, typename Sloter2, typename ... Args2>
+    friend void disconnect(RSignal<Args2 ...> *signal, Sloter *sloter, void (Sloter2::*slot)(Args2 ... args));
 
 public:
-    using RSlotFlag = bool;
+    RSlot(size_t typeHash):
+        sloterTypeHash(typeHash),
+        slotFlag(std::make_shared<bool>(true))
+    {}
 
-    RSlot() = default;
-    ~RSlot() = default;
+    ~RSlot()
+    {
+        while(!slotFlag.unique())
+            ; // 等待所有槽函数执行完毕才会销毁RSlot，若一直有槽函数执行则死循
+        slotFlag.reset();
+    }
 
-    _RSLOT_TAIL_  //继承的子类都需要在声明尾部调用此宏
+private:
+    std::weak_ptr<bool> clone() const { return std::weak_ptr<bool>(slotFlag); }
+
+    const size_t sloterTypeHash; // 拥有RSlot的类的指针的类型哈希值，用于在connect中确定该类有自己的RSlot而不是继承而来的
+    std::shared_ptr<bool> slotFlag; // 存活标志
 };
+
+} // namespace RSigSlot
+
+// 在需要使用槽函数的类声明尾部展开宏 _RSLOT_TAIL_
+#define _RSLOT_TAIL_ public: const RSigSlot::RSlot __RSLOT__ { typeid(this).hash_code() };
 
 template<typename ... Args>
 class RSignal
@@ -85,23 +101,27 @@ class RSignal
 
 public:
     RSignal() = default;
+    RSignal(const RSignal &) = delete;
+    RSignal(RSignal &&sig): slots_(std::move(sig.slots_)) {}
+    RSignal& operator=(const RSignal &) = delete;
+    RSignal& operator=(RSignal &&sig) { slots_.swap(sig.slots_); };
 
     void emit(Args ... args)
     {
-        std::lock_guard guard(mutex);
+        std::lock_guard lock(mutex_);
         for(auto it = slots_.begin(); it != slots_.end(); ++it)
         {
             bool b = it->second(std::forward<Args>(args)...);
             if(!b)
             {
                 it = slots_.erase(it);
-                if(it == slots_.end()) break; //??不加不行
+                if(it == slots_.end()) break; //初始单个槽函数返回false的情况下，不加不行
             }
         }
     }
 
 private:
-    std::mutex mutex;
+    std::mutex mutex_;
     std::unordered_multimap<void*, std::function<bool(Args ... args)>> slots_;
 };
 

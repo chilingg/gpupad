@@ -7,7 +7,13 @@
 #include <string>
 #include <list>
 
-class RController: public RSlot
+//实例化控制
+extern template class RSignal<>;
+extern template class RSignal<int>;
+extern template class RSignal<float>;
+extern template class RSignal<double>;
+
+class RController
 {
 public:
     struct TranslationInfo

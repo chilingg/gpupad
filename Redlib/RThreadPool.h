@@ -50,24 +50,30 @@ class RThreadPool
     };
 
 public:
-    static int threadNumber();
+    static int initiation(int tNum);
+    static RThreadPool* instance();
 
-    RThreadPool();
     ~RThreadPool();
 
     template<typename FuncType>
     std::future<typename std::result_of<FuncType()>::type> submit(FuncType f);
 
-    bool runOneTask(); //主动扒拉一个任务到当前线程处理
     bool isIdle() const;
+    int threadNumber() const;
+
+    bool runOneTask(); //主动扒拉一个任务到当前线程处理
 
 private:
-    void workerThread(RThreadStack<FunctionWrapper> *queue, unsigned index);
+    static RThreadPool* threadPool;
+
+    RThreadPool(int tNum = 0);
+
+    void workerThread(RThreadStack<FunctionWrapper> *stack);
 
     std::atomic_bool done_;
-    std::atomic_uint index_; //标记一个最近完成任务的线程
-    std::vector<std::unique_ptr<RThreadStack<FunctionWrapper>>> queues_;
-    std::vector<RThread> threads;
+    std::atomic_uint index_;
+    std::vector<std::unique_ptr<RThreadStack<FunctionWrapper>>> stacks_; // 线程任务栈
+    std::vector<RThread> threads_;
 };
 
 #endif // RTHREADPOOL_H

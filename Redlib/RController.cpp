@@ -5,6 +5,11 @@
 
 const std::string RController::FREE_TREE_NAME = "_FreeTree_";
 
+template class RSignal<>;
+template class RSignal<int>;
+template class RSignal<float>;
+template class RSignal<double>;
+
 RController::RController(const std::string &name, RController *parent)
 {
     //所有未指定父节点且名非FREE_TREE_NAME的，都挂在自由树下
