@@ -1,5 +1,6 @@
 #include "WeiqiGoban.h"
 #include <RPackFile.h>
+#include <RResource/RLuaScript.h>
 
 WeiqiGoban::WeiqiGoban(RController *parent, const RShaderProgram &shaders):
     RController("WeiqiBoard", parent),
@@ -20,9 +21,12 @@ WeiqiGoban::WeiqiGoban(RController *parent, const RShaderProgram &shaders):
     startBack_(108, 40, "StartBack", RPoint(216, 92))
 {
     RPackFile pack("sources");
+#ifdef R_DEBUG
     pack.packing("/home/carper/Code/Redopera/Redopera/Resource/image/board.png");
+    pack.packing("../Test.lua");
     if(!pack.fileCheck("sources"))
         pack.save();
+#endif
 
     RImage img;
     auto info = pack.getFileInfo("/home/carper/Code/Redopera/Redopera/Resource/image/board.png");
@@ -63,6 +67,18 @@ WeiqiGoban::WeiqiGoban(RController *parent, const RShaderProgram &shaders):
     finishBack_.setShaderProgram(shaders, "model");
     startOption_.setShaderProgram(shaders, "model");
     startBack_.setShaderProgram(shaders, "model");
+
+    info = pack.getFileInfo("../Test.lua");
+    RLuaScript tScript(info->data.get(), info->size, "TestScript");
+    RDebug() << info->size;
+    if(tScript.isValid())
+    {
+        RDebug() << "Call Test Function is "
+                 << (tScript.call("testFunc", {20, 2, 3}, {"Stack Size"}, 2) ? "success. Result is " + std::to_string(tScript.getInteger(-2))
+                                                         : "failure");
+        RDebug() << tScript.getString() << tScript.stackSize();
+        tScript.setStackSize(0);
+    }
 }
 
 void WeiqiGoban::control()
