@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     icon.addFile(":images/32x32/icon.png");
     icon.addFile(":images/64x64/icon.png");
     setWindowIcon(icon);
-    setContentsMargins(2, 0, 2, 2);
+    setContentsMargins(2, 2, 10, 2);
 
     mUi->menuView->addAction(mUi->toolBarMain->toggleViewAction());
 
@@ -643,13 +643,13 @@ void MainWindow::handleDarkThemeChanging(bool enabled)
     if (enabled) {
         struct S { QPalette::ColorRole role; QColor a; QColor i; QColor d; };
         for (auto s : std::initializer_list<S>{
-                { QPalette::WindowText, 0x9F9F9F, 0x9F9F9F, 0x818181 },
+                { QPalette::WindowText, 0xFFFFFF, 0x9F9F9F, 0x818181 },
                 { QPalette::Button, 0x3B3B41, 0x3B3B41, 0x3B3B41 },
                 { QPalette::Light, 0x6F6F6F, 0x6F6F6F, 0x4D4D53 },
                 { QPalette::Text, 0xCFCFCF, 0xCFCFCF, 0x707070 },
                 { QPalette::ButtonText, 0xCFCFCF, 0xCFCFCF, 0xCFCFCF },
-                { QPalette::Base, 0x4B4B51, 0x4B4B51, 0x4B4B51 },
-                { QPalette::Window, 0x4D4D53, 0x4D4D53, 0x4D4D53 },
+                { QPalette::Base, {50,50,50}, {50,50,50}, {50,50,50} },
+        { QPalette::Window, {40,40,40}, 0x4D4D53, 0x4D4D53 },
                 { QPalette::Shadow, 0x767472, 0x767472, 0x767472 },
                 { QPalette::Highlight, 0x59595E, 0x59595E, 0x59595E },
                 { QPalette::Link, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF },

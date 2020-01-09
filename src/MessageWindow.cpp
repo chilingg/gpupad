@@ -23,7 +23,7 @@ MessageWindow::MessageWindow(QWidget *parent) : QTableWidget(parent)
     verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     verticalHeader()->setDefaultSectionSize(24);
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
+    horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     setEditTriggers(NoEditTriggers);
     setSelectionMode(SingleSelection);
     setSelectionBehavior(SelectRows);
