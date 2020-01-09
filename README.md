@@ -1,4 +1,5 @@
-![Redopera](/icon/Redopera.png "logo")
+![Redopera](/icon/Redopera.png "logo")  
+
 # Redopera 基于OpenGL的C++多线程2D游戏开发库
 
   * Redopera使用事件循环，其拥有的多线程工具可以很简单的使循环成为异步的。
@@ -24,7 +25,7 @@
    <tr>
       <th colspan="2">模块</th>
       <th>功能</th>
-      <th>头文件</th>
+      <th>文件</th>
       <th>依赖</th>
    </tr>
    <tr>
@@ -238,43 +239,43 @@
   * [GLFW](https://www.glfw.org/) v3.4  
   Copyright (c) 2002-2006 Marcus Geelnard  
   Copyright (c) 2006-2019 Camilla Löwy <elmindreda@glfw.org>  
-  License: [zlib/libpng](extern/LICENSE_GLFW.md)
+  [License](extern/LICENSE_GLFW.md): zlib/libpng
 
   * [GLAD](https://github.com/Dav1dde/glad)  
   Copyright (c) 2013-2018 David Herberth  
-  License: [MIT](extern/LICENSE_GLAD.md)
+  [License:](extern/LICENSE_GLAD.md): MIT
 
   * [RtAudio](http://www.music.mcgill.ca/~gary/rtaudio) v5.1.0  
   Copyright (c) 2001-2019 Gary P. Scavone  
-  License: [...](extern/LICENSE_RtAudio.md)
+  [License](extern/LICENSE_RtAudio.md): ...
 
   * [json](https://github.com/nlohmann/json) v3.7.3  
   Copyright (c) 2013-2019 Niels Lohmann <http://nlohmann.me>  
-  License: [MIT](extern/LICENSE_json.md)
+  [License](extern/LICENSE_json.md): MIT
 
   * [GLM](https://github.com/g-truc/glm) v4.2  
   Copyright (c) 2005 - G-Truc Creation  
-  License: [Happy Bunny & MIT](extern/LICENSE_GLM.md)
+  [License](extern/LICENSE_GLM.md): Happy Bunny & MIT
 
   * [stb_truetype](https://github.com/nothings/stb/blob/master/stb_truetype.h) v1.22  
   Copyright (c) 2017 Sean Barrett  
-  License: [MIT & Public Domain](extern/LICENSE_stb.md)
+  [License](extern/LICENSE_stb.md): MIT & Public Domain
 
   * [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h) v2.23  
   Copyright (c) 2017 Sean Barrett  
-  License: [MIT & Public Domain](extern/LICENSE_stb.md)
+  [License](extern/LICENSE_stb.md): MIT & Public Domain
 
   * [Lua](http://www.lua.org/) v5.3.5  
   Copyright © 1994–2019 Lua.org, PUC-Rio.   
-  License: [...](extern/LICENSE_Lua.md)
+  [License](extern/LICENSE_Lua.md): ...
 
   * [minimp3](https://github.com/lieff/minimp3)  
   Copyright © ...   
-  License: [CC0 1.0 Universal](extern/LICENSE_minimp3.md)
+  [License](extern/LICENSE_minimp3.md): CC0 1.0 Universal
 
   * [Source Code Pro](https://github.com/lieff/minimp3)  
   Copyright 2010-2019 Adobe (http://www.adobe.com/)   
-  License: [SIL Open Font](extern/LICENSE_source-code-pro.md)
+  [License](extern/LICENSE_source-code-pro.md): SIL Open Font
 
 ---
 
