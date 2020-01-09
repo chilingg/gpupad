@@ -1,9 +1,10 @@
-![Redopera](/icon/Redopera.png "logo")  
+![Redopera](/icon/Redopera.png "logo")
+# Redopera 基于OpenGL的C++多线程2D游戏开发库
 
-# Redopera 简单实用基于OpenGL的C++多线程2D游戏开发库
-
-Redopera拥有一个同步事件循环，其拥有的多线程工具可以很简单的使循环成为异步的。使用Redopera开发游戏的流程为：继承一个Conrtoller类辅以工具类管理资源类。  
-Redopera的大部分功能模块来源于其他开源项目，以统一实用的目标进行封装。模块之间尽量避免依赖，在需要的时候可以很容易的进行替换。
+  * Redopera使用事件循环，其拥有的多线程工具可以很简单的使循环成为异步的。
+  * 使用Redopera开发游戏的流程为：继承一个Conrtoller类辅以工具类管理资源类。
+  * Redopera的大部分功能模块来源于其他开源项目，以统一实用为目标进行封装。
+  * 模块之间尽量避免依赖，在需要的时候可以很容易的进行替换。
 
 ---
 
