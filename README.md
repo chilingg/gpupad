@@ -243,7 +243,7 @@
 
   * [GLAD](https://github.com/Dav1dde/glad)  
   Copyright (c) 2013-2018 David Herberth  
-  [License:](extern/LICENSE_GLAD.md): MIT
+  [License](extern/LICENSE_GLAD.md): MIT
 
   * [RtAudio](http://www.music.mcgill.ca/~gary/rtaudio) v5.1.0  
   Copyright (c) 2001-2019 Gary P. Scavone  
