@@ -184,13 +184,13 @@ const RDebug &RDebug::operator<<(std::thread::id id) const
     return *this;
 }
 
-/*
 const RDebug &RDebug::operator<<(const RColor &color) const
 {
     std::cout << "RGBA:(" << color.r()*1u << ", " << color.g()*1u << ", " << color.b()*1u << ", " << color.a()*1u << ") ";
     return *this;
 }
 
+/*
 const RDebug &RDebug::operator<<(const RPoint2 &p) const
 {
     std::cout << '(' << p.x() << ", " << p.y() << ") ";
