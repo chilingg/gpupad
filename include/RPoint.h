@@ -59,5 +59,36 @@ protected:
     int z_;
 };
 
+using RPoint = RPoint3;
+
 } // Redopera
+
+namespace std {
+
+template <>
+struct hash<Redopera::RPoint2>
+{
+    typedef size_t result_type;
+    typedef Redopera::RPoint2 argument_type;
+
+    size_t operator()(const Redopera::RPoint2 &pos) const
+    {
+        return hash<int>()(pos.x_) ^ hash<int>()(pos.y_);
+    }
+};
+
+template <>
+struct hash<Redopera::RPoint3>
+{
+    typedef size_t result_type;
+    typedef Redopera::RPoint3 argument_type;
+
+    size_t operator()(const Redopera::RPoint3 &pos) const
+    {
+        return hash<int>()(pos.x_) ^ hash<int>()(pos.y_) ^ hash<int>()(pos.z_);
+    }
+};
+
+} // std
+
 #endif // RPOINT_H
