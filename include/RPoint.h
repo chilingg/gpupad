@@ -73,7 +73,7 @@ struct hash<Redopera::RPoint2>
 
     size_t operator()(const Redopera::RPoint2 &pos) const
     {
-        return hash<int>()(pos.x_) ^ hash<int>()(pos.y_);
+        return hash<std::string>()(std::to_string(pos.x_) + std::to_string(pos.y_));
     }
 };
 
@@ -85,7 +85,7 @@ struct hash<Redopera::RPoint3>
 
     size_t operator()(const Redopera::RPoint3 &pos) const
     {
-        return hash<int>()(pos.x_) ^ hash<int>()(pos.y_) ^ hash<int>()(pos.z_);
+        return hash<std::string>()(std::to_string(pos.x_) + std::to_string(pos.y_) + std::to_string(pos.z_));
     }
 };
 
