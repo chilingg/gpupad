@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+namespace Redopera {
+
 using R_RGBA = uint32_t;
 
 class RColor
@@ -36,5 +38,7 @@ public:
 private:
     R_RGBA color_ = 0u;
 };
+
+} // Redopera
 
 #endif // RCOLOR_H

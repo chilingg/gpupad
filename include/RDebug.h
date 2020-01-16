@@ -17,7 +17,9 @@
 #include "RJson.h"
 */
 
-#define rDebug RDebug::create()
+#define rDebug Redopera::RDebug::create()
+
+namespace Redopera {
 
 //RDebug是一个右值类，且同一时间只会有一个实例会被创建，多线程中后续实例会等待那个唯一的实例析构
 
@@ -109,4 +111,5 @@ static constexpr char bwhite[] = "\033[47m"; //白色背景
 static constexpr char clear[] = "\033[2J"; //清屏
 };//格式ESC
 
+} // Redopera
 #endif // RDEBUG_H

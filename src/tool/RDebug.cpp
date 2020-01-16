@@ -1,5 +1,7 @@
 #include "RDebug.h"
 
+using namespace Redopera;
+
 std::atomic_bool RDebug::flag_(false);
 
 RDebug::RDebug()
