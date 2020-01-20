@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.1)
 aux_source_directory(. REDOPERA_SRC)
 aux_source_directory(../include REDOPERA_SRC)
 aux_source_directory(tool/ REDOPERA_SRC)
+aux_source_directory(resource/ REDOPERA_SRC)
 aux_source_directory(dependent/ REDOPERA_SRC)
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)    # include路径
