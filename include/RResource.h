@@ -24,17 +24,17 @@ public:
 
     static const std::shared_ptr<ResourcesList> queryResourceList();
 
-    static std::string getTextFileContent(std::string &path);
-    static bool checkFilePath(std::string &path);
+    static std::string getTextFileContent(const std::string &path);
+    static std::string checkFilePath(const std::string &path);
     static void setResourcePath(const std::string &path);
     static const std::string& getResourcePath();
 
-    RResource(const std::string &name);
+    RResource(const std::string &name, const std::string &typeName);
     RResource(const RResource &rc);
     RResource(const RResource &&rc);
     RResource& operator=(RResource rc);
     void swap(RResource &rc) noexcept;
-    virtual ~RResource();
+    ~RResource();
 
     ResourceID resourceID() const;
     const std::string& name() const;
@@ -42,8 +42,10 @@ public:
     void rename(const std::string &name);
 
 private:
-    static ResourceID registerResourceID(RResource *rc);
+    static ResourceID registerResourceID(const std::string &name, const std::string &typeName);
+    static ResourceID registerResourceID(const ResourceInfo &info);
     static std::shared_ptr<ResourcesList>& resourcesList();
+    static void unregisterResourceID(unsigned *ID);
 
     static std::string resourcesPath;
     static std::mutex mutex;

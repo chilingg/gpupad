@@ -73,12 +73,12 @@ private:
     RDebug();
 };
 
-inline void printError(const std::string &err)
+inline void prError(const std::string &err)
 {
     std::cerr << err << '\n';
 }
 
-inline bool printError(bool b, const std::string &err)
+inline bool check(bool b, const std::string &err)
 {
     if(b)
         std::cerr << err << '\n';
