@@ -8,3 +8,4 @@ Makefile*
 *CMakeLists.txt.user
 build/*
 *unitTest.cpp
+lib/*
