@@ -1,4 +1,4 @@
-#include "RAudioStream.h"
+#include <RAudioStream.h>
 #include "RDebug.h"
 
 using namespace Redopera;
@@ -192,7 +192,6 @@ int RAudioStream::playback(void *outputBuffer, void *, unsigned nBufferFrames, d
     RAudioStream *rAudio = static_cast<RAudioStream*>(userData);
     unsigned channels = rAudio->parameters_.nChannels;
 
-    rDebug << streamTime << rAudio->mp3_.hz() << channels << nBufferFrames;
     unsigned offset = static_cast<unsigned>(streamTime * rAudio->mp3_.hz() * channels);
     if(offset + nBufferFrames > rAudio->mp3_.samples())
     {

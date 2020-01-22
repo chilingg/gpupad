@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.1)
 
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/tool)
-LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/src/tool)
+include_directories(${CMAKE_SOURCE_DIR}/include)    #  include路径
 
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)    # iinclude路径
+link_directories(${CMAKE_BINARY_DIR}/src)
 
 add_executable(unitTest unitTest.cpp)
-TARGET_LINK_LIBRARIES(unitTest redopera)
+target_link_libraries(unitTest redopera)
