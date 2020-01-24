@@ -15,10 +15,10 @@ else()
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
-link_directories(${CMAKE_BINARY_DIR}/libs)
+include_directories(${CMAKE_SOURCE_DIR}/include/dependents)
 
 if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Release")
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Release")
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -26,10 +26,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    link_directories(/usr/local/lib)
-
-    target_link_libraries(redopera librtaudio.so)
-    target_link_libraries(redopera pthread) #dl
+    target_link_libraries(redopera pthread)
+    target_link_libraries(redopera rtaudio)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_link_libraries(redopera librtaudio.dll.a)
+    target_link_libraries(redopera rtaudio ksuser mfplat mfuuid wmcodecdspuuid winmm ole32)
 endif()

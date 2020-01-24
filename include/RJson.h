@@ -1,7 +1,7 @@
 #ifndef RJSON_H
 #define RJSON_H
 
-#include "json.hpp"
+#include <json.hpp>
 
 namespace Redopera {
 
