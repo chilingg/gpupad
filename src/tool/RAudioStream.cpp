@@ -100,7 +100,7 @@ float RAudioStream::decreaseVolume(float decrease)
 
 bool RAudioStream::openStream(const RMp3 &mp3)
 {
-    static unsigned BUFFER_SIZE = 256;
+    static unsigned BUFFER_SIZE = 4096;
 
     assert(!stream_.isStreamOpen());
 
@@ -188,12 +188,12 @@ int RAudioStream::playback(void *outputBuffer, void *, unsigned nBufferFrames, d
 {
     if(check(status, "Stream underflow detected!")) return 2;
 
-    int16_t *buffer = static_cast<int16_t*>(outputBuffer);
+    RMp3::Sample *buffer = static_cast<RMp3::Sample*>(outputBuffer);
     RAudioStream *rAudio = static_cast<RAudioStream*>(userData);
     unsigned channels = rAudio->parameters_.nChannels;
 
     unsigned offset = static_cast<unsigned>(streamTime * rAudio->mp3_.hz() * channels);
-    if(offset + nBufferFrames > rAudio->mp3_.samples())
+    if(offset + nBufferFrames*channels > rAudio->mp3_.samples())
     {
         if(rAudio->repeat_ == 0)
             return 1;
@@ -203,12 +203,12 @@ int RAudioStream::playback(void *outputBuffer, void *, unsigned nBufferFrames, d
         }
     }
 
-    const int16_t* lastValues = rAudio->mp3_.data() + offset;
+    const RMp3::Sample* lastValues = rAudio->mp3_.data() + offset;
     float volume = rAudio->volume_;
     for(unsigned i = 0; i < nBufferFrames; ++i)
     {
         for(unsigned j = 0; j < channels; ++j)
-            *buffer++ = static_cast<int16_t>(*lastValues++ * volume);
+            *buffer++ = static_cast<RMp3::Sample>(*lastValues++ * volume);
     }
 
     return 0;
