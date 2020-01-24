@@ -46,7 +46,8 @@ std::string RResource::getTextFileContent(const std::string &path)
 
 std::string RResource::checkFilePath(const std::string &path)
 {
-    static std::regex r("(:/|/|(../)+)?([-_a-z0-9]+/)*[-_a-z0-9]+\\.?[-_a-z0-9]+", std::regex::icase|std::regex::optimize);
+    static std::regex r("(:/|[a-z]:|/|(../)+)?([-_a-z0-9.(][-_a-z0-9.() ]*/)+([-_a-z0-9.(][-_a-z0-9.() ]+\\.[a-z0-9]+)?",
+                        std::regex::icase|std::regex::optimize);
     std::string newpath;
 
     if(!std::regex_match(path, r))
@@ -64,7 +65,7 @@ std::string RResource::checkFilePath(const std::string &path)
 
 void RResource::setResourcePath(const std::string &path)
 {
-    static std::regex r("(/|(../)+)?([-_a-z0-9]+/)+", std::regex::icase|std::regex::optimize);
+    static std::regex r("(/|(../)+)?([-_a-z0-9][-_a-z0-9 ]*/)+", std::regex::icase|std::regex::optimize);
     if(check(!std::regex_match(path, r), "Invalid resource path: " + path))
         return;
     resourcesPath = path;
