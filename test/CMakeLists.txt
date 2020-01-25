@@ -7,3 +7,6 @@ link_directories(${CMAKE_BINARY_DIR}/src)
 
 add_executable(unitTest unitTest.cpp)
 target_link_libraries(unitTest redopera)
+
+add_executable(sound sound.cpp)
+target_link_libraries(sound redopera)
