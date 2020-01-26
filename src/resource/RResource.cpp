@@ -12,6 +12,7 @@ std::mutex RResource::mutex;
 
 const std::shared_ptr<RResource::ResourcesList> RResource::queryResourceList()
 {
+    // 获取ID列表后的读取都是线程安全的，若其他线程对其修改会新建一个一样的列表进行
     std::lock_guard<std::mutex> guard(mutex);
     return resourcesList();
 }
@@ -143,6 +144,9 @@ RResource::ResourceID RResource::registerResourceID(const std::string &name, con
     while(resourcesList()->count(i))
         ++i;
 
+    // 若有其他线程在查询资源ID列表 则新建一个ID列表
+    if(!resourcesList().unique())
+        resourcesList() = std::make_shared<ResourcesList>(*resourcesList());
     resourcesList()->emplace(i, ResourceInfo{ name, typeName });
     return i;
 }
@@ -158,6 +162,7 @@ void RResource::unregisterResourceID(unsigned *ID)
     std::lock_guard<std::mutex> guard(mutex);
     assert(resourcesList()->count(*ID));
 
+    // 若有其他线程在查询资源ID列表 则新建一个ID列表
     if(!resourcesList().unique())
         resourcesList() = std::make_shared<ResourcesList>(*resourcesList());
     resourcesList()->erase(*ID);
