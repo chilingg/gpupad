@@ -43,7 +43,6 @@ public:
 
 private:
     static ResourceID registerResourceID(const std::string &name, const std::string &typeName);
-    static ResourceID registerResourceID(const ResourceInfo &info);
     static std::shared_ptr<ResourcesList>& resourcesList();
     static void unregisterResourceID(unsigned *ID);
 

@@ -137,16 +137,13 @@ void RResource::rename(const std::string &name)
 
 RResource::ResourceID RResource::registerResourceID(const std::string &name, const std::string &typeName)
 {
-    return registerResourceID({ name, typeName });
-}
-
-RResource::ResourceID RResource::registerResourceID(const ResourceInfo &info)
-{
     ResourceID i = 0;
+    std::lock_guard<std::mutex> guard(mutex);
+
     while(resourcesList()->count(i))
         ++i;
 
-    resourcesList()->emplace(i, info);
+    resourcesList()->emplace(i, ResourceInfo{ name, typeName });
     return i;
 }
 
@@ -159,8 +156,8 @@ std::shared_ptr<RResource::ResourcesList> &RResource::resourcesList()
 void RResource::unregisterResourceID(unsigned *ID)
 {
     std::lock_guard<std::mutex> guard(mutex);
-
     assert(resourcesList()->count(*ID));
+
     if(!resourcesList().unique())
         resourcesList() = std::make_shared<ResourcesList>(*resourcesList());
     resourcesList()->erase(*ID);
