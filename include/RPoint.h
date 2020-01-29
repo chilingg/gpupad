@@ -68,24 +68,24 @@ namespace std {
 template <>
 struct hash<Redopera::RPoint2>
 {
-    typedef size_t result_type;
+    typedef int64_t result_type;
     typedef Redopera::RPoint2 argument_type;
 
-    size_t operator()(const Redopera::RPoint2 &pos) const
+    int64_t operator()(const Redopera::RPoint2 &pos) const
     {
-        return hash<int64_t>()(pos.x_ ^ (static_cast<int64_t>(pos.y_) << 32));
+        return pos.x_ ^ (static_cast<int64_t>(pos.y_) << 32);
     }
 };
 
 template <>
 struct hash<Redopera::RPoint3>
 {
-    typedef size_t result_type;
+    typedef int64_t result_type;
     typedef Redopera::RPoint3 argument_type;
 
-    size_t operator()(const Redopera::RPoint3 &pos) const
+    int64_t operator()(const Redopera::RPoint3 &pos) const
     {
-        return hash<int64_t>()(pos.x_ ^ (static_cast<int64_t>(pos.y_) << 24) ^ (static_cast<int64_t>(pos.z_) << 48));
+        return pos.x_ ^ (static_cast<int64_t>(pos.y_) << 24) ^ (static_cast<int64_t>(pos.z_) << 48);
     }
 };
 
