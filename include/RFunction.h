@@ -30,6 +30,8 @@ class RFunction<Result(Args ...)>
     };
 
 public:
+    using result_type = Result;
+
     RFunction() = default;
     RFunction(RFunction&& func): impl_(std::move(func.impl_)) {}
     RFunction& operator=(RFunction&& func) { impl_ = std::move(func.impl_); return *this; }

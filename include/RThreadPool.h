@@ -21,7 +21,24 @@ public:
     int threadNumber() const;
 
     template<typename FuncType>
-    std::future<typename std::result_of<FuncType()>::type> submit(FuncType f);
+    std::future<typename std::result_of<FuncType()>::type> submit(FuncType f)
+    {
+        typedef typename std::result_of<FuncType()>::type resultType;
+        std::packaged_task<resultType()> task(std::move(f));
+        std::future<resultType> res(task.get_future());
+
+        for(auto &stack : stacks_)
+        {
+            if(stack->empty())
+            {
+                stack->push(std::move(task));
+                return res;
+            }
+        }
+        //若无空闲线程，则轮次循环递交
+        stacks_[++index_ % threads_.size()]->push(std::move(task));
+        return res;
+    }
 
     bool runOneTask(); //主动扒拉一个任务到当前线程处理
 

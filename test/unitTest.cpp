@@ -1,45 +1,30 @@
 #include <RDebug.h>
-#include <RSigslot.h>
+#include <RThreadPool.h>
 
 using namespace Redopera;
 
-class t1
+bool primeNum(unsigned n)
 {
-public:
-    void print(char c)
-    {
-        rDebug << "Ksy: " << c;
-    }
-
-    _RSLOT_TAIL_
-};
-
-class t2
-{
-public:
-    RSignal<char> entered;
-};
-
-t2 tow;
-t1 one;
+    for(unsigned i = 2; i < n; ++i)
+        if(n % i == 0)
+            return false;
+    return true;
+}
 
 int main()
 {
-    t1 three;
-    tow.entered.connect(&one, &t1::print);
-    tow.entered.connect(&three, &t1::print);
-    std::thread th([]{
-        char c;
-        do {
-            std::cin >> c;
-            tow.entered.emit(c);
-            if(c == 'n')
-            {
-                tow.entered.disconnect(&one);
-            }
-        } while(c != 'q');
-    });
-    th.join();
+    RThreadPool pool;
+    for(unsigned i = 0; i < 100000; ++i)
+    {
+        RFunction<bool(unsigned)> f([i]{
+            if(primeNum(i))
+                rDebug << i;
+        });
+        pool.submit(std::move(f));
+    }
+
+    while(!pool.isIdle())
+        std::this_thread::yield();
 
     return 0;
 }

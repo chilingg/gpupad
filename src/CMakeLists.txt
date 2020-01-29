@@ -23,6 +23,8 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DR_DEBUG)
+else()
+    add_definitions(-DNDEBUG)
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
