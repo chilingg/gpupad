@@ -3,6 +3,8 @@
 
 #include <thread>
 
+namespace Redopera {
+
 class RThread
 {
 public:
@@ -43,5 +45,7 @@ public:
 private:
     std::thread t_;
 };
+
+} // Redopera
 
 #endif // RTHREAD_H
