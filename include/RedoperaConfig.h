@@ -204,7 +204,7 @@ enum JoystickID
     JOYSTICK_LAST = JOYSTICK_16
 };
 
-enum RJoystickPresent
+enum class RJoystickPresent
 {
     JOYSTICK_CONNECTED = GLFW_CONNECTED,
     JOYSTICK_DISCONNECTED = GLFW_DISCONNECTED

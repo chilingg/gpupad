@@ -7,11 +7,11 @@
 #include <map>
 #include <vector>
 
-class RInputEvent;
-
 namespace Redopera {
 
 // 按键的注册是在初次Input Event查询时进行的
+
+class RInputEvent;
 
 class RInputModule
 {
@@ -28,7 +28,7 @@ public:
 
     struct GamepadValue
     {
-        GamepadValue(JoystickID jid): jid(jid) { glfwGetGamepadState(jid, &status); }
+        GamepadValue(JoystickID jid): jid(jid) { glfwGetGamepadState(static_cast<int>(jid), &status); }
 
         GLFWgamepadstate status;
         unsigned char preButtons[15];
