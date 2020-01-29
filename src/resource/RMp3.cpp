@@ -92,12 +92,12 @@ bool RMp3::load(const std::string &path)
 
     if(!decoder)
     {
-        decoder.reset(new RDependent::mp3dec_t);
-        RDependent::mp3dec_init(decoder.get());
+        decoder.reset(new minimp3::mp3dec_t);
+        minimp3::mp3dec_init(decoder.get());
     }
 
-    RDependent::mp3dec_file_info_t info;
-    if(check(RDependent::mp3dec_load(decoder.get(), path.c_str(), &info, nullptr, nullptr), "Failed to load mp3 <" + name() + "> in " + path))
+    minimp3::mp3dec_file_info_t info;
+    if(check(minimp3::mp3dec_load(decoder.get(), path.c_str(), &info, nullptr, nullptr), "Failed to load mp3 <" + name() + "> in " + path))
         return false;
 
     hz_ = static_cast<unsigned>(info.hz);
@@ -115,12 +115,12 @@ bool RMp3::load(const RData *data, size_t size)
 
     if(!decoder)
     {
-        decoder.reset(new RDependent::mp3dec_t);
-        RDependent::mp3dec_init(decoder.get());
+        decoder.reset(new minimp3::mp3dec_t);
+        minimp3::mp3dec_init(decoder.get());
     }
 
-    RDependent::mp3dec_file_info_t info;
-    RDependent::mp3dec_load_buf(decoder.get(), data, size, &info, nullptr, nullptr);
+    minimp3::mp3dec_file_info_t info;
+    minimp3::mp3dec_load_buf(decoder.get(), data, size, &info, nullptr, nullptr);
 
     hz_ = static_cast<unsigned>(info.hz);
     samples_ = info.samples;

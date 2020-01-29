@@ -4,7 +4,7 @@
 #include "RResource.h"
 #include "RedoperaConfig.h"
 
-namespace RDependent {
+namespace minimp3 {
 
 #include <minimp3.h>
 #include <minimp3_ex.h>
@@ -15,11 +15,11 @@ namespace Redopera {
 
 class RMp3 : public RResource
 {
-    using Decoder = std::unique_ptr<RDependent::mp3dec_t>;
+    using Decoder = std::unique_ptr<minimp3::mp3dec_t>;
     friend void swap(RMp3 &img1, RMp3 &img2);
 
 public:
-    using Sample = RDependent::mp3d_sample_t;
+    using Sample = minimp3::mp3d_sample_t;
 
     RMp3();
     RMp3(const std::string &path, const std::string &name = "Mp3");
