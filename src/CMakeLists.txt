@@ -14,8 +14,8 @@ else()
     add_library(redopera SHARED ${REDOPERA_SRC})    # 动态库
 endif()
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
-include_directories(${CMAKE_SOURCE_DIR}/include/dependents)
+include_directories(${CMAKE_SOURCE_DIR}/include/redopera)
+include_directories(${CMAKE_SOURCE_DIR}/include/redopera/dependents)
 
 if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Release")
