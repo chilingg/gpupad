@@ -19,7 +19,9 @@ public:
     static std::time_t timeSinceEpoch() { return std::time(nullptr); }
 
     RTime(TimeZone zone = LocatlTime):
-        transformation(zone == LocatlTime ? std::localtime : std::gmtime) { update(); }
+        transformation(zone == LocatlTime ? std::localtime : std::gmtime),
+        format("%Y-%m-%d %H:%M:%S")
+    { update(); }
 
     void update()
     {
@@ -76,21 +78,24 @@ public:
      * %z，%Z 时区名称，如果不能得到时区名称则返回空字符。
      * %% 百分号
      */
-    std::string toString(const std::string &fmt = format) const
+    std::string toString() const
     {
         static char buffer[64] {0};
-        std::strftime(buffer, sizeof(buffer), fmt.c_str(), &time_);
+        std::strftime(buffer, sizeof(buffer), format.c_str(), &time_);
         return buffer;
     }
 
-    void setDefaultTimeFormat(const std::string &fmt = DEFAULT_FORMAT) { format = fmt; }
+    void setTimeFormat(const std::string &fmt = "")
+    {
+        static const std::string DEFAULT_FORMAT = "%Y-%m-%d %H:%M:%S";
+        format = fmt.empty() ? DEFAULT_FORMAT : fmt;
+    }
 
 private:
-    static const std::string DEFAULT_FORMAT; // %Y-%m-%d %H:%M:%S
-    static std::string format;
-
     std::tm* (*transformation)(const std::time_t *clock);
+    std::string format;
     std::tm time_;
+
 };
 
 } // Redopera
