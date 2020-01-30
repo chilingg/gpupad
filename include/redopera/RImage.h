@@ -17,7 +17,7 @@ public:
     static const RImage& redoperaIcon();
 
     RImage();
-    RImage(const std::string &path, const std::string &name = "Image", bool flip = false);
+    explicit RImage(const std::string &path, const std::string &name = "Image", bool flip = false);
     RImage(const RData *data, size_t size, const std::string &name = "Image", bool flip = false);
     RImage(const RData *data, int width, int height, int channel, const std::string &name = "Image");
     RImage(const RImage &img);

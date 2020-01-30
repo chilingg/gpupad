@@ -22,7 +22,7 @@ public:
     using Sample = minimp3::mp3d_sample_t;
 
     RMp3();
-    RMp3(const std::string &path, const std::string &name = "Mp3");
+    explicit RMp3(const std::string &path, const std::string &name = "Mp3");
     RMp3(const RData *data, size_t size, const std::string &name = "Mp3");
     RMp3(const RMp3 &mp3);
     RMp3(const RMp3 &&mp3);
