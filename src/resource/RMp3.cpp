@@ -5,8 +5,8 @@ using namespace Redopera;
 
 thread_local RMp3::Decoder RMp3::decoder;
 
-RMp3::RMp3(const std::string &name):
-    RResource(name, typeid(this).name())
+RMp3::RMp3():
+    RResource("Mp3", typeid(this).name())
 {
 
 }
