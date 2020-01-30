@@ -9,13 +9,11 @@
 #include <atomic>
 
 #include "RColor.h"
-/*
 #include "RPoint.h"
 #include "RRect.h"
-#include "RMaths.h"
+#include "RMath.h"
 #include "RTime.h"
 #include "RJson.h"
-*/
 
 #define rDebug Redopera::RDebug::create()
 
@@ -56,7 +54,6 @@ public:
     const RDebug& operator<<(std::thread::id id) const;
 
     const RDebug& operator<<(const RColor &color) const;
-    /*
     const RDebug& operator<<(const RPoint2 &p) const;
     const RDebug& operator<<(const RPoint3 &p) const;
     const RDebug& operator<<(const RSize &size) const;
@@ -66,7 +63,6 @@ public:
     const RDebug& operator<<(const RMatrix4 &mat) const;
     const RDebug& operator<<(const RJosn &json) const;
     const RDebug& operator<<(const RTime &time) const;
-    */
 
 private:
     static std::atomic_bool flag_;

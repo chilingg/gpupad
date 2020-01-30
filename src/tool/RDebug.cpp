@@ -192,7 +192,6 @@ const RDebug &RDebug::operator<<(const RColor &color) const
     return *this;
 }
 
-/*
 const RDebug &RDebug::operator<<(const RPoint2 &p) const
 {
     std::cout << '(' << p.x() << ", " << p.y() << ") ";
@@ -253,4 +252,4 @@ const RDebug &RDebug::operator<<(const RTime &time) const
 {
     std::cout << time.toString() << ' ';
     return *this;
-}*/
+}
