@@ -60,6 +60,21 @@ bool RThreadPool::runOneTask()
     return false; //线程池任务为空
 }
 
+void RThreadPool::waitingForDone()
+{
+    unsigned tNum = threads_.size();
+    done_ = true;
+
+    {
+    std::vector<RThread> temp;
+    temp.swap(threads_);
+    }
+
+    threads_.reserve(tNum);
+    for(unsigned i = 0; i < tNum; ++i)
+        threads_.emplace_back(&RThreadPool::workerThread, this, stacks_[i].get());
+}
+
 void RThreadPool::workerThread(RThreadStack<RFunction<void ()> > *stack)
 {
     while(!done_)

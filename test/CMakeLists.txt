@@ -10,3 +10,6 @@ target_link_libraries(unitTest redopera)
 
 add_executable(sound sound.cpp)
 target_link_libraries(sound redopera)
+
+add_executable(threads threads.cpp)
+target_link_libraries(threads redopera)

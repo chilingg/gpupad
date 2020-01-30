@@ -42,6 +42,8 @@ public:
 
     bool runOneTask(); //主动扒拉一个任务到当前线程处理
 
+    void waitingForDone();
+
 private:
     void workerThread(RThreadStack<RFunction<void()>> *stack);
 
