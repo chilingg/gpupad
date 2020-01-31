@@ -32,12 +32,13 @@ public:
     };
 
     using RootTree = std::shared_ptr<std::map<std::string, RController*>>;
+    using TreeList = std::map<RController *, std::string>;
 
     constexpr static const char* defaultName() { return "Controller"; }
     // rootTree()会阻塞直到之前返回的RootTree释放
     static RootTree rootTree();
     static void terminateTree(Status status = Status::Finished);
-    static bool queryTreeList(std::map<RController *, std::string> &tList);
+    static bool queryTreeList(TreeList &tList);
 
     explicit RController(RController *parent = nullptr, const std::string &name = defaultName());
     virtual ~RController();

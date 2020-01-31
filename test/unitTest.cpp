@@ -46,6 +46,7 @@ int main()
     RThread thread2(test);
 
     char c;
+    RController::TreeList list;
     do {
         std::cin >> c;
         if(c == 'q')
@@ -54,6 +55,12 @@ int main()
             if(root->empty())
                 break;
             root->begin()->second->breakLoop();
+        }
+        else if(c == 'l')
+        {
+            RController::queryTreeList(list);
+            for(auto &node : list)
+                rDebug << node.second;
         }
     } while(1);
 

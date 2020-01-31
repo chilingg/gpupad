@@ -29,7 +29,7 @@ void RController::terminateTree(RController::Status status)
         node.second->state_ = s;
 }
 
-bool RController::queryTreeList(std::map<RController*, std::string> &tList)
+bool RController::queryTreeList(TreeList &tList)
 {
     std::lock_guard<std::mutex> guard(mutex);
     if(tList != treeList())
