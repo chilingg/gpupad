@@ -2,19 +2,17 @@
 
 using namespace Redopera;
 
-std::atomic_bool RDebug::flag_(false);
+std::mutex RDebug::mutex;
 
-RDebug::RDebug()
+RDebug::RDebug():
+    guard(mutex)
 {
-    while(flag_)
-        ;
-    flag_ = true;
+
 }
 
 RDebug::~RDebug()
 {
     std::cout << std::endl;
-    flag_ = false;
 }
 
 const RDebug &RDebug::operator<<(int value) const

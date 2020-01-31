@@ -6,7 +6,7 @@
 #include <string>
 #include <iomanip>
 #include <thread>
-#include <atomic>
+#include <mutex>
 
 #include "RColor.h"
 #include "RPoint.h"
@@ -65,8 +65,9 @@ public:
     const RDebug& operator<<(const RTime &time) const;
 
 private:
-    static std::atomic_bool flag_;
+    static std::mutex mutex;
     RDebug();
+    std::lock_guard<std::mutex> guard;
 };
 
 inline void prError(const std::string &err)
