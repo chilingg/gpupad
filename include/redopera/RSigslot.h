@@ -43,8 +43,7 @@ public:
     RSignal() = default;
     RSignal(RSignal &&sig): mutex_(std::move(sig.mutex_)), slots_(std::move(sig.slots_)) {}
     RSignal& operator=(RSignal &&sig) { mutex_ = std::move(sig.mutex_); slots_ = std::move(sig.slots_); };
-
-    void emit(Args ... args)
+    void operator()(Args ... args)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         for(auto it = slots_.begin(); it != slots_.end(); ++it)
@@ -56,6 +55,11 @@ public:
                 if(it == slots_.end()) break; //初始单个槽函数返回false的情况下，不加不行
             }
         }
+    }
+
+    void emit(Args ... args)
+    {
+        operator()(std::forward<Args>(args)...);
     }
 
     template<typename Sloter, typename Sloter2>
