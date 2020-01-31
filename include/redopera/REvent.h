@@ -49,24 +49,6 @@ public:
     bool stop = false; // true驳回关闭申请
 };
 
-// 入树事件（非构造时）
-class REnteredTreeEvent
-{
-public:
-    explicit REnteredTreeEvent(RController *sender):
-        sender(sender) {}
-    RController *sender;
-};
-
-// 离树事件（非构造时）
-class RExitedTreeEvent
-{
-public:
-    explicit RExitedTreeEvent(RController *sender):
-        sender(sender) {}
-    RController *sender;
-};
-
 class RInputEvent
 {
 public:
