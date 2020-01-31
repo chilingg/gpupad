@@ -2,7 +2,7 @@
 #define RAUDIOSTREAM_H
 
 #include <rtaudio/RtAudio.h>
-#include "RMp3.h"
+#include "resource/RMp3.h"
 
 namespace Redopera {
 

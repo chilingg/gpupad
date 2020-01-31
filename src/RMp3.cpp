@@ -1,4 +1,4 @@
-#include "RMp3.h"
+#include "resource/RMp3.h"
 #include "RDebug.h"
 
 using namespace Redopera;

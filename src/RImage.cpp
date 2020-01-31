@@ -1,4 +1,4 @@
-#include "RImage.h"
+#include "resource/RImage.h"
 #include "RDebug.h"
 
 using namespace Redopera;
