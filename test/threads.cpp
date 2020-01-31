@@ -39,7 +39,7 @@ int main()
     RThreadPool pool; // RThreadPool pool(tNum);
     for(unsigned i = 0; i < 50000; ++i)
     {
-        RFunction<bool(unsigned)> f([i]{
+        RFunction<void()> f([i]{
             if(primeNum(i)) ++count;
         });
         pool.submit(std::move(f));

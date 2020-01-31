@@ -1,68 +1,29 @@
 #include <RDebug.h>
-#include <RThread.h>
-#include <RController.h>
+#include <RFunction.h>
 
 using namespace Redopera;
 
-class TestCrl : public RController
+char print(const std::string &str)
 {
-public:
-    explicit TestCrl(RController *parent, const std::string &name):
-        RController(parent, name)
-    {}
-
-    ~TestCrl() override = default;
-
-protected:
-    void startEvent(RStartEvent &) override
-    {
-        rDebug << std::this_thread::get_id() << ": start in " << getPathName();
-    }
-    void closeEvent(RCloseEvent &) override
-    {
-        rDebug << std::this_thread::get_id() << ": close in " << getPathName();
-    }
-    void finishEvent(RFinishEvent &) override
-    {
-        rDebug << std::this_thread::get_id() << ": finish in " << getPathName();
-    }
-};
-
-void test()
-{
-    TestCrl c1(nullptr, "c1");
-    TestCrl c2(&c1, "c2");
-    TestCrl c3(&c2, "c3");
-    TestCrl c4(&c2, "c4");
-    c1.addChild(&c4);
-    c2.changeParent(&c4);
-
-    c1.exec();
+    std::cout << str << ' ';
+    return str[0];
 }
+
+void test(){}
 
 int main()
 {
-    RThread thread(test);
-    RThread thread2(test);
+    RFunction<char(const std::string&)> f1(print);
+    RFunction<char(const std::string&)> f2([](const std::string &str){
+        std::cout << str << ' ';
+        return str[0];
+    });
+    std::function<char(const std::string&)> ff(print);
+    RFunction<char(const std::string&)> f3(ff);
 
-    char c;
-    RController::TreeList list;
-    do {
-        std::cin >> c;
-        if(c == 'q')
-        {
-            RController::RootTree root = RController::rootTree();
-            if(root->empty())
-                break;
-            root->begin()->second->breakLoop();
-        }
-        else if(c == 'l')
-        {
-            RController::queryTreeList(list);
-            for(auto &node : list)
-                rDebug << node.second;
-        }
-    } while(1);
+    rDebug << f1("func");
+    rDebug << f2("lambda");
+    rDebug << f3("std::func");
 
     return 0;
 }

@@ -15,7 +15,7 @@ class RFunction<Result(Args ...)>
     class ImplementBase
     {
     public:
-        virtual void call() = 0;
+        virtual Result call(Args ...) = 0;
         virtual ~ImplementBase() {}
     };
 
@@ -23,8 +23,8 @@ class RFunction<Result(Args ...)>
     class ImplementType : public ImplementBase
     {
     public:
-        ImplementType(F&& f): f_(std::move(f)) {}
-        void call() { f_(); }
+        ImplementType(F&& f): f_(std::forward<F>(f)) {}
+        Result call(Args ... args) { return f_(std::forward<Args>(args)...); }
     private:
         F f_;
     };
@@ -37,9 +37,9 @@ public:
     RFunction& operator=(RFunction&& func) { impl_ = std::move(func.impl_); return *this; }
 
     template<typename F>
-    RFunction(F&& f): impl_(new ImplementType<F>(std::move(f))) {}
+    RFunction(F&& f): impl_(new ImplementType<F>(std::forward<F>(f))) {}
 
-    void operator()() { impl_->call(); }
+    Result operator()(Args ... args) { return impl_->call(std::forward<Args>(args)...); }
 
     RFunction(const RFunction&) = delete;
     RFunction(RFunction&) = delete;
