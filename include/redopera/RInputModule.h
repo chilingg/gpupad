@@ -3,6 +3,7 @@
 
 #include "RedoperaConfig.h"
 #include "RPoint.h"
+#include "RSigslot.h"
 
 #include <map>
 #include <vector>
@@ -58,6 +59,8 @@ public:
     int gamepadCount();
     bool isValidJid(JoystickID jid);
 
+    RSignal<int> rolled;
+
 private:
     RInputModule() = default;
 
@@ -65,6 +68,8 @@ private:
     std::map<MouseButtons, MouseButtonValue> mouseInputs_;
     std::vector<GamepadValue> gamepadInputs_;
     RPoint2 cursorPos_;
+
+    _RSLOT_TAIL_
 };
 
 } // Redopera
