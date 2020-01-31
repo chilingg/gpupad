@@ -10,17 +10,6 @@ class RController;
 
 // 事件通知类集合 ********************
 
-// 手柄连接事件
-class RjoystickPresentEvent
-{
-public:
-    RjoystickPresentEvent(JoystickID jid, bool connected):
-        jid(jid),
-        connected(connected) {}
-    JoystickID jid;
-    const bool connected;
-};
-
 // 循环开始事件
 class RStartEvent
 {
