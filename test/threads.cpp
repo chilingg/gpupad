@@ -51,6 +51,37 @@ int main()
     rDebug << "计算结果: " + std::to_string(count)
               + " 用时: " + std::to_string(timer.elapsed()) + "ns\n";
 
+    rDebug << "使用线程池执行分块计算任务... "
+           << "线程数量: " + std::to_string(tNum)
+              + " 分块大小: " + std::to_string(50000 / 100);
+
+    timer.start();
+    pool.start();
+    count = 0;
+    unsigned block = 50000 / 100;
+    std::array<std::future<int>, 100> future;
+    for(unsigned i = 0; i < 100; ++i)
+    {
+        RFunction<int()> f([i, block]{
+            unsigned begin = i * block;
+            unsigned end = begin + block > 50000 ? 50000 : begin + block;
+            int num = 0;
+            while(begin < end)
+            {
+                if(primeNum(begin)) ++num;
+                ++begin;
+            }
+            return num;
+        });
+        future[i] = pool.submit(std::move(f));
+    }
+    for(auto &f : future)
+        count += f.get();
+    pool.waitingForDone();
+
+    rDebug << "计算结果: " + std::to_string(count)
+              + " 用时: " + std::to_string(timer.elapsed()) + "ns\n";
+
     rDebug << "使用多线程分块计算... "
            << "线程数量: " + std::to_string(tNum)
               + " 分块大小: " + std::to_string(50000 / tNum);
@@ -60,7 +91,7 @@ int main()
     std::vector<RThread> threads;
     threads.reserve(tNum);
 
-    unsigned block = 50000 / tNum;
+    block = 50000 / tNum;
     for(unsigned i = 0; i < tNum; ++i)
     {
         threads.emplace_back([i, block]{

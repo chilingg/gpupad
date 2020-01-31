@@ -62,16 +62,24 @@ bool RThreadPool::runOneTask()
 
 void RThreadPool::waitingForDone()
 {
-    unsigned tNum = threads_.size();
     done_ = true;
-
     {
     std::vector<RThread> temp;
     temp.swap(threads_);
     }
+}
 
+void RThreadPool::start(int tNum)
+{
+    if(!done_) return;
+
+    if(tNum < 1)
+        tNum = std::thread::hardware_concurrency() > 1 ? std::thread::hardware_concurrency() : 1;
+    assert(tNum > 0);
+
+    done_ = false;
     threads_.reserve(tNum);
-    for(unsigned i = 0; i < tNum; ++i)
+    for(int i = 0; i < tNum; ++i)
         threads_.emplace_back(&RThreadPool::workerThread, this, stacks_[i].get());
 }
 
