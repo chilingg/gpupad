@@ -46,6 +46,10 @@ public:
     RController& operator=(const RController &ctl) = delete;
 
     void activeOnce();
+    //控制类最主要函数，需子类自己实现
+    virtual void control();
+    //变化信息传递，默认为原样转递给子结点
+    virtual void translation(const TranslationInfo &info);
 
     void addChild(RController *child);
     void freeChild(RController *child);
@@ -73,11 +77,6 @@ public:
     void breakLoop();   //退出exec循环
 
 protected:
-    //控制类最主要函数，需子类自己实现
-    virtual void control();
-    //变化信息传递，默认为原样转递给子结点
-    virtual void translation(const TranslationInfo &info);
-
     //事件响应。感兴趣的子类负责重写
     virtual void inputEvent(RInputEvent &event);
     virtual void closeEvent(RCloseEvent &event);    //尝试终止exec循环
@@ -94,6 +93,9 @@ protected:
 
     // 若状态是Finishi则发起closeEvent
     Status loopingCheck();
+    void setStatus(Status status);
+
+    void childensTask(std::function<void(RController*)> task);
 
 private:
     static std::map<RController*, std::string>& treeList();

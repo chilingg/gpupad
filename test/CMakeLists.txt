@@ -13,3 +13,6 @@ target_link_libraries(sound redopera)
 
 add_executable(threads threads.cpp)
 target_link_libraries(threads redopera)
+
+add_executable(window window.cpp)
+target_link_libraries(window redopera)

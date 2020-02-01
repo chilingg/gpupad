@@ -97,6 +97,13 @@ RController::~RController()
     eraseTreeNode();
 }
 
+void RController::activeOnce()
+{
+    for(auto &pair : children_)
+        pair.second->activeOnce();
+    control();
+}
+
 void RController::control()
 {
 
@@ -191,6 +198,17 @@ void RController::rename(std::string name)
     }
     name_.swap(name);
     insertTreeNode();
+}
+
+void RController::setStatus(RController::Status status)
+{
+    state_ = status;
+}
+
+void RController::childensTask(std::function<void (RController *)> task)
+{
+    for(auto child : children_)
+        task(child.second);
 }
 
 RController *RController::node(const std::string &path)
@@ -416,11 +434,4 @@ RController::Status RController::loopingCheck()
     }
 
     return state_;
-}
-
-void RController::activeOnce()
-{
-    for(auto &pair : children_)
-        pair.second->activeOnce();
-    control();
 }

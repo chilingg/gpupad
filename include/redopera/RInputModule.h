@@ -273,8 +273,6 @@ public:
     int gamepadCount();
     bool isValidJid(JoystickID jid);
 
-    RSignal<int> rolled;
-
 private:
     RInputModule() = default;
 
