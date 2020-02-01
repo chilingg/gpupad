@@ -134,3 +134,8 @@ void RMp3::release()
 {
     data_.reset();
 }
+
+void swap(RMp3 &img1, RMp3 &img2)
+{
+    img1.swap(img2);
+}
