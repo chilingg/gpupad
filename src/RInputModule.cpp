@@ -283,6 +283,27 @@ Keys RInputModule::toKey(int key)
     }
 }
 
+Modifier RInputModule::toKeyModifier(int mod)
+{
+    switch(mod)
+    {
+    case GLFW_MOD_SHIFT:
+        return Modifier::MOD_SHIFT;
+    case GLFW_MOD_CONTROL:
+        return Modifier::MOD_CONTROL;
+    case GLFW_MOD_ALT:
+        return Modifier::MOD_ALT;
+    case GLFW_MOD_SUPER:
+        return Modifier::MOD_SUPER;
+    case GLFW_MOD_CAPS_LOCK:
+        return Modifier::MOD_CAPS_LOCK;
+    case GLFW_MOD_NUM_LOCK:
+        return Modifier::MOD_NUM_LOCK;
+    default:
+        return Modifier::MOD_NONE;
+    }
+}
+
 MouseButtons RInputModule::toMouseButtons(int button)
 {
     switch(button)

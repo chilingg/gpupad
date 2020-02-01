@@ -8,6 +8,8 @@
 
 namespace Redopera{
 
+using RData = uint8_t;
+
 class RResource
 {
     struct ResourceInfo

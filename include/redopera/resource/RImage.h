@@ -7,8 +7,6 @@
 
 namespace Redopera {
 
-using RData = uint8_t;
-
 class RImage : public RResource
 {
     friend void swap(RImage &img1, RImage &img2);
