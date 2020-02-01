@@ -59,6 +59,7 @@ void RController::eraseTreeNode()
 }
 
 RController::RController(RController *parent, const std::string &name):
+    state_(Status::Normal),
     parent_(parent)
 {
     Status s;
@@ -331,7 +332,7 @@ int RController::exec()
     RStartEvent sEvent(this);
     dispatchEvent(sEvent);
 
-    while(state_ == Status::Looping)
+    while(loopingCheck() == Status::Looping)
         activeOnce();
 
     RFinishEvent fEvent(this);
@@ -344,10 +345,8 @@ int RController::exec()
 
 void RController::breakLoop()
 {
-    RCloseEvent e(this);
-    dispatchEvent(e);
-    if(!e.stop && state_ == Status::Looping)
-        state_ = Status::Finished;
+    Status loop = Status::Looping;
+    state_.compare_exchange_strong(loop, Status::Finished);
 }
 
 void RController::inputEvent(RInputEvent &)
@@ -404,6 +403,19 @@ void RController::dispatchEvent(RFinishEvent &event)
         pair.second->dispatchEvent(event);
     }
     finishEvent(event);
+}
+
+RController::Status RController::loopingCheck()
+{
+    if(state_ == Status::Finished)
+    {
+        RCloseEvent e(this);
+        dispatchEvent(e);
+        if(e.stop)
+            state_ = Status::Looping;
+    }
+
+    return state_;
 }
 
 void RController::activeOnce()

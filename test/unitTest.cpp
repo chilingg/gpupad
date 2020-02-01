@@ -1,29 +1,32 @@
 #include <RDebug.h>
-#include <RFunction.h>
+#include <RController.h>
 
 using namespace Redopera;
 
-char print(const std::string &str)
+class TestCtl : public RController
 {
-    std::cout << str << ' ';
-    return str[0];
-}
-
-void test(){}
+protected:
+    void control() override
+    {
+        char c;
+        rDebug << "循环中是否继续? y/n";
+        std::cin >> c;
+        if(c == 'n')
+            breakLoop();
+    }
+    void closeEvent(RCloseEvent &event) override
+    {
+        char c;
+        rDebug << "是否退出? y/n";
+        std::cin >> c;
+        if(c == 'n')
+            event.stop = true;
+    }
+};
 
 int main()
 {
-    RFunction<char(const std::string&)> f1(print);
-    RFunction<char(const std::string&)> f2([](const std::string &str){
-        std::cout << str << ' ';
-        return str[0];
-    });
-    std::function<char(const std::string&)> ff(print);
-    RFunction<char(const std::string&)> f3(ff);
+    TestCtl t;
 
-    rDebug << f1("func");
-    rDebug << f2("lambda");
-    rDebug << f3("std::func");
-
-    return 0;
+    return t.exec();
 }

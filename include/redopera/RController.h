@@ -80,8 +80,8 @@ protected:
 
     //事件响应。感兴趣的子类负责重写
     virtual void inputEvent(RInputEvent &event);
-    virtual void startEvent(RStartEvent &event);    //exec循环开始
     virtual void closeEvent(RCloseEvent &event);    //尝试终止exec循环
+    virtual void startEvent(RStartEvent &event);    //exec循环开始
     virtual void finishEvent(RFinishEvent &event);  //exec循环终止
 
     //事件发布接口 PS:深度优先、由下至上
@@ -91,6 +91,9 @@ protected:
     void dispatchEvent(RCloseEvent &event);
     void dispatchEvent(RStartEvent &event);
     void dispatchEvent(RFinishEvent &event);
+
+    // 若状态是Finishi则发起closeEvent
+    Status loopingCheck();
 
 private:
     static std::map<RController*, std::string>& treeList();
@@ -102,9 +105,9 @@ private:
     void eraseTreeNode();
 
     std::string name_;
+    std::atomic<Status> state_;
     std::map<std::string, RController*> children_;
     RController *parent_ = nullptr;
-    std::atomic<Status> state_;
 
     _RSLOT_TAIL_
 };
