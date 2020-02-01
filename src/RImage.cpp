@@ -176,11 +176,6 @@ void RImage::flipHorizontal()
     }
 }
 
-void RImage::freeImage()
-{
-    data_.reset();
-}
-
 void RImage::full(const RColor &color)
 {
     copyOnWrite();
@@ -196,6 +191,11 @@ void RImage::full(const RColor &color)
             if(channel_ == 4) data[i*width_*channel_ + j*channel_ + 3] = color.a();
         }
     }
+}
+
+void RImage::release()
+{
+    data_.reset();
 }
 
 void RImage::copyOnWrite()

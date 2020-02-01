@@ -37,8 +37,8 @@ public:
     bool load(const RData *data, int width, int height, int channel);
     void flipVertical();
     void flipHorizontal();
-    void freeImage();
     void full(const RColor &color);
+    void release();
 
 protected:
     void copyOnWrite();

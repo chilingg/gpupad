@@ -38,7 +38,7 @@ public:
 
     bool load(const std::string &path);
     bool load(const RData *data, size_t size);
-    void freeMp3();
+    void release();
 
 private:
     static thread_local Decoder decoder;
