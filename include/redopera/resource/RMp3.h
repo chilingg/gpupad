@@ -2,7 +2,6 @@
 #define RMP3_H
 
 #include "RResource.h"
-#include "RedoperaConfig.h"
 
 namespace minimp3 {
 
