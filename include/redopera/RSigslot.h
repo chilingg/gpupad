@@ -91,6 +91,12 @@ public:
         slots_.erase(sloter);
     }
 
+    size_t count()
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        return slots_.size();
+    }
+
 private:
     std::mutex mutex_;
     std::unordered_multimap<void*, std::function<bool(Args ... args)>> slots_;
