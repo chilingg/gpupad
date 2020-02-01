@@ -96,5 +96,5 @@ void Redopera::RCursor::release()
 
 void swap(Redopera::RCursor &cursor1, Redopera::RCursor &cursor2)
 {
-    cursor1.swap(cursor2)
+    cursor1.swap(cursor2);
 }
