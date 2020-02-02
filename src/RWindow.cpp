@@ -7,7 +7,7 @@ using namespace Redopera;
 RWindow::WindowFormat RWindow::windowFormat;
 std::once_flag RWindow::init;
 
-void terminateGLFW(RWindow *win) { if(win) glfwTerminate(); }
+void terminateGLFW(RWindow *) { glfwTerminate(); }
 std::unique_ptr<RWindow, void(*)(RWindow*)> RWindow::mainWindow(nullptr, terminateGLFW);
 
 void RWindow::initMainWindow(RWindow *window)
