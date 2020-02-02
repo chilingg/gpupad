@@ -16,3 +16,6 @@ target_link_libraries(threads redopera)
 
 add_executable(window window.cpp)
 target_link_libraries(window redopera)
+
+add_executable(font font.cpp)
+target_link_libraries(font redopera)

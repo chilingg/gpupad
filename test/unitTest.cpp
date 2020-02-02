@@ -1,32 +1,13 @@
 #include <RDebug.h>
-#include <RController.h>
+#include <resource/RFont.h>
 
 using namespace Redopera;
 
-class TestCtl : public RController
-{
-protected:
-    void control() override
-    {
-        char c;
-        rDebug << "循环中是否继续? y/n";
-        std::cin >> c;
-        if(c == 'n')
-            breakLoop();
-    }
-    void closeEvent(RCloseEvent &event) override
-    {
-        char c;
-        rDebug << "是否退出? y/n";
-        std::cin >> c;
-        if(c == 'n')
-            event.stop = true;
-    }
-};
-
 int main()
 {
-    TestCtl t;
+    RFont font("/usr/share/fonts/SourceHanSansSC/SourceHanSansSC-Bold.otf");
 
-    return t.exec();
+    rDebug << font.isValid() << font.size();
+
+    return 0;
 }
