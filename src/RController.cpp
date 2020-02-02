@@ -355,6 +355,7 @@ int RController::exec()
 
     RFinishEvent fEvent(this);
     dispatchEvent(fEvent);
+    closed.emit();
 
     if(check(state_ == Status::Error, "The Loop has unexpectedly finished"))
         return EXIT_FAILURE;

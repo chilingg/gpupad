@@ -76,6 +76,8 @@ public:
     int exec();         //调用自身及所有子节点的contral()
     void breakLoop();   //退出exec循环
 
+    RSignal<> closed;
+
 protected:
     //事件响应。感兴趣的子类负责重写
     virtual void inputEvent(RInputEvent &event);

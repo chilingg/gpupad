@@ -327,7 +327,11 @@ void RWindow::show()
     glfwSetWindowFocusCallback(window_.get(), windowFocusCallback);
     glfwSetWindowCloseCallback(window_.get(), windowCloseCallback);
     // 若无需实时响应，则无需开启
-    if(format_.keysSigal) glfwSetKeyCallback(window_.get(), keyboardCollback);
+    if(format_.keysSigal)
+        glfwSetKeyCallback(window_.get(), keyboardCollback);
+    // 主窗口关闭时所有窗口都会得到通知
+    if(mainWindow.get() != this)
+       mainWindow.get()->closed.connect(this, &RController::breakLoop);
 
     glfwShowWindow(window_.get());
 }

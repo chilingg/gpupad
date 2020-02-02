@@ -98,7 +98,6 @@ public:
     void hide();
     int exec();
 
-    RSignal<> closed;
     RSignal<Keys, ButtonAction, Modifier> entered;
     RSignal<int> rolled;
 
