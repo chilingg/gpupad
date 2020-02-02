@@ -33,6 +33,12 @@ RImage::RImage(const RData *data, int width, int height, int channel, const std:
     load(data, width, height, channel);
 }
 
+RImage::RImage(std::shared_ptr<RData> data, int width, int height, int channel, const std::string &name):
+    RResource(name, typeid(this).name())
+{
+    load(data, width, height, channel);
+}
+
 RImage::RImage(const RImage &img):
     RResource(img),
     data_(img.data_),
@@ -135,6 +141,16 @@ bool RImage::load(const RData *data, int width, int height, int channel)
     std::memcpy(d, data, size);
 
     data_.reset(d, stbi_image_free);
+    width_ = width;
+    height_ = height;
+    channel_ = channel;
+
+    return true;
+}
+
+bool RImage::load(std::shared_ptr<RData> data, int width, int height, int channel)
+{
+    data_ = data;
     width_ = width;
     height_ = height;
     channel_ = channel;

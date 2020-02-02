@@ -18,6 +18,7 @@ public:
     explicit RImage(const std::string &path, const std::string &name = "Image", bool flip = false);
     RImage(const RData *data, size_t size, const std::string &name = "Image", bool flip = false);
     RImage(const RData *data, int width, int height, int channel, const std::string &name = "Image");
+    RImage(std::shared_ptr<RData> data, int width, int height, int channel, const std::string &name = "Image");
     RImage(const RImage &img);
     RImage(const RImage &&img);
     RImage& operator=(RImage img);
@@ -33,6 +34,7 @@ public:
     bool load(const std::string path, bool flip = false);
     bool load(const RData *buf, size_t size, bool flip = false);
     bool load(const RData *data, int width, int height, int channel);
+    bool load(std::shared_ptr<RData> data, int width, int height, int channel);
     void flipVertical();
     void flipHorizontal();
     void full(const RColor &color);
