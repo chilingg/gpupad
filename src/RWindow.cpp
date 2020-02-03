@@ -111,6 +111,10 @@ RWindow::RWindow(const RWindow::WindowFormat &format, RController *parent, const
         exit(EXIT_FAILURE);
     }
 
+    // 申请到的OpenGL版本
+    format_.versionMajor = GLVersion.major;
+    format_.versionMinor = GLVersion.minor;
+
     //若启用 OpenGL Debug
     if(format_.debug && GL_CONTEXT_FLAG_DEBUG_BIT)
     {

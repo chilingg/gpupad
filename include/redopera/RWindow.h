@@ -34,8 +34,8 @@ public:
         bool depth          = true;     // 深度测试
         bool keysSigal      = false;    // 键盘响应信号(entered)
         Viewport viewport   = Viewport::Scale;  // 视口模式
-        int versionMajor    = 3;        // OpenGL主版本号
-        int versionMinor    = 3;        // OpenGL副版本号
+        int versionMajor    = 4;        // OpenGL主版本号
+        int versionMinor    = 4;        // OpenGL副版本号
         R_RGBA background   = 0x121212;    // 背景色
 
         int initWidth          = 960;     // 初始窗口大小
