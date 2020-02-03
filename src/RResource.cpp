@@ -19,9 +19,7 @@ const std::shared_ptr<RResource::ResourcesList> RResource::queryResourceList()
 
 std::string RResource::getTextFileContent(const std::string &path)
 {
-    std::string newpath = checkFilePath(path);
-    if(newpath.empty())
-        return "";
+    std::string newpath = rscpath(path);
 
     std::string text;
     std::ifstream file;
@@ -38,25 +36,17 @@ std::string RResource::getTextFileContent(const std::string &path)
     }
     catch(...)
     {
-        prError("Text file read error: " + newpath);
         return "";
     }
 
     return text;
 }
 
-std::string RResource::checkFilePath(const std::string &path)
+std::string RResource::rscpath(const std::string &path)
 {
-    static std::regex r("(:/|[a-z]:|/|(../)+)?([-_a-z0-9.(][-_a-z0-9.() ]*/)+([-_a-z0-9.(][-_a-z0-9.() ]+\\.[a-z0-9]+)?",
-                        std::regex::icase|std::regex::optimize);
     std::string newpath;
 
-    if(!std::regex_match(path, r))
-    {
-        prError( "Invalid path: " + path);
-        return newpath;
-    }
-    else if(path[0] == ':')
+    if(path[0] == ':')
         newpath = resourcesPath + path.substr(2);
     else
         newpath = path;

@@ -110,9 +110,7 @@ RFont::Glyph *RFont::getFontGlyph(RFont::RChar c)
 
 bool RFont::load(const std::string &path)
 {
-    std::string newpath = checkFilePath(path);
-    if(newpath.empty())
-        return false;
+    std::string newpath = rscpath(path);
 
     RData *data;
     std::ifstream file;
@@ -127,14 +125,14 @@ bool RFont::load(const std::string &path)
     }
     catch(...)
     {
-        prError("Failed to load font <" + name() + "> in " + path);
+        prError("Failed to load font <" + name() + "> in " + newpath);
         return false;
     }
 
     resource_ = std::make_shared<FontResource>();
     stbtt_InitFont(&resource_->info, data, 0);
 
-    if(check(resource_->info.numGlyphs == 0, "Unknow font file <" + name() + "> in " + path))
+    if(check(resource_->info.numGlyphs == 0, "Unknow font file <" + name() + "> in " + newpath))
     {
         resource_.reset();
         return false;

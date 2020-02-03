@@ -102,16 +102,14 @@ RData *RImage::data() const
 
 bool RImage::load(const std::string path, bool flip)
 {
-    std::string newpath = checkFilePath(path);
-    if(newpath.empty())
-        return false;
+    std::string newpath = rscpath(path);
 
     stbi_set_flip_vertically_on_load(flip);
     data_.reset(stbi_load(newpath.c_str(), &width_, &height_, &channel_, 0), stbi_image_free);
 
     if(!data_)
     {
-        prError("Failed to load mp3 <" + name() + "> in " + path);
+        prError("Failed to load mp3 <" + name() + "> in " + newpath);
         data_.reset();
         return false;
     }

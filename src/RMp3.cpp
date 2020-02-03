@@ -86,9 +86,7 @@ RMp3::Sample *RMp3::data() const
 
 bool RMp3::load(const std::string &path)
 {
-    std::string newpath = checkFilePath(path);
-    if(newpath.empty())
-        return false;
+    std::string newpath = rscpath(path);
 
     if(!decoder)
     {
@@ -97,7 +95,8 @@ bool RMp3::load(const std::string &path)
     }
 
     minimp3::mp3dec_file_info_t info;
-    if(check(minimp3::mp3dec_load(decoder.get(), path.c_str(), &info, nullptr, nullptr), "Failed to load mp3 <" + name() + "> in " + path))
+    if(check(minimp3::mp3dec_load
+             (decoder.get(), newpath.c_str(), &info, nullptr, nullptr), "Failed to load mp3 <" + name() + "> in " + newpath))
         return false;
 
     hz_ = static_cast<unsigned>(info.hz);

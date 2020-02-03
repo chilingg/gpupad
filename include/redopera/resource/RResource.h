@@ -27,7 +27,7 @@ public:
     static const std::shared_ptr<ResourcesList> queryResourceList();
 
     static std::string getTextFileContent(const std::string &path);
-    static std::string checkFilePath(const std::string &path);
+    static std::string rscpath(const std::string &path);
     static void setResourcePath(const std::string &path);
     static const std::string& getResourcePath();
 
