@@ -17,7 +17,7 @@ struct ContexFormat
     bool debug          = false;    // OpenGL的Debug输出
     bool depth          = true;     // 深度测试
     int versionMajor    = 4;        // OpenGL主版本号
-    int versionMinor    = 4;        // OpenGL副版本号
+    int versionMinor    = 3;        // OpenGL副版本号
 };
 
 GLFWwindow* getContexAsThisThread(GLFWwindow *shared)
