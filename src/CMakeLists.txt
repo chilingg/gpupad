@@ -28,7 +28,7 @@ else()
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    target_link_libraries(redopera pthread rtaudio glfw dl)
+    target_link_libraries(redopera pthread rtaudio glfw dl lua)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(redopera rtaudio ksuser mfplat mfuuid wmcodecdspuuid winmm ole32)
 endif()
