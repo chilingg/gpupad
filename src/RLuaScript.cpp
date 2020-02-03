@@ -281,3 +281,8 @@ int RLuaScript::absIndex(int idx)
 {
     return lua_absindex (lua_.get(), idx);
 }
+
+void swap(RLuaScript &scp1, RLuaScript &scp2)
+{
+    scp1.swap(scp2);
+}
