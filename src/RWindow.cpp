@@ -83,7 +83,7 @@ RWindow::RWindow(const RWindow::WindowFormat &format, RController *parent, const
         exit(EXIT_FAILURE);
 
     // Debug Context 需要OpenGL4.3以上版本
-    if(format_.versionMajor < 4 || format_.versionMinor < 3)
+    if(format_.versionMajor * 10 + format_.versionMinor < 43)
         format_.debug = false;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, format_.versionMajor);
