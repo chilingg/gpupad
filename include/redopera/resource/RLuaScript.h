@@ -89,8 +89,8 @@ private:
     std::shared_ptr<lua_State> lua_;
 };
 
-void swap(RLuaScript &scp1, RLuaScript &scp2);
-
 } // Redopera
+
+void swap(Redopera::RLuaScript &scp1, Redopera::RLuaScript &scp2);
 
 #endif // RLUASCRIPT_H

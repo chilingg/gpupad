@@ -70,8 +70,8 @@ private:
     unsigned size_ = 14;
 };
 
-void swap(RFont &font1, RFont &font2);
-
 } // Redopera
+
+void swap(Redopera::RFont &font1, Redopera::RFont &font2);
 
 #endif // RFONT_H
