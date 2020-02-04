@@ -240,12 +240,6 @@ const RDebug &RDebug::operator<<(const glm::mat4 &mat) const
     return *this;
 }
 
-const RDebug &RDebug::operator<<(const RJosn &json) const
-{
-    std::cout << json;
-    return *this;
-}
-
 const RDebug &RDebug::operator<<(const RTime &time) const
 {
     std::cout << time.toString() << ' ';

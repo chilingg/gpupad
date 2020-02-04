@@ -14,6 +14,7 @@
 #include "RMath.h"
 #include "RTime.h"
 #include "RJson.h"
+#include "RInputModule.h"
 
 #define rDebug Redopera::RDebug::create()
 
@@ -61,7 +62,6 @@ public:
     const RDebug& operator<<(const glm::vec3 &vec) const;
     const RDebug& operator<<(const glm::vec4 &vec) const;
     const RDebug& operator<<(const glm::mat4 &mat) const;
-    const RDebug& operator<<(const RJosn &json) const;
     const RDebug& operator<<(const RTime &time) const;
 
 private:
