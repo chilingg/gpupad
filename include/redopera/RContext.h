@@ -2,11 +2,11 @@
 #define RCONTEXT_H
 
 #include "ROpenGL.h"
-#include  <memory>
+#include <memory>
 
 namespace Redopera {
 
-// 使用RWindow的场合，初始化与结束由RWindow实例负责
+// 使用RWindow的场合，初始化由RWindow实例负责
 
 namespace RContext {
 
@@ -23,7 +23,18 @@ struct ContexFormat
 
 thread_local static std::unique_ptr<GLFWwindow, void(*)(GLFWwindow*)> contex(nullptr, glfwDestroyWindow);
 
-bool initialization() { return glfwInit(); }
+bool initialization()
+{
+    struct glfwHandle
+    {
+        glfwHandle() { init = glfwInit(); }
+        ~glfwHandle() { glfwTerminate(); }
+        bool init;
+    };
+    static glfwHandle glfw;
+
+    return glfw.init;
+}
 
 void terminate() { glfwTerminate(); }
 
