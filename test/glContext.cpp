@@ -7,33 +7,33 @@ using namespace Redopera;
 
 int main()
 {
-    rDebug << "======== OpenGL Context 创建测试 ========\n";
+    rDebug << "======== OpenGL Context Create Test ========\n";
 
     if(check(!RContext::initialization(), "Failure initialization OpenGL context!"))
         exit(EXIT_FAILURE);
 
-    rDebug << "尝试创建OpenGL3.3版本Context...";
+    rDebug << "Try Create OpenGL3.3 Context...";
     RContext::ContexFormat format;
     format.versionMajor = 3;
     format.versionMinor = 3;
 
     if(RContext::setContexAsThisThread(format))
-        std::cout << "OpenGl Version " << GLVersion.major << '.' << GLVersion.minor << " 创建成功" << std::endl;
+        std::cout << "OpenGl Version " << GLVersion.major << '.' << GLVersion.minor << " created" << std::endl;
 
     RContext::destroyContexAsThisThread();
     format.versionMajor = 4;
-    rDebug << "\n尝试获取更高版本...";
+    rDebug << "\nTry create high version...";
     for(int i = 0; i <= 6; ++i)
     {
         format.versionMinor = i;
 
         if(RContext::setContexAsThisThread(format))
-            std::cout << "OpenGl Version " << GLVersion.major << '.' << GLVersion.minor << " 创建成功" << std::endl;
+            std::cout << "OpenGl Version " << GLVersion.major << '.' << GLVersion.minor << " created" << std::endl;
         else
             break;
     }
 
-    rDebug << "\n测试结束";
+    rDebug << "\nTest end";
     RContext::terminate();
 
     return 0;

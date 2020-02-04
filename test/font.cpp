@@ -8,15 +8,15 @@ int main()
     RFont font;
     font.setSize(22);
 
-    rDebug << "========字体图形加载测试========\n"
-              "默认字体:SourceCodePro 字体大小:" << font.size();
+    rDebug << "========Font Glyph Load Test========\n"
+              "Defualt font: SourceCodePro, Font size :" << font.size();
 
     char c;
     do {
-        std::cout << "\n输入英文字符 ('q'退出): ";
+        std::cout << "\nEntry a character ('q' quit): ";
         std::cin >> c;
         RFont::Glyph *glyph = font.getFontGlyph(c);
-        rDebug << "\n字符:" << c << " w:" << glyph->width << " h:" << glyph->height
+        rDebug << "\ncharacter:" << c << " width:" << glyph->width << " height:" << glyph->height
                << " xoff:" << glyph->xoff << " yoff" << glyph->yoff << '\n';
 
         for (int j = 0; j < glyph->height; ++j)

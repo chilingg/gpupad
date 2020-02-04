@@ -19,20 +19,21 @@ int main()
     RTimerNS timer;
     unsigned tNum = std::thread::hardware_concurrency() > 1 ? std::thread::hardware_concurrency() : 1;
 
-    rDebug << "\n================线程测试================\n\n"
-              "计算0~50000内的质数数量: \n\n"
-              "使用单线程...";
+    rDebug << "\n======== Multithread Test ========\n\n"
+              "Count prime number in 0~50000: \n";
+
+    rDebug << "Using single thread...";
 
     timer.start();
     count = 0;
     for(unsigned i = 0; i < 50000; ++i)
         if(primeNum(i)) ++count;
 
-    rDebug << "计算结果: " + std::to_string(count)
-              + " 用时: " + std::to_string(timer.elapsed()) + "ns\n";
+    rDebug << "Result: " + std::to_string(count)
+              + " Time: " + std::to_string(timer.elapsed()) + "ns\n";
 
-    rDebug << "使用线程池执行单个计算任务(50000)... "
-           << "线程数量: " + std::to_string(tNum);
+    rDebug << "Using thread poll calculate single tasks(50000)... "
+           << "Threads: " + std::to_string(tNum);
 
     timer.start();
     count = 0;
@@ -44,16 +45,16 @@ int main()
         });
         pool.submit(std::move(f));
     }
-    while(!pool.isIdle()) // isIdle()只是查询任务栈是否为空，只有析构才能确保所有任务执行完毕
+    while(!pool.isIdle()) // isIdle()只是查询任务栈是否为空
         std::this_thread::yield();
     pool.waitingForDone();
 
-    rDebug << "计算结果: " + std::to_string(count)
-              + " 用时: " + std::to_string(timer.elapsed()) + "ns\n";
+    rDebug << "Result: " + std::to_string(count)
+              + " Time: " + std::to_string(timer.elapsed()) + "ns\n";
 
-    rDebug << "使用线程池执行分块计算任务... "
-           << "线程数量: " + std::to_string(tNum)
-              + " 分块大小: " + std::to_string(50000 / 100);
+    rDebug << "Using thread poll calculate blocked tasks... "
+           << "Threads: " + std::to_string(tNum)
+              + " Block: " + std::to_string(50000 / 100);
 
     timer.start();
     pool.start();
@@ -79,12 +80,12 @@ int main()
         count += f.get();
     pool.waitingForDone();
 
-    rDebug << "计算结果: " + std::to_string(count)
-              + " 用时: " + std::to_string(timer.elapsed()) + "ns\n";
+    rDebug << "Result: " + std::to_string(count)
+              + " Time: " + std::to_string(timer.elapsed()) + "ns\n";
 
-    rDebug << "使用多线程分块计算... "
-           << "线程数量: " + std::to_string(tNum)
-              + " 分块大小: " + std::to_string(50000 / tNum);
+    rDebug << "Using multithread calculate blocked tasks... "
+           << "Threads: " + std::to_string(tNum)
+              + " Block: " + std::to_string(50000 / tNum);
 
     timer.start();
     count = 0;
@@ -107,8 +108,8 @@ int main()
     for(auto &t : threads)
         t.join();
 
-    rDebug << "计算结果: " + std::to_string(count)
-              + " 用时: " + std::to_string(timer.elapsed()) + "ns\n";
+    rDebug << "Result: " + std::to_string(count)
+              + " Time: " + std::to_string(timer.elapsed()) + "ns\n";
 
     return 0;
 }
