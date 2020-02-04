@@ -6,8 +6,6 @@
 #include <unordered_map>
 #include <functional>
 
-#include "RDebug.h"
-
 namespace Redopera {
 
 class RSlot
@@ -69,7 +67,6 @@ public:
         if(typeid(Sloter*).hash_code() != sloter->__RSLOT__.sloterTypeHash)
             throw std::logic_error(std::string(typeid(Sloter).name())
                                    + ": Using slot functions need to expand the macro _RSLOT_TAIL_ at the tail of the declaration");
-        assert(dynamic_cast<Sloter2*>(sloter));
 
         auto weakptr = sloter->__RSLOT__.clone();
         auto func = std::function<bool(Args ... args)>([weakptr, sloter, slot](Args ... args){
@@ -82,6 +79,12 @@ public:
 
         std::lock_guard<std::mutex> guard(mutex_);
         slots_.emplace(sloter, func);
+    }
+
+    void connect(std::function<bool(Args ...)> func)
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        slots_.emplace(nullptr, func);
     }
 
     template<typename Sloter> // 断开所有关于该类的槽连接 PS:因为不知道如何统一储存成员函数变量
