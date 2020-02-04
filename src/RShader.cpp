@@ -98,25 +98,18 @@ bool RShader::load(const std::string &shader, ShaderType type)
     if(code.empty())
         code = shader;
 
-    GLuint id = glCreateShader(static_cast<GLenum>(type));
+    std::shared_ptr<GLuint> id(new GLuint(glCreateShader(static_cast<GLenum>(type))), deleteShader);
     const GLchar *cp = code.c_str();
-    glShaderSource(id, 1, &cp, nullptr);
-    glCompileShader(id);
+    glShaderSource(*id, 1, &cp, nullptr);
+    glCompileShader(*id);
 
     int success;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-        static char infoLog[512];;
-
-        glGetShaderInfoLog(id, 512, nullptr, infoLog);
-        prError("Failed to load " + shaderTypeName(type) + '<' + name() + "> in:\n" + shader
-                + "\nCompilation error:"+ infoLog);
+    glGetShaderiv(*id, GL_COMPILE_STATUS, &success);
+    if(check(!success, "Failed to load " + shaderTypeName(type) + '<' + name() + "> in:\n" + shader))
         return false;
-    }
 
     type_ = type;
-    shaderID_.reset(new GLuint(id), deleteShader);
+    shaderID_.swap(id);
     return true;
 }
 
