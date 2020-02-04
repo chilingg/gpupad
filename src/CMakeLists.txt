@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.1)
 #SET(REDOPERA_SRC )
 
 aux_source_directory(. REDOPERA_SRC)
-aux_source_directory(tool/ REDOPERA_SRC)
-aux_source_directory(resource/ REDOPERA_SRC)
 aux_source_directory(dependent/ REDOPERA_SRC)
 
 option(BUILD_SHARED_LIBS "Build as shared library" ON)

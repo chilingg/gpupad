@@ -58,9 +58,9 @@ public:
     const RDebug& operator<<(const RPoint3 &p) const;
     const RDebug& operator<<(const RSize &size) const;
     const RDebug& operator<<(const RRect &rect) const;
-    const RDebug& operator<<(const RVector3 &vec) const;
-    const RDebug& operator<<(const RVector4 &vec) const;
-    const RDebug& operator<<(const RMatrix4 &mat) const;
+    const RDebug& operator<<(const glm::vec3 &vec) const;
+    const RDebug& operator<<(const glm::vec4 &vec) const;
+    const RDebug& operator<<(const glm::mat4 &mat) const;
     const RDebug& operator<<(const RJosn &json) const;
     const RDebug& operator<<(const RTime &time) const;
 

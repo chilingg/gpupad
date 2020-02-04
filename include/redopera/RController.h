@@ -28,7 +28,7 @@ public:
         const RController *sender;
         RSize size;
         RPoint pos = RPoint(0);
-        RVector3 rotate { 0.0f, 0.0f, 0.0f};
+        glm::vec3 rotate { 0.0f, 0.0f, 0.0f };
     };
 
     using RootTree = std::shared_ptr<std::map<std::string, RController*>>;

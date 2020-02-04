@@ -214,19 +214,19 @@ const RDebug &RDebug::operator<<(const RRect &rect) const
     return *this;
 }
 
-const RDebug &RDebug::operator<<(const RVector3 &vec) const
+const RDebug &RDebug::operator<<(const glm::vec3 &vec) const
 {
     std::cout << '(' << vec.x << ", " << vec.y << ", " << vec.z << ") ";
     return *this;
 }
 
-const RDebug &RDebug::operator<<(const RVector4 &vec) const
+const RDebug &RDebug::operator<<(const glm::vec4 &vec) const
 {
     std::cout << '(' << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << ") ";
     return *this;
 }
 
-const RDebug &RDebug::operator<<(const RMatrix4 &mat) const
+const RDebug &RDebug::operator<<(const glm::mat4 &mat) const
 {
     //std::cout << std::setw(6);
     std::cout << "mat:(" << std::setw(6) << mat[0][0] << ',' << std::setw(6) <<  mat[1][0] << ','
