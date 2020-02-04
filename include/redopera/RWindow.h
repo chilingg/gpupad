@@ -3,7 +3,7 @@
 
 #include "RController.h"
 #include "ROpenGL.h"
-#include "resource/RCursor.h"
+#include "rsc/RCursor.h"
 
 namespace Redopera {
 

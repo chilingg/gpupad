@@ -1,4 +1,4 @@
-#include "resource/RLuaScript.h"
+#include "rsc/RLuaScript.h"
 #include "RDebug.h"
 
 using namespace Redopera;

@@ -1,4 +1,4 @@
-#include "resource/RCursor.h"
+#include "rsc/RCursor.h"
 
 Redopera::RCursor::RCursor():
     RResource("Cursor", typeid(this).name())

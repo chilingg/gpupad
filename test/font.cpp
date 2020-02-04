@@ -1,5 +1,5 @@
 #include <RDebug.h>
-#include <resource/RFont.h>
+#include <rsc/RFont.h>
 
 using namespace Redopera;
 

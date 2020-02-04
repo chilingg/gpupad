@@ -1,4 +1,4 @@
-#include "resource/RShader.h"
+#include "rsc/RShader.h"
 #include "RDebug.h"
 
 using namespace Redopera;

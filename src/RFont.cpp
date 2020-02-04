@@ -1,4 +1,4 @@
-#include "resource/RFont.h"
+#include "rsc/RFont.h"
 #include "RDebug.h"
 
 #include <fstream>

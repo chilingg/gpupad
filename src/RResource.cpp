@@ -1,4 +1,4 @@
-#include "resource/RResource.h"
+#include "rsc/RResource.h"
 #include "RDebug.h"
 
 #include <fstream>

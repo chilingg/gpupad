@@ -1,7 +1,7 @@
 #ifndef RFONT_H
 #define RFONT_H
 
-#include "resource/RResource.h"
+#include "rsc/RResource.h"
 #include "stb_truetype.h"
 
 #include <vector>
