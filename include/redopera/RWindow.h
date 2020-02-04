@@ -2,8 +2,10 @@
 #define RWINDOW_H
 
 #include "RController.h"
-#include "ROpenGL.h"
+#include "RContext.h"
 #include "rsc/RCursor.h"
+
+#include <atomic>
 
 namespace Redopera {
 
@@ -24,28 +26,20 @@ public:
         Disabled = GLFW_CURSOR_DISABLED
     };
 
-    struct WindowFormat
+    struct WindowFormat : RContext::ContexFormat
     {
-        bool vSync          = true;     // 垂直同步
-        bool forward        = true;     // 前向兼容(清除当前版本不推荐的特性）
-        bool debug          = false;    // OpenGL的Debug输出
-        bool fix        = false;    // 初始窗口可见性
+        bool fix            = false;    // 初始窗口可见性
         bool decorate       = true;     // 窗口边框与标题栏
-        bool depth          = true;     // 深度测试
         bool keysSigal      = false;    // 键盘响应信号(entered)
         Viewport viewport   = Viewport::Scale;  // 视口模式
-        int versionMajor    = 4;        // OpenGL主版本号
-        int versionMinor    = 3;        // OpenGL副版本号
-        R_RGBA background   = 0x121212;    // 背景色
-
-        int initWidth          = 960;     // 初始窗口大小
-        int initHeight         = 540;     // 初始窗口大小
+        R_RGBA background   = 0x121212; // 背景色
+        int initWidth          = 960;   // 初始窗口大小
+        int initHeight         = 540;   // 初始窗口大小
         double vRatio_       = 16.0/9.0;    // 视口比例 (Scale 模式)
     };
 
     constexpr static const char* defaultName() { return "Window"; }
 
-    static void initMainWindow(RWindow *window);
     static RWindow* getMainWindow();
 
     static void setDefaultWindowFormat(const WindowFormat &format);
@@ -105,6 +99,7 @@ protected:
     Status loopingCheck();
 
 private:
+    static void initMainWindow(RWindow *window);
     // GLFW错误回调
     static void glfwErrorCallback(int error, const char* description);
     // OpenGL Debug信息
@@ -128,7 +123,7 @@ private:
 
     static WindowFormat windowFormat;
     static std::once_flag init;
-    static std::unique_ptr<RWindow, void(*)(RWindow*)> mainWindow;
+    static RWindow* mainWindow;
 
     WindowFormat format_;
     std::function<void()> eventPool; //主线程中为glfwPoolEvent，其余线程中为空

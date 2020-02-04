@@ -34,7 +34,5 @@ int main()
     }
 
     rDebug << "\nTest end";
-    RContext::terminate();
-
     return 0;
 }

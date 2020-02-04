@@ -1,46 +1,16 @@
 #include "RWindow.h"
 #include "RDebug.h"
-//#include
 
 using namespace Redopera;
 
 RWindow::WindowFormat RWindow::windowFormat;
 std::once_flag RWindow::init;
 
-void terminateGLFW(RWindow *) { glfwTerminate(); }
-std::unique_ptr<RWindow, void(*)(RWindow*)> RWindow::mainWindow(nullptr, terminateGLFW);
-
-void RWindow::initMainWindow(RWindow *window)
-{
-    // glfw错误回调
-    glfwSetErrorCallback(glfwErrorCallback);
-    // 初始化GLFW
-    if(check(!glfwInit(), "Failed to initialize GLFW"))
-        exit(EXIT_FAILURE);
-
-    // 加载手柄映射
-    std::string mappingCode = std::string() + RInputModule::gamepadMappingCode0
-            + RInputModule::gamepadMappingCode1 + RInputModule::gamepadMappingCode2;
-    check(glfwUpdateGamepadMappings(mappingCode.c_str()) == GLFW_FALSE, "Failed to load default gamepad mapping!\n"
-          "To https://github.com/gabomdq/SDL_GameControllerDB download gamecontrollerdb.txt file.");
-
-    // 手柄连接回调
-    glfwSetJoystickCallback(joystickPresentCallback);
-    // 需手动检测一次手柄连接，检测之前已连接的手柄
-    for(int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i)
-    {
-        if(glfwJoystickIsGamepad(i))
-            RInputModule::instance().addGamepad(RInputModule::toJoystickID(i));
-    }
-
-    // GLFW事件触发
-    window->eventPool = &glfwPollEvents;
-    mainWindow.reset(window);
-}
+RWindow* RWindow::mainWindow(nullptr);
 
 RWindow *RWindow::getMainWindow()
 {
-    return mainWindow.get();
+    return mainWindow;
 }
 
 void RWindow::setDefaultWindowFormat(const WindowFormat &format)
@@ -79,7 +49,7 @@ RWindow::RWindow(const RWindow::WindowFormat &format, RController *parent, const
     std::call_once(init, std::bind(initMainWindow, this));
 
     // 一个线程窗口只能有一个窗口
-    if(check(glfwGetCurrentContext(), "A thread can only have one context!"))
+    if(check(RContext::contex != nullptr, "A thread can only have one context!"))
         exit(EXIT_FAILURE);
 
     // Debug Context 需要OpenGL4.3以上版本
@@ -96,7 +66,7 @@ RWindow::RWindow(const RWindow::WindowFormat &format, RController *parent, const
     glfwWindowHint(GLFW_VISIBLE, false);
 
     window_.reset(glfwCreateWindow(format_.initWidth, format_.initHeight,
-                               name.c_str(), nullptr, mainWindow->getWindowHandle()));
+                               name.c_str(), nullptr, format_.shared));
     if(check(window_ == nullptr, "Fainled to create GLFW window!"))
         exit(EXIT_FAILURE);
 
@@ -106,7 +76,6 @@ RWindow::RWindow(const RWindow::WindowFormat &format, RController *parent, const
 
     if(check(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)), "Failed to initialize GLAD"))
     {
-        glfwTerminate();
         terminateTree(Status::Error);
         exit(EXIT_FAILURE);
     }
@@ -334,8 +303,8 @@ void RWindow::show()
     if(format_.keysSigal)
         glfwSetKeyCallback(window_.get(), keyboardCollback);
     // 主窗口关闭时所有窗口都会得到通知
-    if(mainWindow.get() != this)
-       mainWindow.get()->closed.connect(this, &RController::breakLoop);
+    if(mainWindow != this)
+       mainWindow->closed.connect(this, &RController::breakLoop);
 
     glfwShowWindow(window_.get());
 }
@@ -411,6 +380,34 @@ RController::Status RWindow::loopingCheck()
     }
 
     return status();
+}
+
+void RWindow::initMainWindow(RWindow *window)
+{
+    // glfw错误回调
+    glfwSetErrorCallback(glfwErrorCallback);
+    // 初始化GLFW
+    if(check(!RContext::initialization(), "Failed to initialize GLFW"))
+        exit(EXIT_FAILURE);
+
+    // 加载手柄映射
+    std::string mappingCode = std::string() + RInputModule::gamepadMappingCode0
+            + RInputModule::gamepadMappingCode1 + RInputModule::gamepadMappingCode2;
+    check(glfwUpdateGamepadMappings(mappingCode.c_str()) == GLFW_FALSE, "Failed to load default gamepad mapping!\n"
+          "To https://github.com/gabomdq/SDL_GameControllerDB download gamecontrollerdb.txt file.");
+
+    // 手柄连接回调
+    glfwSetJoystickCallback(joystickPresentCallback);
+    // 需手动检测一次手柄连接，检测之前已连接的手柄
+    for(int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i)
+    {
+        if(glfwJoystickIsGamepad(i))
+            RInputModule::instance().addGamepad(RInputModule::toJoystickID(i));
+    }
+
+    // GLFW事件触发
+    window->eventPool = &glfwPollEvents;
+    mainWindow = window;
 }
 
 void RWindow::glfwErrorCallback(int error, const char *description)
