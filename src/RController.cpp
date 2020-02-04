@@ -1,7 +1,9 @@
 #include "RController.h"
+#include "RDebug.h"
 
 #include <algorithm>
 #include <regex>
+#include <thread>
 
 using namespace Redopera;
 
