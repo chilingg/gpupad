@@ -16,7 +16,7 @@ public:
     {
         Full,   // 充满窗口
         Scale,  // 保持比例
-        Fix   // 固定尺寸
+        Fix     // 固定尺寸
     };
 
     enum class CursorMode
@@ -28,14 +28,14 @@ public:
 
     struct WindowFormat : RContext::ContexFormat
     {
-        bool fix            = false;    // 初始窗口可见性
+        bool fix            = false;    // 固定窗口尺寸
         bool decorate       = true;     // 窗口边框与标题栏
         bool keysSigal      = false;    // 键盘响应信号(entered)
-        Viewport viewport   = Viewport::Scale;  // 视口模式
+        Viewport viewport   = Viewport::Full;  // 视口模式
         R_RGBA background   = 0x121212; // 背景色
-        int initWidth          = 960;   // 初始窗口大小
-        int initHeight         = 540;   // 初始窗口大小
-        double vRatio_       = 16.0/9.0;    // 视口比例 (Scale 模式)
+        int initWidth       = 960;      // 初始窗口大小
+        int initHeight      = 540;      // 初始窗口大小
+        double vRatio_      = 16.0/9.0; // 视口比例 (Scale 模式)
     };
 
     constexpr static const char* defaultName() { return "Window"; }
