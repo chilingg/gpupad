@@ -16,6 +16,13 @@ public:
         slotFlag(std::make_shared<bool>(true))
     {}
 
+    RSlot(RSlot &slot):
+        sloterTypeHash(slot.sloterTypeHash),
+        slotFlag(std::make_shared<bool>(true))
+    {}
+
+    RSlot& operator=(RSlot &) { return *this; }
+
     ~RSlot()
     {
         while(!slotFlag.unique())
@@ -81,7 +88,7 @@ public:
         slots_.emplace(sloter, func);
     }
 
-    void connect(std::function<bool(Args ...)> func)
+    void connect(const std::function<bool(Args ...)> &func)
     {
         std::lock_guard<std::mutex> guard(mutex_);
         slots_.emplace(nullptr, func);
