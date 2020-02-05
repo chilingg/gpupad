@@ -2,7 +2,7 @@
 #define RSHADER_H
 
 #include "RResource.h"
-#include "ROpenGL.h"
+#include "../ROpenGL.h"
 
 namespace Redopera {
 

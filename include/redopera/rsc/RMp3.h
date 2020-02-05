@@ -5,8 +5,8 @@
 
 namespace minimp3 {
 
-#include <minimp3.h>
-#include <minimp3_ex.h>
+#include "../dependents/minimp3.h"
+#include "../dependents/minimp3_ex.h"
 
 }
 

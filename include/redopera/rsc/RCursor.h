@@ -2,7 +2,7 @@
 #define RCORSOR_H
 
 #include "RResource.h"
-#include "ROpenGL.h"
+#include "../ROpenGL.h"
 #include "RImage.h"
 
 namespace Redopera {

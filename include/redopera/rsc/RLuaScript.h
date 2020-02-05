@@ -1,6 +1,8 @@
 #ifndef RLUASCRIPT_H
 #define RLUASCRIPT_H
 
+#include "RResource.h"
+
 extern "C" {
 
 #include <lua.h>
@@ -8,8 +10,6 @@ extern "C" {
 #include <lauxlib.h>
 
 }
-
-#include "RResource.h"
 
 namespace Redopera {
 

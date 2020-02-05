@@ -2,7 +2,7 @@
 #define RSHADERPROGRAM_H
 
 #include "RShader.h"
-#include "RMath.h"
+#include "../RMath.h"
 
 #include <initializer_list>
 

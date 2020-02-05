@@ -2,8 +2,8 @@
 #define RIMAGE_H
 
 #include "RResource.h"
-#include "RColor.h"
-#include <stb_image.h>
+#include "../RColor.h"
+#include "../dependents/stb_image.h"
 
 namespace Redopera {
 

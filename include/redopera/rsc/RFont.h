@@ -1,8 +1,8 @@
 #ifndef RFONT_H
 #define RFONT_H
 
-#include "rsc/RResource.h"
-#include "stb_truetype.h"
+#include "RResource.h"
+#include "../dependents/stb_truetype.h"
 
 #include <vector>
 #include <map>
