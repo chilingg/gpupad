@@ -12,6 +12,7 @@ class RShaderProgram : public RResource
 {
     friend void swap(RShaderProgram &prog1, RShaderProgram&prog2);
 
+public:
     class Interface
     {
         friend RShaderProgram;
@@ -77,7 +78,6 @@ class RShaderProgram : public RResource
         GLuint id_;
     };
 
-public:
     RShaderProgram();
     RShaderProgram(std::initializer_list<RShader> list, const std::string &name = "ShaderProgram");
     RShaderProgram(const RShaderProgram &program);

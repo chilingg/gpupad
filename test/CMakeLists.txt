@@ -22,3 +22,6 @@ target_link_libraries(font redopera)
 
 add_executable(glContex glContext.cpp)
 target_link_libraries(glContex redopera)
+
+add_executable(opengl opengl.cpp)
+target_link_libraries(opengl redopera)
