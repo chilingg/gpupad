@@ -48,6 +48,7 @@ public:
     RSignal() = default;
     RSignal(RSignal &&sig): mutex_(std::move(sig.mutex_)), slots_(std::move(sig.slots_)) {}
     RSignal& operator=(RSignal &&sig) { mutex_ = std::move(sig.mutex_); slots_ = std::move(sig.slots_); };
+
     void operator()(Args ... args)
     {
         std::lock_guard<std::mutex> lock(mutex_);

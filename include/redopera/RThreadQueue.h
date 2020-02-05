@@ -12,7 +12,7 @@ class RThreadQueue
 {
 public:
     RThreadQueue() = default;
-    RThreadQueue(const RThreadQueue& queue) = delete;
+    RThreadQueue(const RThreadQueue&) = delete;
     RThreadQueue& operator=(const RThreadQueue&) = delete;
 
     void push(T value)

@@ -14,8 +14,6 @@ RAudioStream::RAudioStream(RAudioStream::Api api):
 RAudioStream::RAudioStream(const RMp3 &mp3, RAudioStream::Api api):
     RAudioStream(api)
 {
-    if(check(!mp3.isValid(), "Failed open audio stream, RMp3 is invalid!"))
-        return;
     openStream(mp3);
 }
 
@@ -102,7 +100,8 @@ bool RAudioStream::openStream(const RMp3 &mp3)
 {
     static unsigned BUFFER_SIZE = 4096;
 
-    assert(!stream_.isStreamOpen());
+    if(stream_.isStreamOpen())
+        stream_.closeStream();
 
     mp3_ = mp3;
     parameters_.nChannels = static_cast<unsigned>(mp3.channel());
@@ -132,8 +131,8 @@ bool RAudioStream::startStream()
 
 bool RAudioStream::repeatStream(unsigned repeat)
 {
-    assert(stream_.isStreamOpen());
-    assert(!stream_.isStreamRunning());
+    if(stream_.isStreamRunning())
+        stream_.abortStream();
 
     setStreamTime();
     try {

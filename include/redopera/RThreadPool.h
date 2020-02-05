@@ -16,6 +16,8 @@ class RThreadPool
 public:
     RThreadPool(int tNum = 0);
     ~RThreadPool();
+    RThreadPool(const RThreadPool&) = delete;
+    RThreadPool& operator=(const RThreadPool&) = delete;
 
     bool isIdle() const;
     int threadNumber() const;

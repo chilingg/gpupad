@@ -36,7 +36,7 @@ public:
     RResource(const RResource &&rc);
     RResource& operator=(RResource rc);
     void swap(RResource &rc) noexcept;
-    ~RResource();
+    ~RResource() = default;
 
     ResourceID resourceID() const;
     const std::string& name() const;

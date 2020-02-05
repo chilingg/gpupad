@@ -101,11 +101,6 @@ void RResource::swap(RResource &rc) noexcept
     resourceID_.swap(rc.resourceID_);
 }
 
-RResource::~RResource()
-{
-
-}
-
 RResource::ResourceID RResource::resourceID() const
 {
     return *resourceID_;
