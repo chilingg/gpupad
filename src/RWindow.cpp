@@ -90,7 +90,7 @@ RWindow::RWindow(const RWindow::WindowFormat &format, RController *parent, const
         rDebug << printFormat::green << printFormat::bold << name << ": " << glGetString(GL_VERSION) << printFormat::non;
         rDebug << printFormat::green << printFormat::bold << "Enable OpenGL debug output" << printFormat::non;
         glEnable(GL_DEBUG_OUTPUT);
-        //glDebugMessageCallback(openglDebugMessageCallback, nullptr);
+        glDebugMessageCallback(openglDebugMessageCallback, nullptr);
         //过滤着色器编译成功消息通知
         glDebugMessageControl(GL_DEBUG_SOURCE_SHADER_COMPILER, GL_DEBUG_TYPE_OTHER,
                               GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
