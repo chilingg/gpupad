@@ -217,8 +217,10 @@ bool RLuaScript::load(const std::string &lua)
     lua_ .reset(luaL_newstate(), lua_close);
     luaL_openlibs(lua_.get());
 
-    if(luaL_dofile(lua_.get(), lua.c_str()))
+    std::string path = rscpath(lua);
+    if(luaL_dofile(lua_.get(), path.c_str()))
     {
+        pop();
         if(luaL_dostring(lua_.get(), lua.c_str()))
         {
             prError(lua_tostring(lua_.get(), -1));
@@ -247,8 +249,10 @@ bool RLuaScript::load(const RData *buff, size_t size, const std::string &name)
 
 bool RLuaScript::import(const std::string &lua)
 {
-    if(luaL_dofile(lua_.get(), lua.c_str()))
+    std::string path = rscpath(lua);
+    if(luaL_dofile(lua_.get(), path.c_str()))
     {
+        pop();
         if(luaL_dostring(lua_.get(), lua.c_str()))
         {
             prError(lua_tostring(lua_.get(), -1));

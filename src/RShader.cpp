@@ -94,7 +94,7 @@ GLuint RShader::shaderID() const
 
 bool RShader::load(const std::string &shader, ShaderType type)
 {
-    std::string code = getTextFileContent(rscpath(shader));
+    std::string code = getTextFileContent(shader);
     if(code.empty())
         code = shader;
 
