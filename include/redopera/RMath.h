@@ -13,4 +13,11 @@
  * trunc(genType x)            //返回截断整数部分
  */
 
+namespace Redopera {
+
+void* bufOff(size_t off);
+
+glm::mat4 perspective(float left, float right, float buttom, float top, float near, float far);
+
+}
 #endif // RMATHS_H
