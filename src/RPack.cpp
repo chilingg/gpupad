@@ -78,7 +78,7 @@ bool RPack::load(const std::string &path)
             file.read(reinterpret_cast<char*>(info.data()), sizeof(PInfo) * head.fileNum);
             for(size_t i = 0; i < head.fileNum; ++i)
             {
-                std::shared_ptr<RData[]> data = std::make_shared<RData[]>(info[i].size);
+                std::shared_ptr<RData[]> data(new RData[info[i].size]);
                 file.read(reinterpret_cast<char*>(data.get()), info[i].size);
                 data = unpackingOperation(data, info[i].size);
                 fileInfo_.emplace(info[i].nameHash, FInfo{ info[i].size, info[i].check, data });
@@ -134,7 +134,7 @@ bool RPack::packing(const std::string &path)
     size_t size = file.tellg();
     file.seekg(0, std::ios::beg);
 
-    std::shared_ptr<RData[]> data = std::make_shared<RData[]>(size);
+    std::shared_ptr<RData[]> data(new RData[size]);
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     try {
         file.read(reinterpret_cast<char*>(data.get()), size);
@@ -227,12 +227,11 @@ uint64_t RPack::generateCheckCode(const RData *buffer, size_t size)
 {
     static const int concurrency = std::thread::hardware_concurrency() > 0 ? std::thread::hardware_concurrency() : 1;
 
-    size_t size64 = size / 64;
     const uint64_t *p = reinterpret_cast<const uint64_t*>(buffer);
-    int num = size64 > 1000 ? concurrency : 1;
+    int num = size > 100000 ? concurrency : 1;
 
     std::atomic_uint64_t result;
-    size_t range = size64 / num;
+    size_t range = size / num;
 
     { //线程开始
     std::vector<RThread> threads;

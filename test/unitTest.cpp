@@ -6,14 +6,13 @@ using namespace Redopera;
 
 int main()
 {
-    std::string path1 = "xxxx.html";
-    //std::string path2 = "/xxxxx.txt";
+    std::string path1 = "Makefile";
     RPack pack;
     RPack pack3("packtest");
     pack.packing(path1);
     rDebug << pack.empty() << pack.size();
-    //rDebug << pack3.empty() << pack3.size();
-    //rDebug << pack.equivalent(pack3) << pack.equivalent(pack);
+    rDebug << pack3.empty() << pack3.size();
+    rDebug << pack.equivalent(pack3);
     pack.save("packtest");
 
     return 0;
