@@ -106,7 +106,12 @@ bool RShader::load(const std::string &shader, ShaderType type)
     int success;
     glGetShaderiv(*id, GL_COMPILE_STATUS, &success);
     if(check(!success, "Failed to load " + shaderTypeName(type) + '<' + name() + "> in:\n" + shader))
+    {
+        char infoLog[256];
+        glGetShaderInfoLog(*id, sizeof(infoLog), nullptr, infoLog);
+        prError(infoLog);
         return false;
+    }
 
     type_ = type;
     shaderID_.swap(id);

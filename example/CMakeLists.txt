@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.1)
+
+include_directories(${CMAKE_SOURCE_DIR}/include/redopera)
+include_directories(${CMAKE_SOURCE_DIR}/include/redopera/dependents)
+
+link_directories(${CMAKE_BINARY_DIR})
+
+add_executable(triangle triangle.cpp)
+target_link_libraries(triangle redopera)

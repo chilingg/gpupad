@@ -25,7 +25,7 @@ public:
         }
 
         void setViewprot(GLuint loc, float left, float right, float bottom, float top, float near = -127.0f, float far = 128.0f);
-        void setPerspective(GLuint loc, float radians, float aspect, float near = 0.1f, float far = 100);
+        void setPerspective(GLuint loc, float left, float right, float bottom, float top, float near, float far);
         void setCameraPos(GLuint loc, float x, float y, float z = 0);
 
         void setUniform(GLuint loc, GLfloat v1) const;

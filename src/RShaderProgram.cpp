@@ -11,9 +11,9 @@ void RShaderProgram::Interface::setViewprot(GLuint loc, float left, float right,
     setUniformMatrix(loc, 4, glm::value_ptr(projection));
 }
 
-void RShaderProgram::Interface::setPerspective(GLuint loc, float radians, float aspect, float near, float far)
+void RShaderProgram::Interface::setPerspective(GLuint loc, float left, float right, float bottom, float top, float near, float far)
 {
-    glm::mat4 projection = glm::perspective(radians, aspect, near, far);
+    glm::mat4 projection = perspective(left, right, bottom, top, near, far);
     setUniformMatrix(loc, 4, glm::value_ptr(projection));
 }
 
@@ -357,7 +357,12 @@ bool RShaderProgram::linkProgram()
     int success;
     glGetProgramiv(*id, GL_LINK_STATUS, &success);
     if(check(!success, "Failed to link shader program <" + name() + '>'))
+    {
+        char infoLog[256];
+        glGetProgramInfoLog(*id, sizeof(infoLog), nullptr, infoLog);
+        prError(infoLog);
         return false;
+    }
 
     progID_.swap(id);
     return true;
