@@ -36,6 +36,11 @@ public:
         struct { Align v, h;
                } align { Align::Left, Align::Bottom};
         Mode mode = Mode::Auto;
+        struct { float x, y, z;
+               } rotate { 0.0f, 0.0f, 0.0f };
+        bool flipH = false;
+        bool flipV = false;
+        bool dirty = true;
         int minW = 0;
         int minH = 0;
         int maxW = ~0u >> 1;
@@ -54,15 +59,15 @@ public:
     RArea(RArea &area);
     ~RArea() = default;
 
-    void setSize(int width, int height);
-    void setSize(const RSize &size);
-    void setWidth(int width);
-    void setHeight(int height);
-
     void setMinSize(int minw, int minh);
     void setMinSize(const RSize &size);
     void setMaxSize(int maxw, int maxh);
     void setMaxSize(const RSize &size);
+
+    void setSize(int width, int height);
+    void setSize(const RSize &size);
+    void setWidth(int width);
+    void setHeight(int height);
 
     void setPos(int x, int y, int z = 0);
     void setPos(const RPoint &pos);
@@ -81,6 +86,16 @@ public:
 
     void setMode(Mode mode);
     void setAlign(Align v, Align h);
+
+    void setDirty();
+    void clearDirty();
+
+    void rotateX(float x);
+    void rotateY(float y);
+    void rotateZ(float z);
+
+    void flipH();
+    void flipV();
 
     RRect rect() const;
     RSize size() const;
@@ -115,13 +130,15 @@ public:
     RSize maxSize() const;
     RSize minSize() const;
 
-    const Format &format() const;
+    bool isFlipV() const;
+    bool isFlipH() const;
+    bool isDirty() const;
 
-protected:
-    Format format_;
+    const Format &format() const;
 
 private:
     static Format areaFormat;
+    Format format_;
 };
 
 } // Redopera

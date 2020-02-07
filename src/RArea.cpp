@@ -66,32 +66,6 @@ int clamp(int v, int min, int max)
         return v;
 }
 
-void RArea::setSize(int width, int height)
-{
-    width = clamp(width, format_.minW, format_.maxW);
-    height = clamp(height, format_.minH, format_.maxH);
-    format_.size.set(width, height);
-}
-
-void RArea::setSize(const RSize &size)
-{
-    int width = clamp(size.width(), format_.minW, format_.maxW);
-    int height = clamp(size.height(), format_.minH, format_.maxH);
-    format_.size.set(width, height);
-}
-
-void RArea::setWidth(int width)
-{
-    width = clamp(width, format_.minW, format_.maxW);
-    format_.size.setWidth(width);
-}
-
-void RArea::setHeight(int height)
-{
-    height = clamp(height, format_.minH, format_.maxH);
-    format_.size.setHeight(height);
-}
-
 void RArea::setMinSize(int minw, int minh)
 {
     minw = minw < 0 ? 0 : minw;
@@ -124,74 +98,181 @@ void RArea::setMaxSize(const RSize &size)
     format_.maxH = size.height();
 }
 
+void RArea::setSize(int width, int height)
+{
+    width = clamp(width, format_.minW, format_.maxW);
+    height = clamp(height, format_.minH, format_.maxH);
+    format_.size.set(width, height);
+
+    format_.dirty = true;
+}
+
+void RArea::setSize(const RSize &size)
+{
+    int width = clamp(size.width(), format_.minW, format_.maxW);
+    int height = clamp(size.height(), format_.minH, format_.maxH);
+    format_.size.set(width, height);
+
+    format_.dirty = true;
+}
+
+void RArea::setWidth(int width)
+{
+    width = clamp(width, format_.minW, format_.maxW);
+    format_.size.setWidth(width);
+
+    format_.dirty = true;
+}
+
+void RArea::setHeight(int height)
+{
+    height = clamp(height, format_.minH, format_.maxH);
+    format_.size.setHeight(height);
+
+    format_.dirty = true;
+}
+
 void RArea::setPos(int x, int y, int z)
 {
     format_.pos.set(x, y, z);
+
+    format_.dirty = true;
 }
 
 void RArea::setPos(const RPoint &pos)
 {
     format_.pos = pos;
+
+    format_.dirty = true;
 }
 
 void RArea::setPosX(int x)
 {
     format_.pos.setX(x);
+
+    format_.dirty = true;
 }
 
 void RArea::setPosY(int y)
 {
     format_.pos.setY(y);
+
+    format_.dirty = true;
 }
 
 void RArea::setPosZ(int z)
 {
     format_.pos.setZ(z);
+
+    format_.dirty = true;
 }
 
 void RArea::setOuterPos(const RPoint &pos)
 {
     format_.pos.set(pos.x()+format_.margin.l, pos.y()+format_.margin.b, format_.pos.z());
+
+    format_.dirty = true;
 }
 
 void RArea::setCenterPos(const RPoint &pos)
 {
     format_.pos.set(pos.x()-format_.size.width()/2, pos.y()-format_.size.height()/2, format_.pos.z());
+
+    format_.dirty = true;
 }
 
 void RArea::setInnerPos(const RPoint &pos)
 {
     format_.pos.set(pos.x()-format_.padding.l, pos.y()-format_.padding.b, format_.pos.z());
+
+    format_.dirty = true;
 }
 
 void RArea::setMargin(int top, int bottom, int left, int right)
 {
     format_.margin = { top, bottom, left, right };
+
+    format_.dirty = true;
 }
 
 void RArea::setMargin(int value)
 {
     format_.margin = { value, value, value, value };
+
+    format_.dirty = true;
 }
 
 void RArea::setPadding(int top, int bottom, int left, int right)
 {
     format_.padding = { top, bottom, left, right };
+
+    format_.dirty = true;
 }
 
 void RArea::setPadding(int value)
 {
     format_.padding = { value, value, value, value };
+
+    format_.dirty = true;
 }
 
 void RArea::setMode(RArea::Mode mode)
 {
     format_.mode = mode;
+
+    format_.dirty = true;
 }
 
 void RArea::setAlign(RArea::Align v, RArea::Align h)
 {
     format_.align = { v, h };
+
+    format_.dirty = true;
+}
+
+void RArea::setDirty()
+{
+    format_.dirty = true;
+}
+
+void RArea::clearDirty()
+{
+    format_.dirty = false;
+}
+
+void RArea::rotateX(float x)
+{
+    format_.rotate.x = x;
+
+    format_.dirty = true;
+}
+
+void RArea::rotateY(float y)
+{
+    format_.rotate.y = y;
+
+    format_.dirty = true;
+}
+
+void RArea::rotateZ(float z)
+{
+    format_.rotate.z = z;
+
+    format_.dirty = true;
+}
+
+void RArea::flipH()
+{
+    format_.flipH = !format_.flipH;
+
+    format_.dirty = true;
+}
+
+void RArea::flipV()
+{
+    format_.flipV = !format_.flipV;
+
+    format_.dirty = true;
 }
 
 RRect RArea::rect() const
@@ -327,6 +408,21 @@ RSize RArea::maxSize() const
 RSize RArea::minSize() const
 {
     return RSize(format_.minW, format_.minH);
+}
+
+bool RArea::isFlipV() const
+{
+    return format_.flipV;
+}
+
+bool RArea::isFlipH() const
+{
+    return format_.flipH;
+}
+
+bool RArea::isDirty() const
+{
+    return format_.dirty;
 }
 
 const RArea::Format &RArea::format() const
