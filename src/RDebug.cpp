@@ -237,12 +237,23 @@ const RDebug &RDebug::operator<<(const glm::mat4 &mat) const
     std::cout << "    (" << std::setw(8) << mat[0][2] << " , " << std::setw(8) <<  mat[1][2] << " , "
                          << std::setw(8) << mat[2][2] << " , " << std::setw(8) <<  mat[3][2] << ")\n";
     std::cout << "    (" << std::setw(8) << mat[0][3] << " , " << std::setw(8) <<  mat[1][3] << " , "
-                         << std::setw(8) << mat[2][3] << " , " << std::setw(8) <<  mat[3][3] << ").";
+                         << std::setw(8) << mat[2][3] << " , " << std::setw(8) <<  mat[3][3] << "). ";
     return *this;
 }
 
 const RDebug &RDebug::operator<<(const RTime &time) const
 {
     std::cout << time.toString() << ' ';
+    return *this;
+}
+
+const RDebug &RDebug::operator<<(const RArea &area) const
+{
+    std::cout << "Area:( " << area.x() << ", " << area.y()
+              << " | W: " << area.width() << " H: " << area.height()
+              << " | M: " << area.format().margin.t << ' ' << area.format().margin.b
+              << ' ' << area.format().margin.l << ' ' << area.format().margin.r
+              << " | P: " << area.format().padding.t << ' ' << area.format().padding.b
+              << ' ' << area.format().padding.l << ' ' << area.format().padding.r << ") ";
     return *this;
 }

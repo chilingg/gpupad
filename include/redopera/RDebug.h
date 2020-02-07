@@ -15,6 +15,7 @@
 #include "RTime.h"
 #include "RJson.h"
 #include "RInputModule.h"
+#include "RArea.h"
 
 #define rDebug Redopera::RDebug::create()
 
@@ -63,6 +64,7 @@ public:
     const RDebug& operator<<(const glm::vec4 &vec) const;
     const RDebug& operator<<(const glm::mat4 &mat) const;
     const RDebug& operator<<(const RTime &time) const;
+    const RDebug& operator<<(const RArea &area) const;
 
 private:
     static std::mutex mutex;
