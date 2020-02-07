@@ -8,6 +8,8 @@ namespace Redopera {
 
 class RPack : public RResource
 {
+    friend void swap(RPack &pack1, RPack &pack2);
+
     //Rpack文件头数据
     struct Head
     {
@@ -25,8 +27,6 @@ class RPack : public RResource
     };
 
 public:
-    friend void swap(RPack &pack1, RPack &pack2);
-
     //加载后储存各文件数据
     struct FInfo
     {
