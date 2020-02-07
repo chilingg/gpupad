@@ -25,6 +25,7 @@ public:
     void setPoint(int x, int y) { x_ = x; y_ = y; }
     void setX(int x) { x_ = x; }
     void setY(int y) { y_ = y; }
+    void set(int x, int y) { x_ = x; y_ = y; }
 
     RPoint2 MirrorH(int axis = 0) { return RPoint2((axis-x_)*2 + x_, y_); }
     RPoint2 MirrorV(int axis = 0) { return RPoint2(x_, (axis-y_)*2 + y_); }
@@ -42,6 +43,9 @@ public:
     explicit RPoint3(int x, int y = 0, int z = 0):
         RPoint2(x, y), z_(z) {}
 
+    RPoint3(RPoint2 p2, int z = 0):
+        RPoint2(p2), z_(z) {}
+
     RPoint3():
         RPoint2(), z_(INVALID_POINT_VALUE) {}
 
@@ -54,6 +58,7 @@ public:
 
     void setPoint(int x, int y, int z) { x_ = x; y_ = y; z_ = z; }
     void setZ(int z) { z_ = z; }
+    void set(int x, int y, int z) { x_ = x, y_ = y; z_ = z; }
 
 protected:
     int z_;

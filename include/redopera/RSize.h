@@ -13,8 +13,12 @@ public:
     int height() const { return height_; }
 
     bool isEmpty() const { return (width_ == 0) && (height_ == 0); }
-    bool isInvalid() const { return (width_ <= 0) || (height_ <= 0); }
+    bool invalid() const { return (width_ <= 0) || (height_ <= 0); }
     bool isValid() const { return (width_ > 0) && (height_ > 0); }
+
+    void setWidth(int width) { width_ = width; }
+    void setHeight(int height) { height_ = height; }
+    void set(int width, int height) { width_ = width; height_ = height; }
 
 private:
     int width_;
