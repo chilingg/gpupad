@@ -401,7 +401,7 @@ void* Redopera::bufOff(size_t off)
     return reinterpret_cast<void*>(off);
 }
 
-glm::mat4 Redopera::perspective(float left, float right, float buttom, float top, float near, float far)
+glm::mat4 Redopera::perspective(float left, float right, float bottom, float top, float near, float far)
 {
     static float accuracy = 0.95; // 投影之后far平面拥有的最大z轴标量
 
@@ -410,13 +410,13 @@ glm::mat4 Redopera::perspective(float left, float right, float buttom, float top
 
     // 缩放
     mat[0][0] = 1 / (right - left) * 2;
-    mat[1][1] = 1 / (top - buttom) * 2;
+    mat[1][1] = 1 / (top - bottom) * 2;
     // z轴翻转与投影
     mat[2][3] = -1 / ((2*accuracy*len - 2*len) / (1+accuracy));
     mat[2][2] = mat[2][3];
     // 左乘以平移矩阵
     mat[3][0] = mat[0][0] * -(left + (right - left) / 2);
-    mat[3][1] = mat[1][1] * -(buttom + (top - buttom) / 2);
+    mat[3][1] = mat[1][1] * -(bottom + (top - bottom) / 2);
     mat[3][2] = mat[2][2] * -near;
     mat[3][3] = mat[3][2] + 1;
 
