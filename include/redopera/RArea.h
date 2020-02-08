@@ -54,9 +54,9 @@ public:
     RArea(int width, int height, int x, int y, int z = 0);
     RArea(int width, int height, const RPoint &pos);
     RArea(const RSize &size, const RPoint &pos);
-    RArea(const RRect &rect, int z = 0);
-    RArea(const Format &format);
-    RArea(RArea &area);
+    explicit RArea(const RRect &rect, int z = 0);
+    explicit RArea(const Format &format);
+    RArea(const RArea &area);
     ~RArea() = default;
 
     void setMinSize(int minw, int minh);

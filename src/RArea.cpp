@@ -50,7 +50,7 @@ RArea::RArea(const RArea::Format &format):
 
 }
 
-RArea::RArea(RArea &area):
+RArea::RArea(const RArea &area):
     format_(area.format_)
 {
 
