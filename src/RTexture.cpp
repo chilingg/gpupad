@@ -2,11 +2,16 @@
 
 using namespace Redopera;
 
-RTexture::TexFormat RTexture::textureFormat = std::make_shared<RTexture::TextrueFormat>();
+RTexture::Format RTexture::textureFormat = makeTexFormat();
 
-void RTexture::setDefaultTextureFomat(const RTexture::TexFormat &format)
+void RTexture::setDefaultTextureFomat(const RTexture::Format &format)
 {
     textureFormat = format;
+}
+
+RTexture::Format RTexture::makeTexFormat()
+{
+    return std::make_shared<RTexture::TexFormat>();
 }
 
 void RTexture::unbindTexture()
@@ -20,19 +25,19 @@ RTexture::RTexture():
 
 }
 
-RTexture::RTexture(const std::string &path, const std::string &name, const RTexture::TexFormat &format):
+RTexture::RTexture(const std::string &path, const std::string &name, const RTexture::Format &format):
     RResource(name, typeid(this).name())
 {
     load(path, format);
 }
 
-RTexture::RTexture(const RImage &img, const std::string &name, const RTexture::TexFormat &format):
+RTexture::RTexture(const RImage &img, const std::string &name, const RTexture::Format &format):
     RResource(name, typeid(this).name())
 {
     load(img, format);
 }
 
-RTexture::RTexture(const RData *data, int width, int height, int channel, const std::string &name, const RTexture::TexFormat &format):
+RTexture::RTexture(const RData *data, int width, int height, int channel, const std::string &name, const RTexture::Format &format):
     RResource(name, typeid(this).name())
 {
     load(data, width, height, channel, format);
@@ -102,7 +107,7 @@ void RTexture::bind(unsigned unit)
     glBindTexture(GL_TEXTURE_2D, *textureID_);
 }
 
-bool RTexture::load(const RData *data, int width, int height, int echannel, const RTexture::TexFormat &format)
+bool RTexture::load(const RData *data, int width, int height, int echannel, const RTexture::Format &format)
 {
     ExtFormat eformat = ExtFormat::RGBA;
     switch(echannel)
@@ -153,12 +158,12 @@ bool RTexture::load(const RData *data, int width, int height, int echannel, cons
     return true;
 }
 
-bool RTexture::load(const RImage &img, const RTexture::TexFormat &format)
+bool RTexture::load(const RImage &img, const RTexture::Format &format)
 {
     return load(img.data(), img.width(), img.height(), img.channel(), format);
 }
 
-bool RTexture::load(const std::string &path, const RTexture::TexFormat &format)
+bool RTexture::load(const std::string &path, const RTexture::Format &format)
 {
     return load(RImage(path), format);
 }

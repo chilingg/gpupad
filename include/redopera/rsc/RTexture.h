@@ -44,7 +44,7 @@ public:
         Linear = GL_LINEAR
     };
 
-    struct TextrueFormat
+    struct TexFormat
     {
         Wrap wrapS = Wrap::ClampToBorder;
         Wrap wrapT = Wrap::ClampToBorder;
@@ -53,16 +53,17 @@ public:
         int inChannel = 3;
         std::array<GLuint, 4> edgeColor { 0, 0, 0, 0 };
     };
-    using TexFormat = std::shared_ptr<TextrueFormat>;
+    using Format = std::shared_ptr<TexFormat>;
 
-    static void setDefaultTextureFomat(const TexFormat &format);
-    void unbindTexture();
+    static void setDefaultTextureFomat(const Format &format);
+    static Format makeTexFormat();
+    static void unbindTexture();
 
     RTexture();
-    RTexture(const std::string &path, const std::string &name = "Texture", const TexFormat &format = textureFormat);
-    RTexture(const RImage &img, const std::string &name = "Texture", const TexFormat &format = textureFormat);
+    RTexture(const std::string &path, const std::string &name = "Texture", const Format &format = textureFormat);
+    RTexture(const RImage &img, const std::string &name = "Texture", const Format &format = textureFormat);
     RTexture(const RData *data, int width, int height, int channel,
-             const std::string &name = "Texture", const TexFormat &format = textureFormat);
+             const std::string &name = "Texture", const Format &format = textureFormat);
     RTexture(const RTexture &tex);
     RTexture(const RTexture &&tex);
     RTexture& operator=(RTexture tex);
@@ -73,21 +74,21 @@ public:
     int width() const;
     int height() const;
     RSize size() const;
-    const TexFormat format() const;
+    const Format format() const;
     GLuint textureID() const;
     void bind(unsigned unit = 0); // unit直接指定纹理单元号，无需使用GL_TEXTURE0
 
-    bool load(const RData *data, int width, int height, int echannel, const TexFormat &format = textureFormat);
-    bool load(const RImage &img, const TexFormat &format = textureFormat);
-    bool load(const std::string &path, const TexFormat &format = textureFormat);
+    bool load(const RData *data, int width, int height, int echannel, const Format &format = textureFormat);
+    bool load(const RImage &img, const Format &format = textureFormat);
+    bool load(const std::string &path, const Format &format = textureFormat);
     void release();
 
 private:
     static void deleteTexture(GLuint *id);
-    static TexFormat textureFormat;
+    static Format textureFormat;
 
     std::shared_ptr<GLuint> textureID_;
-    TexFormat format_;
+    Format format_;
     int widht_ = 0, height_ = 0;
 };
 
