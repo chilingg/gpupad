@@ -70,6 +70,9 @@ public:
     ~RTexture() = default;
 
     bool isValid() const;
+    int width() const;
+    int height() const;
+    RSize size() const;
     const TexFormat format() const;
     GLuint textureID() const;
     void bind(unsigned unit = 0); // unit直接指定纹理单元号，无需使用GL_TEXTURE0
@@ -85,6 +88,7 @@ private:
 
     std::shared_ptr<GLuint> textureID_;
     TexFormat format_;
+    int widht_ = 0, height_ = 0;
 };
 
 } // Redopera

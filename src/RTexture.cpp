@@ -41,7 +41,9 @@ RTexture::RTexture(const RData *data, int width, int height, int channel, const 
 RTexture::RTexture(const RTexture &tex):
     RResource(tex),
     textureID_(tex.textureID_),
-    format_(tex.format_)
+    format_(tex.format_),
+    widht_(tex.widht_),
+    height_(tex.height_)
 {
 
 }
@@ -49,7 +51,9 @@ RTexture::RTexture(const RTexture &tex):
 RTexture::RTexture(const RTexture &&tex):
     RResource(std::move(tex)),
     textureID_(std::move(tex.textureID_)),
-    format_(std::move(tex.format_))
+    format_(std::move(tex.format_)),
+    widht_(tex.widht_),
+    height_(tex.height_)
 {
 
 }
@@ -70,6 +74,21 @@ void RTexture::swap(RTexture &tex)
 bool RTexture::isValid() const
 {
     return textureID_ != nullptr;
+}
+
+int RTexture::width() const
+{
+    return widht_;
+}
+
+int RTexture::height() const
+{
+    return height_;
+}
+
+RSize RTexture::size() const
+{
+    return RSize(widht_, height_);
 }
 
 GLuint RTexture::textureID() const
@@ -129,6 +148,8 @@ bool RTexture::load(const RData *data, int width, int height, int echannel, cons
 
     format_ = format;
     textureID_.swap(id);
+    widht_ = width;
+    height_ = height;
     return true;
 }
 
