@@ -7,3 +7,6 @@ link_directories(${CMAKE_BINARY_DIR})
 
 add_executable(triangle triangle.cpp)
 target_link_libraries(triangle redopera)
+
+add_executable(plane plane.cpp)
+target_link_libraries(plane redopera)
