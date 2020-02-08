@@ -5,7 +5,7 @@ using namespace Redopera;
 class TestWin : public RWindow
 {
 public:
-    TestWin(const WindowFormat &format):
+    TestWin(const Format &format):
         RWindow(format)
     {}
 
@@ -23,7 +23,7 @@ protected:
 
 int main()
 {
-    RWindow::WindowFormat format;
+    RWindow::Format format;
     format.debug = true;
     format.versionMajor = 4;
     format.versionMinor = 3;

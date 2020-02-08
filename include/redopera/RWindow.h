@@ -26,7 +26,7 @@ public:
         Disabled = GLFW_CURSOR_DISABLED
     };
 
-    struct WindowFormat : RContext::ContexFormat
+    struct Format : RContext::Format
     {
         bool fix            = false;    // 固定窗口尺寸
         bool decorate       = true;     // 窗口边框与标题栏
@@ -42,11 +42,11 @@ public:
 
     static RWindow* getMainWindow();
 
-    static void setDefaultWindowFormat(const WindowFormat &format);
+    static void setDefaultWindowFormat(const Format &format);
     static bool updateGamepadMappings(const std::string &path);
 
     explicit RWindow(RController *parent = nullptr, const std::string &name = defaultName());
-    explicit RWindow(const WindowFormat &format, RController *parent = nullptr, const std::string &name = defaultName());
+    explicit RWindow(const Format &format, RController *parent = nullptr, const std::string &name = defaultName());
     ~RWindow() override = default;
 
     void translation(const TranslationInfo &info) override;
@@ -77,7 +77,7 @@ public:
     void disableDepthTest();
 
     GLFWwindow* getWindowHandle() const;
-    const WindowFormat& format() const;
+    const Format& format() const;
     int width() const;
     int height() const;
     RSize size() const;
@@ -121,11 +121,11 @@ private:
 
     static RWindow* getWindowUserCtrl(GLFWwindow *window);
 
-    static WindowFormat windowFormat;
+    static Format windowFormat;
     static std::once_flag init;
     static RWindow* mainWindow;
 
-    WindowFormat format_;
+    Format format_;
     std::function<void()> eventPool; //主线程中为glfwPoolEvent，其余线程中为空
     std::unique_ptr<GLFWwindow, void(*)(GLFWwindow*)> window_;
     RPoint2 vOffset_;

@@ -3,7 +3,7 @@
 
 using namespace Redopera;
 
-RWindow::WindowFormat RWindow::windowFormat;
+RWindow::Format RWindow::windowFormat;
 std::once_flag RWindow::init;
 
 RWindow* RWindow::mainWindow(nullptr);
@@ -13,7 +13,7 @@ RWindow *RWindow::getMainWindow()
     return mainWindow;
 }
 
-void RWindow::setDefaultWindowFormat(const WindowFormat &format)
+void RWindow::setDefaultWindowFormat(const Format &format)
 {
     windowFormat = format;
 }
@@ -36,7 +36,7 @@ RWindow::RWindow(RController *parent, const std::string &name):
 
 }
 
-RWindow::RWindow(const RWindow::WindowFormat &format, RController *parent, const std::string &name):
+RWindow::RWindow(const RWindow::Format &format, RController *parent, const std::string &name):
     RController(parent, name),
     format_(format),
     eventPool([]{}),
@@ -60,7 +60,7 @@ RWindow::RWindow(const RWindow::WindowFormat &format, RController *parent, const
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, format_.versionMinor);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, format_.forward);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, format_.debug);
-    glfwWindowHint(GLFW_RESIZABLE, format_.fix);
+    glfwWindowHint(GLFW_RESIZABLE, !format_.fix);
     glfwWindowHint(GLFW_DECORATED, format_.decorate);
     // 默认初始窗口不可见，需主动调用show()
     glfwWindowHint(GLFW_VISIBLE, false);
@@ -243,7 +243,7 @@ GLFWwindow *RWindow::getWindowHandle() const
     return window_.get();
 }
 
-const RWindow::WindowFormat &RWindow::format() const
+const RWindow::Format &RWindow::format() const
 {
     return format_;
 }
@@ -307,6 +307,8 @@ void RWindow::show()
        mainWindow->closed.connect(this, &RController::breakLoop);
 
     glfwShowWindow(window_.get());
+    // 传递一次translation信息
+    resizeCallback(window_.get(), windowWidth(), windowHeight());
 }
 
 void RWindow::hide()

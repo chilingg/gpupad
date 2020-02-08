@@ -21,7 +21,7 @@ int main()
         exit(EXIT_FAILURE);
 
     rDebug << "======== Using OpenGL Transform feedback to sqrt calculat ========\n";
-    RContext::ContexFormat format;
+    RContext::Format format;
     format.versionMajor = 3;
     format.versionMinor = 3;
 

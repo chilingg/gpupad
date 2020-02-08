@@ -17,7 +17,7 @@ bool RContext::initialization()
     return glfw.init;
 }
 
-GLFWwindow *RContext::setContexAsThisThread(const RContext::ContexFormat &format)
+GLFWwindow *RContext::setContexAsThisThread(const RContext::Format &format)
 {
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, format.versionMajor);

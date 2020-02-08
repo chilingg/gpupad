@@ -13,7 +13,7 @@ int main()
         exit(EXIT_FAILURE);
 
     rDebug << "Try Create OpenGL3.3 Context...";
-    RContext::ContexFormat format;
+    RContext::Format format;
     format.versionMajor = 3;
     format.versionMinor = 3;
 

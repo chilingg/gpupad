@@ -110,7 +110,7 @@ bool observeKeyboard(Keys, ButtonAction, Modifier)
 
 int main()
 {
-    RWindow::WindowFormat format;
+    RWindow::Format format;
     format.decorate = false;
     format.keysSigal = true;
     format.initWidth = 500;

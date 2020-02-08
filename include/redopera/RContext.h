@@ -10,7 +10,7 @@ namespace Redopera {
 
 namespace RContext {
 
-struct ContexFormat
+struct Format
 {
     bool vSync          = true;     // 垂直同步
     bool forward        = true;     // 前向兼容(清除当前版本不推荐的特性）
@@ -25,7 +25,7 @@ extern thread_local std::unique_ptr<GLFWwindow, void(*)(GLFWwindow*)> contex;
 
 bool initialization();
 
-GLFWwindow* setContexAsThisThread(const ContexFormat &format = ContexFormat());
+GLFWwindow* setContexAsThisThread(const Format &format = Format());
 
 inline void destroyContexAsThisThread() { contex.reset(); }
 
