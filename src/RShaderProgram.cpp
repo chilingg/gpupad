@@ -277,11 +277,11 @@ RShaderProgram::RShaderProgram():
 
 }
 
-RShaderProgram::RShaderProgram(std::initializer_list<RShader*> list, const std::string &name):
+RShaderProgram::RShaderProgram(std::initializer_list<RShader> list, const std::string &name):
     RResource(name, typeid(this).name())
 {
     for(auto &shader : list)
-        shaders_.emplace(shader->type(), *shader);
+        shaders_.emplace(shader.type(), shader);
     linkProgram();
 }
 

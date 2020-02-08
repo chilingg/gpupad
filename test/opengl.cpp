@@ -1,6 +1,5 @@
 #include <RContext.h>
 #include <rsc/RShaderProgram.h>
-#include <cmath>
 #include <RDebug.h>
 
 using namespace Redopera;

@@ -79,7 +79,7 @@ public:
     };
 
     RShaderProgram();
-    RShaderProgram(std::initializer_list<RShader*> list, const std::string &name = "ShaderProgram");
+    RShaderProgram(std::initializer_list<RShader> list, const std::string &name = "ShaderProgram");
     RShaderProgram(const RShaderProgram &program);
     RShaderProgram(const RShaderProgram &&program);
     RShaderProgram& operator=(RShaderProgram program);
