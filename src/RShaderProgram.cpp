@@ -16,19 +16,19 @@ RShaderProgram::Interface::~Interface()
     }
 }
 
-void RShaderProgram::Interface::setViewprot(GLuint loc, float left, float right, float bottom, float top, float near, float far)
+void RShaderProgram::Interface::setViewprot(GLuint loc, float left, float right, float bottom, float top, float near, float far) const
 {
     glm::mat4 projection = glm::ortho(left, right, bottom, top, near, far);
     setUniformMatrix(loc, 4, glm::value_ptr(projection));
 }
 
-void RShaderProgram::Interface::setPerspective(GLuint loc, float left, float right, float bottom, float top, float near, float far)
+void RShaderProgram::Interface::setPerspective(GLuint loc, float left, float right, float bottom, float top, float near, float far) const
 {
     glm::mat4 projection = perspective(left, right, bottom, top, near, far);
     setUniformMatrix(loc, 4, glm::value_ptr(projection));
 }
 
-void RShaderProgram::Interface::setCameraPos(GLuint loc, float x, float y, float z)
+void RShaderProgram::Interface::setCameraPos(GLuint loc, float x, float y, float z) const
 {
     glm::mat4 view = glm::translate(glm::mat4(1), {-x, -y, -z});
     setUniformMatrix(loc, 4, glm::value_ptr(view));
@@ -216,34 +216,64 @@ void RShaderProgram::Interface::setUniform(GLuint loc, glm::uvec4 *vec, GLsizei 
     glUniform4uiv(loc, count, &vec->x);
 }
 
-void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::mat2 &mat, GLsizei count) const
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::mat2 &mat) const
 {
     glUniformMatrix2fv(loc, count, GL_FALSE, glm::value_ptr(mat));
 }
 
-void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::mat3 &mat, GLsizei count) const
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::mat3 &mat) const
 {
     glUniformMatrix3fv(loc, count, GL_FALSE, glm::value_ptr(mat));
 }
 
-void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::mat4 &mat, GLsizei count) const
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::mat4 &mat) const
 {
     glUniformMatrix4fv(loc, count, GL_FALSE, glm::value_ptr(mat));
 }
 
-void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::dmat2 &mat, GLsizei count) const
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::dmat2 &mat) const
 {
     glUniformMatrix2dv(loc, count, GL_FALSE, glm::value_ptr(mat));
 }
 
-void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::dmat3 &mat, GLsizei count) const
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::dmat3 &mat) const
 {
     glUniformMatrix3dv(loc, count, GL_FALSE, glm::value_ptr(mat));
 }
 
-void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::dmat4 &mat, GLsizei count) const
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::dmat4 &mat) const
 {
     glUniformMatrix4dv(loc, count, GL_FALSE, glm::value_ptr(mat));
+}
+
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::mat2 *mat, GLsizei count) const
+{
+    glUniformMatrix2fv(loc, count, GL_FALSE, glm::value_ptr(*mat));
+}
+
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::mat3 *mat, GLsizei count) const
+{
+    glUniformMatrix3fv(loc, count, GL_FALSE, glm::value_ptr(*mat));
+}
+
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::mat4 *mat, GLsizei count) const
+{
+    glUniformMatrix4fv(loc, count, GL_FALSE, glm::value_ptr(*mat));
+}
+
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::dmat2 *mat, GLsizei count) const
+{
+    glUniformMatrix2dv(loc, count, GL_FALSE, glm::value_ptr(*mat));
+}
+
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::dmat3 *mat, GLsizei count) const
+{
+    glUniformMatrix3dv(loc, count, GL_FALSE, glm::value_ptr(*mat));
+}
+
+void RShaderProgram::Interface::setUniformMatrix(GLuint loc, const glm::dmat4 *mat, GLsizei count) const
+{
+    glUniformMatrix4dv(loc, count, GL_FALSE, glm::value_ptr(*mat));
 }
 
 void RShaderProgram::Interface::setUniformMatrix(GLuint loc, GLsizei order, GLfloat *vp, GLsizei count, GLboolean transpose) const
