@@ -57,7 +57,7 @@ public:
     explicit RArea(const RRect &rect, int z = 0);
     explicit RArea(const Format &format);
     RArea(const RArea &area);
-    ~RArea() = default;
+    virtual ~RArea() = default;
 
     void setMinSize(int minw, int minh);
     void setMinSize(const RSize &size);

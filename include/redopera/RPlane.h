@@ -36,7 +36,7 @@ public:
     explicit RPlane(const Format &format, const RTexture &tex = defaultTexture());
     RPlane(const RPlane &plane);
     RPlane(const RPlane &&plane);
-    ~RPlane() = default;
+    ~RPlane() override = default;
 
     const ModelMat& modelMat() const;
 
