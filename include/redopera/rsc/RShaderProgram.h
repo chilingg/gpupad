@@ -18,11 +18,7 @@ public:
         friend RShaderProgram;
 
     public:
-        ~Interface()
-        {
-            glUseProgram(0);
-            current = nullptr;
-        }
+        ~Interface();
 
         void setViewprot(GLuint loc, float left, float right, float bottom, float top, float near = -127.0f, float far = 128.0f);
         void setPerspective(GLuint loc, float left, float right, float bottom, float top, float near, float far);
@@ -65,17 +61,10 @@ public:
         void setUniformMatrix(GLuint loc, GLsizei order, GLdouble *vp, GLsizei count = 1, GLboolean transpose = false) const;
 
     private:
-        Interface(GLuint id):
-            id_(id)
-        {
-            if(current) throw std::logic_error("The current thread has other <Interfaces> is using!");
-            current = this;
-            glUseProgram(id_);
-        }
+        Interface(GLuint id);
 
-        thread_local static Interface* current;
-
-        GLuint id_;
+        thread_local static GLuint current;
+        thread_local static int count;
     };
 
     RShaderProgram();

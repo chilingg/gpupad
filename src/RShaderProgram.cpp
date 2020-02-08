@@ -3,7 +3,18 @@
 
 using namespace Redopera;
 
-thread_local RShaderProgram::Interface *RShaderProgram::Interface::current = nullptr;
+thread_local GLuint RShaderProgram::Interface::current = 0;
+thread_local int RShaderProgram::Interface::count = 0;
+
+RShaderProgram::Interface::~Interface()
+{
+    --count;
+    if(!count)
+    {
+        glUseProgram(0);
+        current = 0;
+    }
+}
 
 void RShaderProgram::Interface::setViewprot(GLuint loc, float left, float right, float bottom, float top, float near, float far)
 {
@@ -269,6 +280,14 @@ void RShaderProgram::Interface::setUniformMatrix(GLuint loc, GLsizei order, GLdo
         throw std::invalid_argument("Invalid size argument for UniformMatrix" + std::to_string(order) + "dv");
         break;
     }
+}
+
+RShaderProgram::Interface::Interface(GLuint id)
+{
+    if(current && current != id) throw std::runtime_error("The current thread has other <Interfaces> is using!");
+    current = id;
+    ++count;
+    glUseProgram(id);
 }
 
 RShaderProgram::RShaderProgram():
