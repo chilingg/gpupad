@@ -28,7 +28,7 @@ int main()
     if(RContext::setContexAsThisThread(format))
         std::cout << "OpenGl Version " << GLVersion.major << '.' << GLVersion.minor << " created\n" << std::endl;
 
-    RShader vertex(vCode, ShaderType::VertexShader);
+    RShader vertex(vCode, RShader::Type::Vertex);
     RShaderProgram renderProg({vertex});
 
     const char * varyings[] = { "outValue" };

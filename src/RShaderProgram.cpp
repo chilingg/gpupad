@@ -315,7 +315,7 @@ bool RShaderProgram::isValid() const
     return progID_ != nullptr;
 }
 
-bool RShaderProgram::isAttachShader(ShaderType type) const
+bool RShaderProgram::isAttachShader(RShader::Type type) const
 {
     return shaders_.count(type);
 }
@@ -341,7 +341,7 @@ void RShaderProgram::attachShader(std::initializer_list<RShader> list)
         shaders_.emplace(shader.type(), shader);
 }
 
-void RShaderProgram::detachShader(ShaderType type)
+void RShaderProgram::detachShader(RShader::Type type)
 {
     shaders_.erase(type);
 }
@@ -375,7 +375,7 @@ void RShaderProgram::reLinkProgram()
 
 void RShaderProgram::releaseShader()
 {
-    std::map<ShaderType, RShader> temp;
+    std::map<RShader::Type, RShader> temp;
     shaders_.swap(temp);
 }
 

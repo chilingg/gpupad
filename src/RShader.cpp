@@ -3,7 +3,7 @@
 
 using namespace Redopera;
 
-const std::string &RShader::shaderTypeName(ShaderType type)
+const std::string &RShader::shaderTypeName(Type type)
 {
     static const std::string vetex      = "VertexShader";
     static const std::string fragment   = "FragmentShader";
@@ -13,17 +13,17 @@ const std::string &RShader::shaderTypeName(ShaderType type)
     static const std::string compute    = "ComputeShader";
 
     switch(type) {
-    case ShaderType::VertexShader:
+    case Type::Vertex:
         return vetex;
-    case ShaderType::FragmentShader:
+    case Type::Fragment:
         return fragment;
-    case ShaderType::TessContolShader:
+    case Type::TessContol:
         return tessc;
-    case ShaderType::TessEvaluationShader:
+    case Type::TessEvaluation:
         return tesse;
-    case ShaderType::GeometryShader:
+    case Type::Geometry:
         return geometry;
-    case ShaderType::ComputeShader:
+    case Type::Compute:
         return compute;
     }
 
@@ -36,7 +36,7 @@ RShader::RShader():
 
 }
 
-RShader::RShader(const std::string &shader, ShaderType type, const std::string &name):
+RShader::RShader(const std::string &shader, Type type, const std::string &name):
     RResource(name, typeid(this).name())
 {
     load(shader, type);
@@ -77,7 +77,7 @@ bool RShader::isValid() const
     return shaderID_ != nullptr;
 }
 
-ShaderType RShader::type() const
+RShader::Type RShader::type() const
 {
     return type_;
 }
@@ -92,7 +92,7 @@ GLuint RShader::shaderID() const
     return *shaderID_;
 }
 
-bool RShader::load(const std::string &shader, ShaderType type)
+bool RShader::load(const std::string &shader, Type type)
 {
     std::string code = getTextFileContent(shader);
     if(code.empty())

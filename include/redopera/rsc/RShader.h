@@ -6,25 +6,25 @@
 
 namespace Redopera {
 
-enum class ShaderType
-{
-    VertexShader    = GL_VERTEX_SHADER,
-    FragmentShader  = GL_FRAGMENT_SHADER,
-    TessContolShader        = GL_TESS_CONTROL_SHADER,
-    TessEvaluationShader    = GL_TESS_EVALUATION_SHADER,
-    GeometryShader  = GL_GEOMETRY_SHADER,
-    ComputeShader   = GL_COMPUTE_SHADER
-};
-
 class RShader : public RResource
 {
     friend void swap(RShader &shader1, RShader &shader2);
 
 public:
-    static const std::string& shaderTypeName(ShaderType type);
+    enum class Type
+    {
+        Vertex    = GL_VERTEX_SHADER,
+        Fragment  = GL_FRAGMENT_SHADER,
+        TessContol        = GL_TESS_CONTROL_SHADER,
+        TessEvaluation    = GL_TESS_EVALUATION_SHADER,
+        Geometry  = GL_GEOMETRY_SHADER,
+        Compute   = GL_COMPUTE_SHADER
+    };
+
+    static const std::string& shaderTypeName(Type type);
 
     RShader();
-    RShader(const std::string &shader, ShaderType type, const std::string &name = "Shader");
+    RShader(const std::string &shader, Type type, const std::string &name = "Shader");
     RShader(const RShader &shader);
     RShader(const RShader &&shader);
     RShader& operator=(RShader shader);
@@ -32,18 +32,18 @@ public:
     ~RShader() = default;
 
     bool isValid() const;
-    ShaderType type() const;
+    Type type() const;
     const std::string& typeName() const;
     GLuint shaderID() const;
 
-    bool load(const std::string &shader, ShaderType type);
+    bool load(const std::string &shader, Type type);
     void release();
 
 private:
     static void deleteShader(GLuint *id);
 
     std::shared_ptr<GLuint> shaderID_;
-    ShaderType type_;
+    Type type_;
 };
 
 } // Redopera

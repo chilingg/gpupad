@@ -35,7 +35,7 @@ class TestCtl: public RController
 public:
     TestCtl(RController *parent, const std::string &name):
         RController(parent, name),
-        shaders({RShader(vCode, ShaderType::VertexShader), RShader(fCode, ShaderType::FragmentShader)}),
+        shaders({RShader(vCode, RShader::Type::Vertex), RShader(fCode, RShader::Type::Fragment)}),
         model(glm::mat4(1))
     {}
 

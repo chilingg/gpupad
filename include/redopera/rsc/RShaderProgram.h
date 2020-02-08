@@ -87,7 +87,7 @@ public:
     void swap(RShaderProgram &program);
 
     bool isValid() const;
-    bool isAttachShader(ShaderType typr) const;
+    bool isAttachShader(RShader::Type typr) const;
     GLuint shaderProgramID() const;
     Interface useInterface() const;
 
@@ -95,7 +95,7 @@ public:
 
     // attachShader() 与 detachShader() 都是只在重新linkProgram时生效
     void attachShader(std::initializer_list<RShader> list);
-    void detachShader(ShaderType type);
+    void detachShader(RShader::Type type);
     bool linkProgram();
     void reLinkProgram();
     void releaseShader();
@@ -105,7 +105,7 @@ private:
     static void deleteShaderProgram(GLuint *ID);
 
     std::shared_ptr<GLuint> progID_;
-    std::map<ShaderType, RShader> shaders_;
+    std::map<RShader::Type, RShader> shaders_;
 };
 
 } // Redopera
