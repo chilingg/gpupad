@@ -50,7 +50,7 @@ public:
         Wrap wrapT = Wrap::ClampToBorder;
         Filter filterMin = Filter::Linear;
         Filter filterMax = Filter::Linear;
-        int inChannel = 3;
+        int inChannel = 4;
         std::array<GLuint, 4> edgeColor { 0, 0, 0, 0 };
     };
     using Format = std::shared_ptr<TexFormat>;
