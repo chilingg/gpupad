@@ -28,7 +28,7 @@ void RShaderProgram::Interface::setPerspective(GLuint loc, float left, float rig
     setUniformMatrix(loc, 4, glm::value_ptr(projection));
 }
 
-void RShaderProgram::Interface::setCameraPos(GLuint loc, float x, float y, float z) const
+void RShaderProgram::Interface::setCameraMove(GLuint loc, float x, float y, float z) const
 {
     glm::mat4 view = glm::translate(glm::mat4(1), {-x, -y, -z});
     setUniformMatrix(loc, 4, glm::value_ptr(view));
@@ -379,7 +379,7 @@ RShaderProgram::Interface RShaderProgram::useInterface() const
     return Interface(*progID_);
 }
 
-GLuint RShaderProgram::getUniformLocation(const std::string &name)
+GLuint RShaderProgram::getUniformLocation(const std::string &name) const
 {
     return glGetUniformLocation(*progID_, name.c_str());
 }

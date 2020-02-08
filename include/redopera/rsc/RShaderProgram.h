@@ -22,7 +22,7 @@ public:
 
         void setViewprot(GLuint loc, float left, float right, float bottom, float top, float near = -127.0f, float far = 128.0f) const;
         void setPerspective(GLuint loc, float left, float right, float bottom, float top, float near, float far) const;
-        void setCameraPos(GLuint loc, float x, float y, float z = 0) const;
+        void setCameraMove(GLuint loc, float x, float y, float z = 0) const;
 
         void setUniform(GLuint loc, GLfloat v1) const;
         void setUniform(GLuint loc, GLfloat v1, GLfloat v2) const;
@@ -96,7 +96,7 @@ public:
     GLuint shaderProgramID() const;
     Interface useInterface() const;
 
-    GLuint getUniformLocation(const std::string &name);
+    GLuint getUniformLocation(const std::string &name) const;
 
     // attachShader() 与 detachShader() 都是只在重新linkProgram时生效
     void attachShader(std::initializer_list<RShader> list);
