@@ -76,7 +76,7 @@ public:
     RSize size() const;
     const Format format() const;
     GLuint textureID() const;
-    void bind(unsigned unit = 0); // unit直接指定纹理单元号，无需使用GL_TEXTURE0
+    void bind(unsigned unit = 0) const; // unit直接指定纹理单元号，无需使用GL_TEXTURE0
 
     bool load(const RData *data, int width, int height, int echannel, const Format &format = textureFormat);
     bool load(const RImage &img, const Format &format = textureFormat);

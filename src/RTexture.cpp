@@ -101,7 +101,7 @@ GLuint RTexture::textureID() const
     return *textureID_;
 }
 
-void RTexture::bind(unsigned unit)
+void RTexture::bind(unsigned unit) const
 {
     glActiveTexture(unit + GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, *textureID_);
