@@ -97,9 +97,19 @@ RPlane::RPlane(const RPlane &&plane):
 
 }
 
-const RPlane::ModelMat &RPlane::modelMat() const
+const glm::mat4 &RPlane::modelMat() const
+{
+    return model_;
+}
+
+const RPlane::ModelMat &RPlane::modelMats() const
 {
     return mats_;
+}
+
+const RTexture &RPlane::texture() const
+{
+    return texture_;
 }
 
 void RPlane::setColorTexture(const RColor &color)
@@ -288,9 +298,9 @@ void RPlane::edging(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
 
 const RPlane::RenderTool RPlane::planeRenderTool()
 {
-    thread_local static std::unique_ptr<GLuint[], std::function<void(GLuint *p)>> vao(new GLuint[2], [](GLuint *p){
+    thread_local static std::unique_ptr<GLuint[], std::function<void(GLuint *p)>> vao(new GLuint[2]{0}, [](GLuint *p){
     glDeleteVertexArrays(2, p); delete [] p; });
-    thread_local static std::unique_ptr<GLuint[], std::function<void(GLuint *p)>> vbo(new GLuint[2], [](GLuint *p){
+    thread_local static std::unique_ptr<GLuint[], std::function<void(GLuint *p)>> vbo(new GLuint[2]{0}, [](GLuint *p){
     glDeleteBuffers(2, p); delete [] p; });
 
     if(!vao[0])

@@ -38,7 +38,9 @@ public:
     RPlane(const RPlane &&plane);
     ~RPlane() override = default;
 
-    const ModelMat& modelMat() const;
+    const glm::mat4& modelMat() const;
+    const ModelMat& modelMats() const;
+    const RTexture& texture() const;
 
     void setColorTexture(const RColor &color);
     void setColorTexture(R_RGBA rgba);
