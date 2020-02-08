@@ -317,16 +317,19 @@ int RArea::z() const
 
 int &RArea::rx()
 {
+    format_.dirty = true;
     return format_.pos.rx();
 }
 
 int &RArea::ry()
 {
+    format_.dirty = true;
     return format_.pos.ry();
 }
 
 int &RArea::rz()
 {
+    format_.dirty = true;
     return format_.pos.rz();
 }
 

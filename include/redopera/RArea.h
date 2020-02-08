@@ -34,7 +34,7 @@ public:
         struct { int t, b, l, r;
                } margin { 0, 0, 0, 0 }, padding { 0, 0, 0, 0 };
         struct { Align v, h;
-               } align { Align::Left, Align::Bottom};
+               } align { Align::Bottom, Align::Left};
         Mode mode = Mode::Auto;
         struct { float x, y, z;
                } rotate { 0.0f, 0.0f, 0.0f };
