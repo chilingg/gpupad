@@ -3,6 +3,7 @@
 using namespace Redopera;
 
 std::mutex RDebug::mutex;
+std::wstring_convert<std::codecvt_utf8<wchar_t>> RDebug::strcnv;
 
 RDebug::RDebug():
     guard(mutex)
@@ -108,67 +109,22 @@ const RDebug &RDebug::operator<<(const std::string &str) const
 
 const RDebug &RDebug::operator<<(wchar_t c) const
 {
-#ifdef linux
-    bool b = std::ios::sync_with_stdio(false);    // Linux gcc.
-#endif
-
-    std::locale loc = std::locale::global(std::locale(""));
-    //setlocale(LC_CTYPE, "");    // MinGW gcc.
-    std::locale locw = std::wcout.imbue(std::locale(std::locale(), "", LC_CTYPE));
-
-    std::cout << std::flush;
-    std::wcout << c << std::ends;
-
-    std::wcout.imbue(locw);
-    std::locale::global(loc);
-
-#ifdef linux
-    std::ios::sync_with_stdio(b);
-#endif
+    std::string s = strcnv.to_bytes(c);
+    std::cout << s;
     return *this;
 }
 
 const RDebug &RDebug::operator<<(const wchar_t *str) const
 {
-#ifdef linux
-    bool b = std::ios::sync_with_stdio(false);    // Linux gcc.
-#endif
-
-    std::locale loc = std::locale::global(std::locale(""));
-    //setlocale(LC_CTYPE, "");    // MinGW gcc.
-    std::locale locw = std::wcout.imbue(std::locale(std::locale(), "", LC_CTYPE));
-
-    std::cout << std::flush;
-    std::wcout << str << std::ends;
-
-    std::wcout.imbue(locw);
-    std::locale::global(loc);
-
-#ifdef linux
-    std::ios::sync_with_stdio(b);
-#endif
+    std::string s = strcnv.to_bytes(str);
+    std::cout << s;
     return *this;
 }
 
 const RDebug &RDebug::operator<<(const std::wstring &str) const
 {
-#ifdef linux
-    bool b = std::ios::sync_with_stdio(false);    // Linux gcc.
-#endif
-
-    std::locale loc = std::locale::global(std::locale(""));
-    //setlocale(LC_CTYPE, "");    // MinGW gcc.
-    std::locale locw = std::wcout.imbue(std::locale(std::locale(), "", LC_CTYPE));
-
-    std::cout << std::flush;
-    std::wcout << str << std::ends;
-
-    std::wcout.imbue(locw);
-    std::locale::global(loc);
-
-#ifdef linux
-    std::ios::sync_with_stdio(b);
-#endif
+    std::string s = strcnv.to_bytes(str);
+    std::cout << s;
     return *this;
 }
 

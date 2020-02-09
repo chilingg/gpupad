@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <thread>
 #include <mutex>
+#include <codecvt>
 
 #include "RColor.h"
 #include "RPoint.h"
@@ -68,6 +69,7 @@ public:
 
 private:
     static std::mutex mutex;
+    static std::wstring_convert<std::codecvt_utf8<wchar_t>> strcnv;
     RDebug();
     std::lock_guard<std::mutex> guard;
 };
