@@ -335,13 +335,17 @@ RShaderProgram::RShaderProgram(std::initializer_list<RShader> list, const std::s
 }
 
 RShaderProgram::RShaderProgram(const RShaderProgram &program):
-    RResource(program)
+    RResource(program),
+    progID_(program.progID_),
+    shaders_(program.shaders_)
 {
 
 }
 
 RShaderProgram::RShaderProgram(const RShaderProgram &&program):
-    RResource(std::move(program))
+    RResource(std::move(program)),
+    progID_(std::move(program.progID_)),
+    shaders_(std::move(program.shaders_))
 {
 
 }
