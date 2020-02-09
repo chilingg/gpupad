@@ -12,8 +12,8 @@ class RPlane : public RArea
     struct RenderTool
     {
         RShaderProgram &shaders;
-        GLuint modelLoc;
         GLuint vao;
+        GLuint modelLoc;
         GLuint edgingVAO;
         GLuint edgingLoc;
     };
@@ -24,8 +24,7 @@ class RPlane : public RArea
     };
 
 public:
-    static void setPlaneShadersAsThread(const RShaderProgram &shaders, GLuint modelLoc);
-    static void setPlaneShadersAsThread(const RShaderProgram &shaders, GLuint modelLoc, GLuint edgingLoc);
+    static void setPlaneShadersAsThread(const RShaderProgram &shaders, GLuint modelLoc, GLuint edgingLoc = -1);
     static const RShaderProgram& planeShader();
 
     RPlane();
@@ -51,8 +50,10 @@ public:
     void update();
     void render();
     void render(const RShaderProgram &shaders, GLuint mLoc);
-    void edging();
-    void edging(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc);
+    void edging(const RColor &color);
+    void edging(const RColor &color, const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc);
+    void edgingAll();
+    void edgingAll(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc);
 
 protected:
     static const RenderTool planeRenderTool();
@@ -63,8 +64,8 @@ private:
     static const RTexture& defaultTexture();
 
     thread_local static RShaderProgram tPlaneShaders;
-    thread_local static GLuint modelLoc;
-    thread_local static GLuint edgingLoc;
+    thread_local static GLuint MODEL_LOC;
+    thread_local static GLuint EDGING_LOC;
 
     ModelMat mats_;
     glm::mat4 model_;

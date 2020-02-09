@@ -18,7 +18,7 @@ public:
     void control() override
     {
         plane.render();
-        plane.edging();
+        plane.edgingAll();
     }
 
 protected:

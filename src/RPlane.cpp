@@ -4,21 +4,14 @@
 using namespace Redopera;
 
 thread_local RShaderProgram RPlane::tPlaneShaders;
-thread_local GLuint RPlane::modelLoc;
-thread_local GLuint RPlane::edgingLoc;
-
-void RPlane::setPlaneShadersAsThread(const RShaderProgram &shaders, GLuint mLoc)
-{
-    tPlaneShaders = shaders;
-    modelLoc = mLoc;
-    edgingLoc = -1;
-}
+thread_local GLuint RPlane::MODEL_LOC;
+thread_local GLuint RPlane::EDGING_LOC;
 
 void RPlane::setPlaneShadersAsThread(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
 {
     tPlaneShaders = shaders;
-    modelLoc = mLoc;
-    edgingLoc = eLoc;
+    MODEL_LOC = mLoc;
+    EDGING_LOC = eLoc;
 }
 
 const RShaderProgram &RPlane::planeShader()
@@ -227,7 +220,7 @@ void RPlane::render()
         update();
 
     RShaderProgram::Interface inter = rt.shaders.useInterface();
-    inter.setUniform(rt.edgingLoc, 0);
+    inter.setUniform(rt.edgingLoc, .0f, .0f, .0f, .0f);
     renderControl(rt.shaders, rt.modelLoc);
 
     glBindVertexArray(0);
@@ -242,13 +235,47 @@ void RPlane::render(const RShaderProgram &shaders, GLuint mLoc)
         update();
 
     RShaderProgram::Interface inter = shaders.useInterface();
-    inter.setUniform(mLoc, 0);
+    inter.setUniform(rt.edgingLoc, .0f, .0f, .0f, .0f);
     renderControl(shaders, mLoc);
 
     glBindVertexArray(0);
 }
 
-void RPlane::edging()
+void RPlane::edging(const RColor &color)
+{
+    const RenderTool& rt = planeRenderTool();
+    glBindVertexArray(rt.edgingVAO);
+
+    glm::mat4 mat(1);
+    mat = glm::translate(mat, { format().pos.x(), format().pos.y(), format().pos.z() });
+    mat = glm::scale(mat, { width(), height(), 0 });
+
+    RShaderProgram::Interface inter = rt.shaders.useInterface();
+    inter.setUniformMatrix(rt.modelLoc, mat);
+    inter.setUniform(rt.edgingLoc, color.r()/255.f, color.g()/255.f, color.b()/255.f, 1.0f);
+
+    glDrawArrays(GL_LINE_LOOP, 0, 4);
+    glBindVertexArray(0);
+}
+
+void RPlane::edging(const RColor &color, const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
+{
+    const RenderTool& rt = planeRenderTool();
+    glBindVertexArray(rt.edgingVAO);
+
+    glm::mat4 mat(1);
+    mat = glm::translate(mat, { format().pos.x(), format().pos.y(), format().pos.z() });
+    mat = glm::scale(mat, { width(), height(), 0 });
+
+    RShaderProgram::Interface inter = shaders.useInterface();
+    inter.setUniformMatrix(mLoc, mat);
+    inter.setUniform(eLoc, color.r()/255.f, color.g()/255.f, color.b()/255.f, 1.0f);
+
+    glDrawArrays(GL_LINE_LOOP, 0, 4);
+    glBindVertexArray(0);
+}
+
+void RPlane::edgingAll()
 {
     const RenderTool& rt = planeRenderTool();
     glBindVertexArray(rt.edgingVAO);
@@ -264,33 +291,29 @@ void RPlane::edging()
 
     RShaderProgram::Interface inter = rt.shaders.useInterface();
     inter.setUniformMatrix(rt.modelLoc, mats, 3);
-    inter.setUniform(rt.edgingLoc, 1);
-    texture_.bind();
+    inter.setUniform(rt.edgingLoc, .0f, .0f, .0f, 1.0f);
 
     glDrawArraysInstanced(GL_LINE_LOOP, 0, 4, 3);
     glBindVertexArray(0);
 }
 
-void RPlane::edging(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
+void RPlane::edgingAll(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
 {
     const RenderTool& rt = planeRenderTool();
     glBindVertexArray(rt.edgingVAO);
 
-    if(isDirty())
-        update();
+    glm::mat4 mats[3] { glm::mat4(1), glm::mat4(1), glm::mat4(1)};
 
-    glm::mat4 mats[3] { model_ };
-    mats[1] = mats_.tran * mats_.rotate
-            * glm::translate(glm::mat4(1), { -format().padding.l - format().padding.r, -format().padding.t - format().padding.b , 0})
-            * mats_.scale;
-    mats[2] = mats_.tran * mats_.rotate
-            * glm::translate(glm::mat4(1), { format().margin.l + format().margin.r, format().margin.t + format().margin.b , 0})
-            * mats_.scale;
+    mats[0] = glm::translate(mats[0], { format().pos.x(), format().pos.y(), format().pos.z() });
+    mats[0] = glm::scale(mats[0], { width(), height(), 0 });
+    mats[1] = glm::translate(mats[1], { innerPos().x(), innerPos().y(), format().pos.z() });
+    mats[1] = glm::scale(mats[1], { innerWidth(), innerHeight() , 0 });
+    mats[2] = glm::translate(mats[2], { outerPos().x(), outerPos().y(), format().pos.z() });
+    mats[2] = glm::scale(mats[2], { outerWidth(), outerHeight() , 0 });
 
     RShaderProgram::Interface inter = shaders.useInterface();
     inter.setUniformMatrix(mLoc, mats, 3);
-    inter.setUniform(eLoc, 1);
-    texture_.bind();
+    inter.setUniform(eLoc, .0f, .0f, .0f, 1.0f);
 
     glDrawArraysInstanced(GL_LINE_LOOP, 0, 4, 3);
     glBindVertexArray(0);
@@ -343,27 +366,27 @@ const RPlane::RenderTool RPlane::planeRenderTool()
             "#version 330 core\n"
             "layout(location = 0) in vec3 aPos;\n"
             "layout(location = 1) in vec2 aTexCoor;\n"
-            "uniform int edging;\n"
+            "uniform vec4 edging;\n"
             "uniform mat4 model[3];\n"
             "uniform mat4 view;\n"
             "uniform mat4 projection;\n"
             "out vec4 texCoor; // 末位检测是否渲染边框\n"
             "void main(void)\n"
             "{\n"
-            "	if(edging == 1)\n"
-            "	{\n"
-                    "gl_Position = projection * view * model[gl_InstanceID] * vec4(aPos, 1.0);\n"
+                "gl_Position = projection * view * model[gl_InstanceID] * vec4(aPos, 1.0);\n"
+                "if(edging == vec4(0, 0, 0, 0))\n"
+                    "texCoor = vec4(aTexCoor, 0, 0.0);\n"
+                "else if(edging == vec4(0, 0, 0, 1))"
+                "{\n"
                     "if(gl_InstanceID == 0)\n"
                         "texCoor = vec4(1.0, 0, 0, 1.0);\n"
                     "else if(gl_InstanceID == 1)\n"
                         "texCoor = vec4(0, 1.0, 0, 1.0);\n"
                     "else\n"
                         "texCoor = vec4(0, 0, 1.0, 1.0);\n"
-                "} \n"
-                "else {\n"
-                    "gl_Position = projection * view * model[0] * vec4(aPos, 1.0);\n"
-                    "texCoor = vec4(aTexCoor, 0, 0.0);\n"
                 "}\n"
+                "else\n"
+                    "texCoor = edging;\n"
             "}\n"
         };
         static const GLchar *fCode = {
@@ -373,7 +396,7 @@ const RPlane::RenderTool RPlane::planeRenderTool()
             "uniform sampler2D tex;\n"
             "void main(void)\n"
             "{\n"
-            "	if(texCoor.a == 0)\n"
+                "if(texCoor.a == 0)\n"
                     "outColor = texture(tex, texCoor.st);\n"
                 "else\n"
                     "outColor = texCoor;\n"
@@ -384,11 +407,11 @@ const RPlane::RenderTool RPlane::planeRenderTool()
         tPlaneShaders.attachShader({ RShader(vCode, RShader::Type::Vertex), RShader(fCode, RShader::Type::Fragment)});
         tPlaneShaders.linkProgram();
         auto inter = tPlaneShaders.useInterface();
-        modelLoc = tPlaneShaders.getUniformLocation("model");
-        edgingLoc = tPlaneShaders.getUniformLocation("edging");
+        MODEL_LOC = tPlaneShaders.getUniformLocation("model");
+        EDGING_LOC = tPlaneShaders.getUniformLocation("edging");
     }
 
-    return { tPlaneShaders, modelLoc, vao[0], vao[1], edgingLoc };
+    return { tPlaneShaders, vao[0], MODEL_LOC, vao[1], EDGING_LOC };
 }
 
 void RPlane::renderControl(const RShaderProgram &shaders, GLuint mLoc)
