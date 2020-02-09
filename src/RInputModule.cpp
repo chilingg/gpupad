@@ -277,7 +277,6 @@ Keys RInputModule::toKey(int key)
     case GLFW_KEY_MENU:
         return Keys::KEY_MENU;
     default:
-        prError("Unknow keyboard value!");
         return Keys::KEY_UNKNOWN;
     }
 }
@@ -389,15 +388,16 @@ void Redopera::RInputModule::updateGamepad()
         using std::swap;
         swap(gamepad.status.buttons, gamepad.preButtons);
 
-        assert(glfwJoystickIsGamepad(gamepad.jid));
         glfwGetGamepadState(gamepad.jid, &gamepad.status);
     }
 }
 
-void RInputModule::addGamepad(JoystickID jid)
+bool RInputModule::addGamepad(JoystickID jid)
 {
-    assert(glfwJoystickIsGamepad(jid));
+    if(!glfwJoystickIsGamepad(jid))
+        return false;
     gamepadInputs_.emplace_back(GamepadValue(jid));
+    return true;
 }
 
 bool RInputModule::deleteGamepad(JoystickID jid)

@@ -267,7 +267,7 @@ public:
     void updateCursorPos(int x, int y);
 
     void updateGamepad();
-    void addGamepad(JoystickID jid);
+    bool addGamepad(JoystickID jid);
     bool deleteGamepad(JoystickID jid);
 
     int gamepadCount();
