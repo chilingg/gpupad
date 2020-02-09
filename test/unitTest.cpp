@@ -11,11 +11,11 @@ int main()
     a2.setMargin(2, 2, 1, 1);
     RArea a3(12, 6, RPoint(-6, -3));
     a3.setPadding(3, 3, 3, 3);
-    RArea::Format format = a3.format();
+    RArea::Format format = a3.area();
     format.margin = { 0, 1, 2, 3 };
     RArea a4(format);
     format.padding = { 3, 2, 1, 0 };
-    RArea::setDefaultFormat(format);
+    RArea::setDefaultArea(format);
     RArea a5;
 
     rDebug << a1;

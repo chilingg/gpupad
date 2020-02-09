@@ -32,7 +32,7 @@ public:
     RPlane(int width, int height, const RPoint &pos, const RTexture &tex = defaultTexture());
     RPlane(const RSize &size, const RPoint &pos, const RTexture &tex = defaultTexture());
     explicit RPlane(const RRect &rect, int z = 0, const RTexture &tex = defaultTexture());
-    explicit RPlane(const Format &format, const RTexture &tex = defaultTexture());
+    explicit RPlane(const Format &area, const RTexture &tex = defaultTexture());
     RPlane(const RPlane &plane);
     RPlane(const RPlane &&plane);
     ~RPlane() override = default;

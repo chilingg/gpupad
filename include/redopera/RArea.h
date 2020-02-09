@@ -47,17 +47,19 @@ public:
         int maxH = ~0u >> 1;
     };
 
-    static void setDefaultFormat(Format format);
-    static Format getDefaultFormat();
+    static void setDefaultArea(Format area);
+    static Format getDefaultArea();
 
     RArea();
     RArea(int width, int height, int x, int y, int z = 0);
     RArea(int width, int height, const RPoint &pos);
     RArea(const RSize &size, const RPoint &pos);
     explicit RArea(const RRect &rect, int z = 0);
-    explicit RArea(const Format &format);
+    explicit RArea(const Format &area);
     RArea(const RArea &area);
     virtual ~RArea() = default;
+
+    void setArea(Format format);
 
     void setMinSize(int minw, int minh);
     void setMinSize(const RSize &size);
@@ -134,7 +136,7 @@ public:
     bool isFlipH() const;
     bool isDirty() const;
 
-    const Format &format() const;
+    const Format &area() const;
 
 private:
     static Format areaFormat;

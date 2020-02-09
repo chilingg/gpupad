@@ -4,12 +4,12 @@ using namespace Redopera;
 
 RArea::Format RArea::areaFormat;
 
-void RArea::setDefaultFormat(RArea::Format format)
+void RArea::setDefaultArea(RArea::Format format)
 {
     areaFormat = format;
 }
 
-RArea::Format RArea::getDefaultFormat()
+RArea::Format RArea::getDefaultArea()
 {
     return areaFormat;
 }
@@ -54,6 +54,11 @@ RArea::RArea(const RArea &area):
     format_(area.format_)
 {
 
+}
+
+void RArea::setArea(RArea::Format format)
+{
+    format_ = format;
 }
 
 int clamp(int v, int min, int max)
@@ -428,7 +433,7 @@ bool RArea::isDirty() const
     return format_.dirty;
 }
 
-const RArea::Format &RArea::format() const
+const RArea::Format &RArea::area() const
 {
     return format_;
 }

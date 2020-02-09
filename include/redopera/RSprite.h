@@ -14,7 +14,7 @@ public:
     RSprite(int width, int height, const RPoint &pos, const std::vector<RTexture> &texs = {});
     RSprite(const RSize &size, const RPoint &pos, const std::vector<RTexture> &texs = {});
     explicit RSprite(const RRect &rect, int z = 0, const std::vector<RTexture> &texs = {});
-    explicit RSprite(const Format &format, const std::vector<RTexture> &texs = {});
+    explicit RSprite(const Format &area, const std::vector<RTexture> &texs = {});
     RSprite(const RSprite &sprite);
     RSprite(const RSprite &&sprite);
     ~RSprite() override = default;

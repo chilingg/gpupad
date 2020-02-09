@@ -207,9 +207,9 @@ const RDebug &RDebug::operator<<(const RArea &area) const
 {
     std::cout << "Area:( " << area.x() << ", " << area.y()
               << " | W: " << area.width() << " H: " << area.height()
-              << " | M: " << area.format().margin.t << ' ' << area.format().margin.b
-              << ' ' << area.format().margin.l << ' ' << area.format().margin.r
-              << " | P: " << area.format().padding.t << ' ' << area.format().padding.b
-              << ' ' << area.format().padding.l << ' ' << area.format().padding.r << ") ";
+              << " | M: " << area.area().margin.t << ' ' << area.area().margin.b
+              << ' ' << area.area().margin.l << ' ' << area.area().margin.r
+              << " | P: " << area.area().padding.t << ' ' << area.area().padding.b
+              << ' ' << area.area().padding.l << ' ' << area.area().padding.r << ") ";
     return *this;
 }

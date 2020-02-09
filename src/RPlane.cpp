@@ -142,7 +142,7 @@ void RPlane::update()
     float max = innerHeight() / th;
     if(min > max) std::swap(min, max);
 
-    switch(format().mode)
+    switch(area().mode)
     {
     case RArea::Mode::Fixed:
         w = tw;
@@ -163,43 +163,43 @@ void RPlane::update()
     }
 
     float x, y;
-    switch(format().align.h)
+    switch(area().align.h)
     {
     case RArea::Align::Left:
-        x = w / 2.0f + format().padding.l;
+        x = w / 2.0f + area().padding.l;
         break;
     case RArea::Align::Right:
-        x = format().size.width() - w/2.0f - format().padding.r;
+        x = area().size.width() - w/2.0f - area().padding.r;
         break;
     default: // RArea::Align::Mind
-        x = format().size.width() / 2.0f;
+        x = area().size.width() / 2.0f;
         break;
     }
-    switch(format().align.v)
+    switch(area().align.v)
     {
     case RArea::Align::Bottom:
-        y = h / 2.0f + format().padding.b;
+        y = h / 2.0f + area().padding.b;
         break;
     case RArea::Align::Top:
-        y = format().size.height() - h/2.0f - format().padding.t;
+        y = area().size.height() - h/2.0f - area().padding.t;
         break;
     default: // RArea::Align::Mind
-        y = format().size.height() / 2.0f;
+        y = area().size.height() / 2.0f;
         break;
     }
 
-    mats_.tran = glm::translate(glm::mat4(1), { format().pos.x() + x, format().pos.y() + y, 0 });
-    mats_.rotate = glm::mat4_cast(glm::qua<float>(glm::vec3{ format().rotate.x, format().rotate.x, format().rotate.x }));
+    mats_.tran = glm::translate(glm::mat4(1), { area().pos.x() + x, area().pos.y() + y, 0 });
+    mats_.rotate = glm::mat4_cast(glm::qua<float>(glm::vec3{ area().rotate.x, area().rotate.x, area().rotate.x }));
     mats_.scale = glm::scale(glm::mat4(1), { w, h, 0.0f });
 
-    if(format().flipH)
+    if(area().flipH)
     {
         mats_.scale[0][0] *= -1;
         mats_.scale[0][1] *= -1;
         mats_.scale[0][2] *= -1;
         mats_.scale[0][3] *= -1;
     }
-    if(format().flipV)
+    if(area().flipV)
     {
         mats_.scale[1][0] *= -1;
         mats_.scale[1][1] *= -1;
@@ -247,7 +247,7 @@ void RPlane::edging(const RColor &color)
     glBindVertexArray(rt.edgingVAO);
 
     glm::mat4 mat(1);
-    mat = glm::translate(mat, { format().pos.x(), format().pos.y(), format().pos.z() });
+    mat = glm::translate(mat, { area().pos.x(), area().pos.y(), area().pos.z() });
     mat = glm::scale(mat, { width(), height(), 0 });
 
     RShaderProgram::Interface inter = rt.shaders.useInterface();
@@ -264,7 +264,7 @@ void RPlane::edging(const RColor &color, const RShaderProgram &shaders, GLuint m
     glBindVertexArray(rt.edgingVAO);
 
     glm::mat4 mat(1);
-    mat = glm::translate(mat, { format().pos.x(), format().pos.y(), format().pos.z() });
+    mat = glm::translate(mat, { area().pos.x(), area().pos.y(), area().pos.z() });
     mat = glm::scale(mat, { width(), height(), 0 });
 
     RShaderProgram::Interface inter = shaders.useInterface();
@@ -282,11 +282,11 @@ void RPlane::edgingAll()
 
     glm::mat4 mats[3] { glm::mat4(1), glm::mat4(1), glm::mat4(1)};
 
-    mats[0] = glm::translate(mats[0], { format().pos.x(), format().pos.y(), format().pos.z() });
+    mats[0] = glm::translate(mats[0], { area().pos.x(), area().pos.y(), area().pos.z() });
     mats[0] = glm::scale(mats[0], { width(), height(), 0 });
-    mats[1] = glm::translate(mats[1], { innerPos().x(), innerPos().y(), format().pos.z() });
+    mats[1] = glm::translate(mats[1], { innerPos().x(), innerPos().y(), area().pos.z() });
     mats[1] = glm::scale(mats[1], { innerWidth(), innerHeight() , 0 });
-    mats[2] = glm::translate(mats[2], { outerPos().x(), outerPos().y(), format().pos.z() });
+    mats[2] = glm::translate(mats[2], { outerPos().x(), outerPos().y(), area().pos.z() });
     mats[2] = glm::scale(mats[2], { outerWidth(), outerHeight() , 0 });
 
     RShaderProgram::Interface inter = rt.shaders.useInterface();
@@ -304,11 +304,11 @@ void RPlane::edgingAll(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
 
     glm::mat4 mats[3] { glm::mat4(1), glm::mat4(1), glm::mat4(1)};
 
-    mats[0] = glm::translate(mats[0], { format().pos.x(), format().pos.y(), format().pos.z() });
+    mats[0] = glm::translate(mats[0], { area().pos.x(), area().pos.y(), area().pos.z() });
     mats[0] = glm::scale(mats[0], { width(), height(), 0 });
-    mats[1] = glm::translate(mats[1], { innerPos().x(), innerPos().y(), format().pos.z() });
+    mats[1] = glm::translate(mats[1], { innerPos().x(), innerPos().y(), area().pos.z() });
     mats[1] = glm::scale(mats[1], { innerWidth(), innerHeight() , 0 });
-    mats[2] = glm::translate(mats[2], { outerPos().x(), outerPos().y(), format().pos.z() });
+    mats[2] = glm::translate(mats[2], { outerPos().x(), outerPos().y(), area().pos.z() });
     mats[2] = glm::scale(mats[2], { outerWidth(), outerHeight() , 0 });
 
     RShaderProgram::Interface inter = shaders.useInterface();
