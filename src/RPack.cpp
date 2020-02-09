@@ -110,14 +110,14 @@ bool RPack::packing(const std::shared_ptr<RData[]> &buffer, size_t size, const s
         if(fileInfo_[hash].check != check)
         {
             fileInfo_[hash] = { size, check, buffer };
-            rDebug << "RPack: Update file <" + name + '>';
+            rDebug << printFormat::yellow << "RPack: Update file <" + name + '>';
             return true;
         }
     }
     else
     {
         fileInfo_.emplace(hash, FInfo{ size, check, buffer });
-        rDebug << "RPack: Insert file <" + name + '>';
+        rDebug << printFormat::yellow << "RPack: Insert file <" + name + '>';
         return true;
     }
 
