@@ -46,14 +46,23 @@ public:
 
     struct TexFormat
     {
+        Filter filterMax = Filter::Linear;
+        Filter filterMin = Filter::Linear;
+        int inChannel = 4;
         Wrap wrapS = Wrap::ClampToBorder;
         Wrap wrapT = Wrap::ClampToBorder;
-        Filter filterMin = Filter::Linear;
-        Filter filterMax = Filter::Linear;
-        int inChannel = 4;
         std::array<GLuint, 4> edgeColor { 0, 0, 0, 0 };
     };
+
     using Format = std::shared_ptr<TexFormat>;
+
+    static const Format LinearTex;
+    static const Format NearestTex;
+    static const Format SingleTex;
+
+    static const RTexture& whiteTex();
+    static const RTexture& blackTex();
+    static const RTexture& transTex();
 
     static void setDefaultTextureFomat(const Format &format);
     static Format makeTexFormat();

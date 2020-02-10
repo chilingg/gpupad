@@ -2,7 +2,29 @@
 
 using namespace Redopera;
 
+const RTexture::Format RTexture::LinearTex = std::make_shared<RTexture::TexFormat>(TexFormat{ Filter::Linear, Filter::Nearest });
+const RTexture::Format RTexture::NearestTex = std::make_shared<RTexture::TexFormat>(TexFormat{ Filter::Nearest, Filter::Nearest });
+const RTexture::Format RTexture::SingleTex = std::make_shared<RTexture::TexFormat>(TexFormat{ Filter::Linear, Filter::Nearest, 1 });;
+
 RTexture::Format RTexture::textureFormat = makeTexFormat();
+
+const RTexture &RTexture::whiteTex()
+{
+    static const RTexture WHITE_TEX(reinterpret_cast<const RData*>("\xff\xff\xff\xff"), 1, 1, 4, "WhiteTex", RTexture::NearestTex);
+    return WHITE_TEX;
+}
+
+const RTexture &RTexture::blackTex()
+{
+    static const RTexture BLACK_TEX(reinterpret_cast<const RData*>("\x0\x0\x0\xff"), 1, 1, 4, "BlackTex", RTexture::NearestTex);
+    return BLACK_TEX;
+}
+
+const RTexture &RTexture::transTex()
+{
+    static const RTexture TRANS_TEX(reinterpret_cast<const RData*>("\x0\x0\x0\x0"), 1, 1, 4, "TransTex", RTexture::NearestTex);
+    return TRANS_TEX;
+}
 
 void RTexture::setDefaultTextureFomat(const RTexture::Format &format)
 {
