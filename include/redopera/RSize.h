@@ -11,11 +11,17 @@ public:
     bool operator==(const RSize &size) { return width_ == size.width_ && height_ == size.height_; }
     bool operator!=(const RSize &size) { return width_ != size.width_ || height_ != size.height_; }
 
+    RSize& operator*=(const int value) { width_ *= value; height_ *= value; return *this; }
+    RSize& operator/=(const int value) { width_ /= value; height_ /= value; return *this; }
+
+    RSize operator*(const int value) { return RSize(width_ *= value, height_ *= value); }
+    RSize operator/(const int value) { return RSize(width_ /= value, height_ /= value); }
+
     int width() const { return width_; }
     int height() const { return height_; }
 
     bool isEmpty() const { return (width_ == 0) && (height_ == 0); }
-    bool invalid() const { return (width_ <= 0) || (height_ <= 0); }
+    bool isInvalid() const { return (width_ <= 0) || (height_ <= 0); }
     bool isValid() const { return (width_ > 0) && (height_ > 0); }
 
     void setWidth(int width) { width_ = width; }

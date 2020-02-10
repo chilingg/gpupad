@@ -17,22 +17,28 @@ public:
     RPoint2(): x_(INVALID_POINT_VALUE), y_(INVALID_POINT_VALUE) {}
 
     bool operator==(const RPoint2 &pos) const { return x_ == pos.x_ && y_ == pos.y_; }
-
     bool operator!=(const RPoint2 &pos) const { return x_ != pos.x_ || y_ != pos.y_; }
+
+    RPoint2 operator+(const RPoint2 &pos) { return RPoint2(x_ += pos.x_, y_ += pos.y_); }
+    RPoint2 operator-(const RPoint2 &pos) { return RPoint2(x_ -= pos.x_, y_ -= pos.y_); }
+
+    RPoint2& operator+=(const RPoint2 &pos) { x_ += pos.x_; y_ += pos.y_; return *this; }
+    RPoint2& operator-=(const RPoint2 &pos) { x_ -= pos.x_; y_ -= pos.y_; return *this; }
 
     int x() const { return x_; }
     int y() const { return y_; }
     int& rx() { return x_; }
     int& ry() { return y_; }
     bool isValid() const { return x_ != INVALID_POINT_VALUE && y_ != INVALID_POINT_VALUE; }
+    bool isOrigin() const { return x_ == 0 && y_ == 0; }
 
     void setPoint(int x, int y) { x_ = x; y_ = y; }
     void setX(int x) { x_ = x; }
     void setY(int y) { y_ = y; }
     void set(int x, int y) { x_ = x; y_ = y; }
 
-    RPoint2 MirrorH(int axis = 0) { return RPoint2((axis-x_)*2 + x_, y_); }
-    RPoint2 MirrorV(int axis = 0) { return RPoint2(x_, (axis-y_)*2 + y_); }
+    RPoint2 mirrorH(int axis = 0) { return RPoint2((axis-x_)*2 + x_, y_); }
+    RPoint2 mirrorV(int axis = 0) { return RPoint2(x_, (axis-y_)*2 + y_); }
 
 protected:
     int x_;
@@ -54,11 +60,19 @@ public:
         RPoint2(), z_(INVALID_POINT_VALUE) {}
 
     bool operator==(const RPoint3 &pos) const { return x_ == pos.x_ && y_ == pos.y_ && z_ == pos.z_; }
+    bool operator!=(const RPoint3 &pos) const { return x_ != pos.x_ || y_ != pos.y_ || z_ != pos.z_; }
+
+    RPoint3 operator+(const RPoint3 &pos) { return RPoint3(x_ += pos.x_, y_ += pos.y_, z_ += pos.z_); }
+    RPoint3 operator-(const RPoint3 &pos) { return RPoint3(x_ -= pos.x_, y_ -= pos.y_, z_ -= pos.z_); }
+
+    RPoint3& operator+=(const RPoint3 &pos) { x_ += pos.x_; y_ += pos.y_; z_ += pos.z_; return *this; }
+    RPoint3& operator-=(const RPoint3 &pos) { x_ -= pos.x_; y_ -= pos.y_; z_ -= pos.z_; return *this; }
 
     int z() const { return z_; }
     int& rz() { return z_; }
 
     bool isValid() const { return RPoint2::isValid() && z_ != INVALID_POINT_VALUE; }
+    bool isOrigin() const { return RPoint2::isOrigin() && z_ == 0;}
 
     void setPoint(int x, int y, int z) { x_ = x; y_ = y; z_ = z; }
     void setZ(int z) { z_ = z; }
