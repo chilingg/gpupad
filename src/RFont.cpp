@@ -24,7 +24,8 @@ void RFont::setDefaultFont(RFont font)
 
 RFont::RFont():
     RResource("Font", typeid(this).name()),
-    resource_(defaultFont.resource_)
+    resource_(defaultFont.resource_),
+    caches_(defaultFont.caches_)
 {
 
 }
@@ -86,19 +87,13 @@ unsigned RFont::size() const
     return size_;
 }
 
-void RFont::setSize(unsigned size)
-{
-    size_ = size;
-    caches_ = std::make_shared<std::map<RChar, Glyph>>();
-}
-
-RFont::Glyph *RFont::getFontGlyph(RFont::RChar c)
+const RFont::Glyph *RFont::getFontGlyph(RFont::RChar c) const
 {
     Glyph *glyph = &(*caches_)[c];
     if(!glyph->data)
     {
         glyph->data.reset(stbtt_GetCodepointBitmap(
-                    &resource_->info, 0, stbtt_ScaleForPixelHeight(&resource_->info, size_),
+                    &resource_->info, 0, stbtt_ScaleForMappingEmToPixels(&resource_->info, size_),
                     c, &glyph->width, &glyph->height, &glyph->xoff, &glyph->yoff));
 
         if(caches_->size() > cacheMaxSize_)
@@ -106,6 +101,12 @@ RFont::Glyph *RFont::getFontGlyph(RFont::RChar c)
     }
 
     return glyph;
+}
+
+void RFont::setSize(unsigned size)
+{
+    size_ = size;
+    caches_ = std::make_shared<std::map<RChar, Glyph>>();
 }
 
 bool RFont::load(const std::string &path)
@@ -166,7 +167,7 @@ void RFont::release()
     caches_.reset();
 }
 
-void RFont::clearFontDataCache()
+void RFont::clearFontDataCache() const
 {
     *caches_ = std::map<RChar, Glyph>();
 }

@@ -15,9 +15,9 @@ int main()
     do {
         std::cout << "\nEntry a character ('q' quit): ";
         std::cin >> c;
-        RFont::Glyph *glyph = font.getFontGlyph(c);
+        const RFont::Glyph *glyph = font.getFontGlyph(c);
         rDebug << "\ncharacter:" << c << " width:" << glyph->width << " height:" << glyph->height
-               << " xoff:" << glyph->xoff << " yoff" << glyph->yoff << '\n';
+               << " xoff:" << glyph->xoff << " yoff:" << glyph->yoff << '\n';
 
         for (int j = 0; j < glyph->height; ++j)
         {

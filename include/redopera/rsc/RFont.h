@@ -51,13 +51,13 @@ public:
 
     bool isValid() const;
     unsigned size() const;
+    const Glyph *getFontGlyph(RChar c) const;
 
     void setSize(unsigned size);
-    Glyph* getFontGlyph(RChar c);
     bool load(const std::string &path);
     bool load(const std::shared_ptr<RData[]> &data);
     void release();
-    void clearFontDataCache();
+    void clearFontDataCache() const;
 
 private:
     // defaultFont定义在字体资源文件中 (SourceCodePro.cpp)
