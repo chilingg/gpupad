@@ -7,6 +7,103 @@ thread_local RShaderProgram RPlane::tPlaneShaders;
 thread_local GLuint RPlane::MODEL_LOC;
 thread_local GLuint RPlane::EDGING_LOC;
 
+const RPlane::RenderTool& RPlane::planeRenderTool()
+{
+    thread_local static std::unique_ptr<GLuint[], std::function<void(GLuint *p)>> vao(new GLuint[2]{0}, [](GLuint *p){
+    glDeleteVertexArrays(2, p); delete [] p; });
+    thread_local static std::unique_ptr<GLuint[], std::function<void(GLuint *p)>> vbo(new GLuint[2]{0}, [](GLuint *p){
+    glDeleteBuffers(2, p); delete [] p; });
+
+    if(!vao[0])
+    {
+        glGenVertexArrays(2, vao.get());
+        glGenBuffers(2, vbo.get());
+
+        float plane[24]{
+                0.5f,-0.5f, 0.0f, 1.0f, 0.0f,//右下
+                0.5f, 0.5f, 0.0f, 1.0f, 1.0f,//右上
+               -0.5f,-0.5f, 0.0f, 0.0f, 0.0f,//左下
+               -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,//左上
+        };
+        glBindVertexArray(vao[0]);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(plane), plane, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), nullptr);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), bufOff(3*sizeof(float)));
+        glBindVertexArray(0);
+
+        float edge[12]{
+                1.0f, 0.0f, 0.0f,//右下
+                1.0f, 1.0f, 0.0f,//右上
+                0.0f, 1.0f, 0.0f,//左上
+                0.0f, 0.0f, 0.0f,//左下
+        };
+        glBindVertexArray(vao[1]);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(edge), edge, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), nullptr);
+        glBindVertexArray(0);
+    }
+
+    if(!tPlaneShaders.isValid())
+    {
+        static const GLchar *vCode = {
+            "#version 330 core\n"
+            "layout(location = 0) in vec3 aPos;\n"
+            "layout(location = 1) in vec2 aTexCoor;\n"
+            "uniform vec4 edging;\n"
+            "uniform mat4 model[3];\n"
+            "uniform mat4 view;\n"
+            "uniform mat4 projection;\n"
+            "out vec4 texCoor; // 末位检测是否渲染边框\n"
+            "void main(void)\n"
+            "{\n"
+                "gl_Position = projection * view * model[gl_InstanceID] * vec4(aPos, 1.0);\n"
+                "if(edging == vec4(0, 0, 0, 0))\n"
+                    "texCoor = vec4(aTexCoor, 0, 0.0);\n"
+                "else if(edging == vec4(0, 0, 0, 1))"
+                "{\n"
+                    "if(gl_InstanceID == 0)\n"
+                        "texCoor = vec4(1.0, 0, 0, 1.0);\n"
+                    "else if(gl_InstanceID == 1)\n"
+                        "texCoor = vec4(0, 1.0, 0, 1.0);\n"
+                    "else\n"
+                        "texCoor = vec4(0, 0, 1.0, 1.0);\n"
+                "}\n"
+                "else\n"
+                    "texCoor = edging;\n"
+            "}\n"
+        };
+        static const GLchar *fCode = {
+            "#version 330 core\n"
+            "in vec4 texCoor; // 边框渲染时用作颜色值\n"
+            "out vec4 outColor;\n"
+            "uniform sampler2D tex;\n"
+            "void main(void)\n"
+            "{\n"
+                "if(texCoor.a == 0)\n"
+                    "outColor = texture(tex, texCoor.st);\n"
+                "else\n"
+                    "outColor = texCoor;\n"
+            "}\n"
+        };
+
+        tPlaneShaders.releaseShader();
+        tPlaneShaders.attachShader({ RShader(vCode, RShader::Type::Vertex), RShader(fCode, RShader::Type::Fragment)});
+        tPlaneShaders.linkProgram();
+        auto inter = tPlaneShaders.useInterface();
+        MODEL_LOC = tPlaneShaders.getUniformLocation("model");
+        EDGING_LOC = tPlaneShaders.getUniformLocation("edging");
+    }
+
+    thread_local static RenderTool tool { tPlaneShaders, vao[0], MODEL_LOC, vao[1], EDGING_LOC };
+
+    return tool;
+}
+
 void RPlane::setPlaneShadersAsThread(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
 {
     tPlaneShaders = shaders;
@@ -22,7 +119,7 @@ const RShaderProgram &RPlane::planeShader()
 RPlane::RPlane():
     mats_{ glm::mat4(1), glm::mat4(1), glm::mat4(1) },
     model_(1),
-    texture_(defaultTexture())
+    texture_(RTexture::whiteTex())
 {
 
 }
@@ -113,10 +210,8 @@ void RPlane::setColorTexture(const RColor &color)
 
 void RPlane::setColorTexture(R_RGBA rgba)
 {
-    static RTexture::Format format = RTexture::makeTexFormat();
-
     const RData *colorData = reinterpret_cast<RData*>(&rgba);
-    texture_.load(colorData, 1, 1, 4, format);
+    texture_.load(colorData, 1, 1, 4, RTexture::NearestTex);
 }
 
 void RPlane::setColorTexture(unsigned r, unsigned g, unsigned b, unsigned a)
@@ -235,7 +330,6 @@ void RPlane::render(const RShaderProgram &shaders, GLuint mLoc)
         update();
 
     RShaderProgram::Interface inter = shaders.useInterface();
-    inter.setUniform(rt.edgingLoc, .0f, .0f, .0f, .0f);
     renderControl(shaders, mLoc);
 
     glBindVertexArray(0);
@@ -319,111 +413,10 @@ void RPlane::edgingAll(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
     glBindVertexArray(0);
 }
 
-const RPlane::RenderTool RPlane::planeRenderTool()
-{
-    thread_local static std::unique_ptr<GLuint[], std::function<void(GLuint *p)>> vao(new GLuint[2]{0}, [](GLuint *p){
-    glDeleteVertexArrays(2, p); delete [] p; });
-    thread_local static std::unique_ptr<GLuint[], std::function<void(GLuint *p)>> vbo(new GLuint[2]{0}, [](GLuint *p){
-    glDeleteBuffers(2, p); delete [] p; });
-
-    if(!vao[0])
-    {
-        glGenVertexArrays(2, vao.get());
-        glGenBuffers(2, vbo.get());
-
-        float plane[24]{
-                0.5f,-0.5f, 0.0f, 1.0f, 0.0f,//右下
-                0.5f, 0.5f, 0.0f, 1.0f, 1.0f,//右上
-               -0.5f,-0.5f, 0.0f, 0.0f, 0.0f,//左下
-               -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,//左上
-        };
-        glBindVertexArray(vao[0]);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(plane), plane, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), nullptr);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), bufOff(3*sizeof(float)));
-        glBindVertexArray(0);
-
-        float edge[12]{
-                1.0f, 0.0f, 0.0f,//右下
-                1.0f, 1.0f, 0.0f,//右上
-                0.0f, 1.0f, 0.0f,//左上
-                0.0f, 0.0f, 0.0f,//左下
-        };
-        glBindVertexArray(vao[1]);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(edge), edge, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), nullptr);
-        glBindVertexArray(0);
-    }
-
-    if(!tPlaneShaders.isValid())
-    {
-        static const GLchar *vCode = {
-            "#version 330 core\n"
-            "layout(location = 0) in vec3 aPos;\n"
-            "layout(location = 1) in vec2 aTexCoor;\n"
-            "uniform vec4 edging;\n"
-            "uniform mat4 model[3];\n"
-            "uniform mat4 view;\n"
-            "uniform mat4 projection;\n"
-            "out vec4 texCoor; // 末位检测是否渲染边框\n"
-            "void main(void)\n"
-            "{\n"
-                "gl_Position = projection * view * model[gl_InstanceID] * vec4(aPos, 1.0);\n"
-                "if(edging == vec4(0, 0, 0, 0))\n"
-                    "texCoor = vec4(aTexCoor, 0, 0.0);\n"
-                "else if(edging == vec4(0, 0, 0, 1))"
-                "{\n"
-                    "if(gl_InstanceID == 0)\n"
-                        "texCoor = vec4(1.0, 0, 0, 1.0);\n"
-                    "else if(gl_InstanceID == 1)\n"
-                        "texCoor = vec4(0, 1.0, 0, 1.0);\n"
-                    "else\n"
-                        "texCoor = vec4(0, 0, 1.0, 1.0);\n"
-                "}\n"
-                "else\n"
-                    "texCoor = edging;\n"
-            "}\n"
-        };
-        static const GLchar *fCode = {
-            "#version 330 core\n"
-            "in vec4 texCoor; // 边框渲染时用作颜色值\n"
-            "out vec4 outColor;\n"
-            "uniform sampler2D tex;\n"
-            "void main(void)\n"
-            "{\n"
-                "if(texCoor.a == 0)\n"
-                    "outColor = texture(tex, texCoor.st);\n"
-                "else\n"
-                    "outColor = texCoor;\n"
-            "}\n"
-        };
-
-        tPlaneShaders.releaseShader();
-        tPlaneShaders.attachShader({ RShader(vCode, RShader::Type::Vertex), RShader(fCode, RShader::Type::Fragment)});
-        tPlaneShaders.linkProgram();
-        auto inter = tPlaneShaders.useInterface();
-        MODEL_LOC = tPlaneShaders.getUniformLocation("model");
-        EDGING_LOC = tPlaneShaders.getUniformLocation("edging");
-    }
-
-    return { tPlaneShaders, vao[0], MODEL_LOC, vao[1], EDGING_LOC };
-}
-
 void RPlane::renderControl(const RShaderProgram &shaders, GLuint mLoc)
 {
     auto inter = shaders.useInterface();
     inter.setUniformMatrix(mLoc, model_);
     texture_.bind();
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-}
-
-const RTexture &RPlane::defaultTexture()
-{
-    static const RTexture DEFAULT_TEXTURE(reinterpret_cast<const RData*>("\xff"), 1, 1, 1);
-    return DEFAULT_TEXTURE;
 }
