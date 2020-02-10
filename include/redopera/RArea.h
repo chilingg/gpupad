@@ -27,6 +27,15 @@ public:
         Bottom
     };
 
+    enum Dirty
+    {
+        Clear   = 0,
+        Move    = 1,
+        Typeset = 2,
+        Rotate  = 4,
+        Scale   = 8   // 包括镜像
+    };
+
     struct Format
     {
         RSize size;
@@ -34,13 +43,13 @@ public:
         struct { int t, b, l, r;
                } margin { 0, 0, 0, 0 }, padding { 0, 0, 0, 0 };
         struct { Align v, h;
-               } align { Align::Bottom, Align::Left};
+               } align { Align::Top, Align::Left};
         Mode mode = Mode::Auto;
         struct { float x, y, z;
                } rotate { 0.0f, 0.0f, 0.0f };
         bool flipH = false;
         bool flipV = false;
-        bool dirty = true;
+        int dirty = Move | Typeset | Rotate | Scale;
         int minW = 0;
         int minH = 0;
         int maxW = ~0u >> 1;
@@ -89,7 +98,8 @@ public:
     void setMode(Mode mode);
     void setAlign(Align v, Align h);
 
-    void setDirty();
+    void addDirty(Dirty dirty);
+    void setDirty(Dirty dirty);
     void clearDirty();
 
     void rotateX(float x);
@@ -132,9 +142,9 @@ public:
     RSize maxSize() const;
     RSize minSize() const;
 
+    int dirty() const;
     bool isFlipV() const;
     bool isFlipH() const;
-    bool isDirty() const;
 
     const Format &area() const;
 

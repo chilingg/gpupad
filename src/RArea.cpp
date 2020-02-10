@@ -109,7 +109,7 @@ void RArea::setSize(int width, int height)
     height = clamp(height, format_.minH, format_.maxH);
     format_.size.set(width, height);
 
-    format_.dirty = true;
+    addDirty(Scale);
 }
 
 void RArea::setSize(const RSize &size)
@@ -118,7 +118,7 @@ void RArea::setSize(const RSize &size)
     int height = clamp(size.height(), format_.minH, format_.maxH);
     format_.size.set(width, height);
 
-    format_.dirty = true;
+    addDirty(Scale);
 }
 
 void RArea::setWidth(int width)
@@ -126,7 +126,7 @@ void RArea::setWidth(int width)
     width = clamp(width, format_.minW, format_.maxW);
     format_.size.setWidth(width);
 
-    format_.dirty = true;
+    addDirty(Scale);
 }
 
 void RArea::setHeight(int height)
@@ -134,150 +134,136 @@ void RArea::setHeight(int height)
     height = clamp(height, format_.minH, format_.maxH);
     format_.size.setHeight(height);
 
-    format_.dirty = true;
+    addDirty(Scale);
 }
 
 void RArea::setPos(int x, int y, int z)
 {
     format_.pos.set(x, y, z);
-
-    format_.dirty = true;
+    addDirty(Move);
 }
 
 void RArea::setPos(const RPoint &pos)
 {
     format_.pos = pos;
-
-    format_.dirty = true;
+    addDirty(Move);
 }
 
 void RArea::setPosX(int x)
 {
     format_.pos.setX(x);
-
-    format_.dirty = true;
+    addDirty(Move);
 }
 
 void RArea::setPosY(int y)
 {
     format_.pos.setY(y);
-
-    format_.dirty = true;
+    addDirty(Move);
 }
 
 void RArea::setPosZ(int z)
 {
     format_.pos.setZ(z);
-
-    format_.dirty = true;
+    addDirty(Move);
 }
 
 void RArea::setOuterPos(const RPoint &pos)
 {
     format_.pos.set(pos.x()+format_.margin.l, pos.y()+format_.margin.b, format_.pos.z());
-
-    format_.dirty = true;
+    addDirty(Move);
 }
 
 void RArea::setCenterPos(const RPoint &pos)
 {
     format_.pos.set(pos.x()-format_.size.width()/2, pos.y()-format_.size.height()/2, format_.pos.z());
-
-    format_.dirty = true;
+    addDirty(Move);
 }
 
 void RArea::setInnerPos(const RPoint &pos)
 {
     format_.pos.set(pos.x()-format_.padding.l, pos.y()-format_.padding.b, format_.pos.z());
-
-    format_.dirty = true;
+    addDirty(Move);
 }
 
 void RArea::setMargin(int top, int bottom, int left, int right)
 {
     format_.margin = { top, bottom, left, right };
-
-    format_.dirty = true;
+    addDirty(Typeset);
 }
 
 void RArea::setMargin(int value)
 {
     format_.margin = { value, value, value, value };
-
-    format_.dirty = true;
+    addDirty(Typeset);
 }
 
 void RArea::setPadding(int top, int bottom, int left, int right)
 {
     format_.padding = { top, bottom, left, right };
-
-    format_.dirty = true;
+    addDirty(Typeset);
 }
 
 void RArea::setPadding(int value)
 {
     format_.padding = { value, value, value, value };
-
-    format_.dirty = true;
+    addDirty(Typeset);
 }
 
 void RArea::setMode(RArea::Mode mode)
 {
     format_.mode = mode;
-
-    format_.dirty = true;
+    addDirty(Typeset);
 }
 
 void RArea::setAlign(RArea::Align v, RArea::Align h)
 {
     format_.align = { v, h };
-
-    format_.dirty = true;
+    addDirty(Typeset);
 }
 
-void RArea::setDirty()
+void RArea::addDirty(Dirty dirty)
 {
-    format_.dirty = true;
+    format_.dirty |= dirty;
+}
+
+void RArea::setDirty(RArea::Dirty dirty)
+{
+    format_.dirty = dirty;
 }
 
 void RArea::clearDirty()
 {
-    format_.dirty = false;
+    format_.dirty = Clear;
 }
 
 void RArea::rotateX(float x)
 {
     format_.rotate.x = x;
-
-    format_.dirty = true;
+    addDirty(Rotate);
 }
 
 void RArea::rotateY(float y)
 {
     format_.rotate.y = y;
-
-    format_.dirty = true;
+    addDirty(Rotate);
 }
 
 void RArea::rotateZ(float z)
 {
     format_.rotate.z = z;
-
-    format_.dirty = true;
+    addDirty(Rotate);
 }
 
 void RArea::flipH()
 {
     format_.flipH = !format_.flipH;
-
-    format_.dirty = true;
+    addDirty(Scale);
 }
 
 void RArea::flipV()
 {
     format_.flipV = !format_.flipV;
-
-    format_.dirty = true;
+    addDirty(Scale);
 }
 
 RRect RArea::rect() const
@@ -322,19 +308,19 @@ int RArea::z() const
 
 int &RArea::rx()
 {
-    format_.dirty = true;
+    addDirty(Move);
     return format_.pos.rx();
 }
 
 int &RArea::ry()
 {
-    format_.dirty = true;
+    addDirty(Move);
     return format_.pos.ry();
 }
 
 int &RArea::rz()
 {
-    format_.dirty = true;
+    addDirty(Move);
     return format_.pos.rz();
 }
 
@@ -418,6 +404,11 @@ RSize RArea::minSize() const
     return RSize(format_.minW, format_.minH);
 }
 
+int RArea::dirty() const
+{
+    return format_.dirty;
+}
+
 bool RArea::isFlipV() const
 {
     return format_.flipV;
@@ -426,11 +417,6 @@ bool RArea::isFlipV() const
 bool RArea::isFlipH() const
 {
     return format_.flipH;
-}
-
-bool RArea::isDirty() const
-{
-    return format_.dirty;
 }
 
 const RArea::Format &RArea::area() const

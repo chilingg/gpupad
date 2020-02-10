@@ -232,87 +232,94 @@ void RPlane::setTexture(const RTexture &tex)
 
 void RPlane::update()
 {
-    float w, h, tw = texture_.width(), th = texture_.height();
-    float min = innerWidth() / tw;
-    float max = innerHeight() / th;
-    if(min > max) std::swap(min, max);
-
-    switch(area().mode)
+    if(dirty() & (RArea::Scale | RArea::Typeset))
     {
-    case RArea::Mode::Fixed:
-        w = tw;
-        h = th;
-        break;
-    case RArea::Mode::Auto:
-        w = innerWidth();
-        h = innerHeight();
-        break;
-    case RArea::Mode::Cover:
-        w = tw * max;
-        h = th * max;
-        break;
-    case RArea::Mode::Contain:
-        w = tw * min;
-        h = th * min;
-        break;
+        float w, h, tw = texture_.width(), th = texture_.height();
+        float min = innerWidth() / tw;
+        float max = innerHeight() / th;
+        if(min > max) std::swap(min, max);
+
+        switch(area().mode)
+        {
+        case RArea::Mode::Fixed:
+            w = tw;
+            h = th;
+            break;
+        case RArea::Mode::Auto:
+            w = innerWidth();
+            h = innerHeight();
+            break;
+        case RArea::Mode::Cover:
+            w = tw * max;
+            h = th * max;
+            break;
+        case RArea::Mode::Contain:
+            w = tw * min;
+            h = th * min;
+            break;
+        }
+
+        float x, y;
+        switch(area().align.h)
+        {
+        case RArea::Align::Left:
+            x = w / 2.0f + area().padding.l;
+            break;
+        case RArea::Align::Right:
+            x = area().size.width() - w/2.0f - area().padding.r;
+            break;
+        default: // RArea::Align::Mind
+            x = area().size.width() / 2.0f;
+            break;
+        }
+        switch(area().align.v)
+        {
+        case RArea::Align::Bottom:
+            y = h / 2.0f + area().padding.b;
+            break;
+        case RArea::Align::Top:
+            y = area().size.height() - h/2.0f - area().padding.t;
+            break;
+        default: // RArea::Align::Mind
+            y = area().size.height() / 2.0f;
+            break;
+        }
+
+        mats_.tran = glm::translate(glm::mat4(1), { x, y, 0 });
+        mats_.scale = glm::scale(glm::mat4(1), { w, h, 0.0f });
+
+        if(area().flipH)
+        {
+            mats_.scale[0][0] *= -1;
+            mats_.scale[0][1] *= -1;
+            mats_.scale[0][2] *= -1;
+            mats_.scale[0][3] *= -1;
+        }
+        if(area().flipV)
+        {
+            mats_.scale[1][0] *= -1;
+            mats_.scale[1][1] *= -1;
+            mats_.scale[1][2] *= -1;
+            mats_.scale[1][3] *= -1;
+        }
     }
 
-    float x, y;
-    switch(area().align.h)
-    {
-    case RArea::Align::Left:
-        x = w / 2.0f + area().padding.l;
-        break;
-    case RArea::Align::Right:
-        x = area().size.width() - w/2.0f - area().padding.r;
-        break;
-    default: // RArea::Align::Mind
-        x = area().size.width() / 2.0f;
-        break;
-    }
-    switch(area().align.v)
-    {
-    case RArea::Align::Bottom:
-        y = h / 2.0f + area().padding.b;
-        break;
-    case RArea::Align::Top:
-        y = area().size.height() - h/2.0f - area().padding.t;
-        break;
-    default: // RArea::Align::Mind
-        y = area().size.height() / 2.0f;
-        break;
-    }
+    if(dirty() & RArea::Rotate)
+        mats_.rotate = glm::mat4_cast(glm::qua<float>(glm::vec3{ area().rotate.x, area().rotate.x, area().rotate.x }));
 
-    mats_.tran = glm::translate(glm::mat4(1), { area().pos.x() + x, area().pos.y() + y, 0 });
-    mats_.rotate = glm::mat4_cast(glm::qua<float>(glm::vec3{ area().rotate.x, area().rotate.x, area().rotate.x }));
-    mats_.scale = glm::scale(glm::mat4(1), { w, h, 0.0f });
+    glm::mat4 move(1);
+    move = glm::translate(move, { pos().x(), pos().y(), pos().z()});
 
-    if(area().flipH)
-    {
-        mats_.scale[0][0] *= -1;
-        mats_.scale[0][1] *= -1;
-        mats_.scale[0][2] *= -1;
-        mats_.scale[0][3] *= -1;
-    }
-    if(area().flipV)
-    {
-        mats_.scale[1][0] *= -1;
-        mats_.scale[1][1] *= -1;
-        mats_.scale[1][2] *= -1;
-        mats_.scale[1][3] *= -1;
-    }
-
-    model_ = mats_.tran * mats_.rotate * mats_.scale;
+    model_ = move * mats_.tran * mats_.rotate * mats_.scale;
     clearDirty();
 }
 
 void RPlane::render()
 {
+    if(dirty()) update();
+
     const RenderTool& rt = planeRenderTool();
     glBindVertexArray(rt.vao);
-
-    if(isDirty())
-        update();
 
     RShaderProgram::Interface inter = rt.shaders.useInterface();
     inter.setUniform(rt.edgingLoc, .0f, .0f, .0f, .0f);
@@ -323,11 +330,10 @@ void RPlane::render()
 
 void RPlane::render(const RShaderProgram &shaders, GLuint mLoc)
 {
+    if(dirty()) update();
+
     const RenderTool& rt = planeRenderTool();
     glBindVertexArray(rt.vao);
-
-    if(isDirty())
-        update();
 
     RShaderProgram::Interface inter = shaders.useInterface();
     renderControl(shaders, mLoc);
@@ -337,6 +343,8 @@ void RPlane::render(const RShaderProgram &shaders, GLuint mLoc)
 
 void RPlane::edging(const RColor &color)
 {
+    if(dirty()) update();
+
     const RenderTool& rt = planeRenderTool();
     glBindVertexArray(rt.edgingVAO);
 
@@ -354,6 +362,8 @@ void RPlane::edging(const RColor &color)
 
 void RPlane::edging(const RColor &color, const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
 {
+    if(dirty()) update();
+
     const RenderTool& rt = planeRenderTool();
     glBindVertexArray(rt.edgingVAO);
 
@@ -371,6 +381,8 @@ void RPlane::edging(const RColor &color, const RShaderProgram &shaders, GLuint m
 
 void RPlane::edgingAll()
 {
+    if(dirty()) update();
+
     const RenderTool& rt = planeRenderTool();
     glBindVertexArray(rt.edgingVAO);
 
@@ -393,6 +405,8 @@ void RPlane::edgingAll()
 
 void RPlane::edgingAll(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
 {
+    if(dirty()) update();
+
     const RenderTool& rt = planeRenderTool();
     glBindVertexArray(rt.edgingVAO);
 

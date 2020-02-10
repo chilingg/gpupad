@@ -411,20 +411,22 @@ void RTextsbxo::update()
     model_[1] = model_[1] * glm::mat4_cast(glm::qua<float>(glm::vec3{ area().rotate.x, area().rotate.x, area().rotate.x }));
     model_[1] = glm::scale(model_[1], { width(), height(), 0 });
 
-    (this->*typesetting)();
+    if(dirty() & (RArea::Scale | RArea::Typeset))
+    {
+        (this->*typesetting)();
+        complete();
+    }
     clearDirty();
-    complete();
 }
 
 void RTextsbxo::render()
 {
-    const RPlane::RenderTool &rt = RPlane::planeRenderTool();
-    glBindVertexArray(rt.vao);
-
-    if(isDirty())
-        update();
+    if(dirty()) update();
     else if(isSeting())
         (this->*typesetting)();
+
+    const RPlane::RenderTool &rt = RPlane::planeRenderTool();
+    glBindVertexArray(rt.vao);
 
     const RenderTool &tbrt = textboxRenderTool();
     RShaderProgram::Interface inter = tbrt.shaders.useInterface();
@@ -441,13 +443,12 @@ void RTextsbxo::render()
 
 void RTextsbxo::render(const RShaderProgram &shaders, GLuint mLoc, GLuint colorLoc)
 {
-    const RPlane::RenderTool &rt = RPlane::planeRenderTool();
-    glBindVertexArray(rt.vao);
-
-    if(isDirty())
-        update();
+    if(dirty()) update();
     else if(isSeting())
         (this->*typesetting)();
+
+    const RPlane::RenderTool &rt = RPlane::planeRenderTool();
+    glBindVertexArray(rt.vao);
 
     RShaderProgram::Interface inter = shaders.useInterface();
     inter.setUniformMatrix(mLoc, model_.data(), 2);
@@ -461,6 +462,8 @@ void RTextsbxo::render(const RShaderProgram &shaders, GLuint mLoc, GLuint colorL
 
 void RTextsbxo::edging(const RColor &color)
 {
+    if(dirty()) update();
+
     const RPlane::RenderTool &rt = RPlane::planeRenderTool();
     glBindVertexArray(rt.edgingVAO);
 
@@ -479,6 +482,8 @@ void RTextsbxo::edging(const RColor &color)
 
 void RTextsbxo::edging(const RColor &color, const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
 {
+    if(dirty()) update();
+
     const RPlane::RenderTool &rt = RPlane::planeRenderTool();
     glBindVertexArray(rt.edgingVAO);
 
@@ -496,6 +501,8 @@ void RTextsbxo::edging(const RColor &color, const RShaderProgram &shaders, GLuin
 
 void RTextsbxo::edgingAll()
 {
+    if(dirty()) update();
+
     const RPlane::RenderTool &rt = RPlane::planeRenderTool();
     glBindVertexArray(rt.edgingVAO);
 
@@ -519,6 +526,8 @@ void RTextsbxo::edgingAll()
 
 void RTextsbxo::edgingAll(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
 {
+    if(dirty()) update();
+
     const RPlane::RenderTool &rt = RPlane::planeRenderTool();
     glBindVertexArray(rt.edgingVAO);
 
