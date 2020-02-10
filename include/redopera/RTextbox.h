@@ -29,6 +29,7 @@ public:
         Typeset typeset = Typeset::Horizontal;
         float lSpacing = 1.2f;
         float wSpacing = 1.0f;
+        float spacing = 0.6f; // 空格
         glm::vec3 color = { 1.f, 1.f, 1.f };
         RFont font;
         bool ellipsis = true;
@@ -67,7 +68,11 @@ public:
     RTextsbxo(const std::string &text, const RArea::Format &area);
 
     RTextsbxo(const RTextsbxo &box);
-    RTextsbxo(const RTextsbxo &&box);
+    RTextsbxo(RTextsbxo &&box);
+
+    RTextsbxo& operator=(const RTextsbxo &box);
+
+    RTextsbxo& operator=(const RTextsbxo &&box);
 
     ~RTextsbxo() override = default;
 
@@ -77,6 +82,7 @@ public:
     unsigned fontSize() const;
     float lineSpacing() const;
     float wordSpacing() const;
+    float spacing() const;
     Format textFormat() const;
     bool isSeting() const;
 
@@ -94,6 +100,7 @@ public:
     void setFont(RFont font);
     void setlineSpacing(float value);
     void setWordSpacing(float value);
+    void setSpacing(float value);
     void setTextFormat(Format format);
     void setEllipsis(bool b);
 
@@ -105,11 +112,11 @@ public:
 
     void update();
     void render();
-    void render(const RShaderProgram &shaders, GLuint mLoc, GLuint colorLoc);
-    void edging(const RColor &color);
-    void edging(const RColor &color, const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc);
+    void render(const RShaderProgram &shaders, GLuint mLoc);
+    void edging(const RColor &color = RColor(0xff0000ff));
+    void edging(const RShaderProgram &shaders, GLuint mLoc);
     void edgingAll();
-    void edgingAll(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc);
+    void edgingAll(const RShaderProgram &shaders, GLuint mLoc);
 
 private:
     thread_local static RShaderProgram tTextShaders;

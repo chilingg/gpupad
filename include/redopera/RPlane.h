@@ -36,6 +36,8 @@ public:
     explicit RPlane(const Format &area, const RTexture &tex = RTexture::whiteTex());
     RPlane(const RPlane &plane);
     RPlane(const RPlane &&plane);
+    RPlane& operator=(const RPlane &plane);
+    RPlane& operator=(const RPlane &&plane);
     ~RPlane() override = default;
 
     const glm::mat4& modelMat() const;
@@ -52,9 +54,9 @@ public:
     void render();
     void render(const RShaderProgram &shaders, GLuint mLoc);
     void edging(const RColor &color);
-    void edging(const RColor &color, const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc);
+    void edging(const RShaderProgram &shaders, GLuint mLoc);
     void edgingAll();
-    void edgingAll(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc);
+    void edgingAll(const RShaderProgram &shaders, GLuint mLoc);
 
 protected:
     virtual void renderControl(const RShaderProgram &shaders, GLuint mLoc);

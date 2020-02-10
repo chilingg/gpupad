@@ -56,6 +56,18 @@ RArea::RArea(const RArea &area):
 
 }
 
+RArea::RArea(const RArea &&area):
+    format_(area.format_)
+{
+
+}
+
+RArea &RArea::operator=(const RArea &area)
+{
+    format_ = area.format_;
+    return *this;
+}
+
 void RArea::setArea(RArea::Format format)
 {
     format_ = format;
@@ -97,7 +109,7 @@ void RArea::setMaxSize(int maxw, int maxh)
 
 void RArea::setMaxSize(const RSize &size)
 {
-    if(size.invalid())
+    if(size.isInvalid())
         return;
     format_.maxW = size.width();
     format_.maxH = size.height();

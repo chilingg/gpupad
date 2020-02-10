@@ -97,6 +97,7 @@ const RPlane::RenderTool& RPlane::planeRenderTool()
         auto inter = tPlaneShaders.useInterface();
         MODEL_LOC = tPlaneShaders.getUniformLocation("model");
         EDGING_LOC = tPlaneShaders.getUniformLocation("edging");
+        inter.setCameraMove(tPlaneShaders.getUniformLocation("view"), 0, 0, 0);
     }
 
     thread_local static RenderTool tool { tPlaneShaders, vao[0], MODEL_LOC, vao[1], EDGING_LOC };
@@ -187,6 +188,24 @@ RPlane::RPlane(const RPlane &&plane):
 
 }
 
+RPlane &RPlane::operator=(const RPlane &plane)
+{
+    RArea::operator=(plane);
+    mats_ = plane.mats_;
+    model_ = plane.model_;
+    texture_ = plane.texture_;
+    return *this;
+}
+
+RPlane &RPlane::operator=(const RPlane &&plane)
+{
+    RArea::operator=(plane);
+    mats_ = std::move(plane.mats_);
+    model_ = std::move(plane.model_);
+    texture_ = std::move(plane.texture_);
+    return *this;
+}
+
 const glm::mat4 &RPlane::modelMat() const
 {
     return model_;
@@ -241,7 +260,7 @@ void RPlane::update()
 
         switch(area().mode)
         {
-        case RArea::Mode::Fixed:
+        case RArea::Mode::Fix:
             w = tw;
             h = th;
             break;
@@ -305,7 +324,7 @@ void RPlane::update()
     }
 
     if(dirty() & RArea::Rotate)
-        mats_.rotate = glm::mat4_cast(glm::qua<float>(glm::vec3{ area().rotate.x, area().rotate.x, area().rotate.x }));
+        mats_.rotate = glm::mat4_cast(glm::qua<float>(glm::vec3{ area().rotate.x, area().rotate.y, area().rotate.z }));
 
     glm::mat4 move(1);
     move = glm::translate(move, { pos().x(), pos().y(), pos().z()});
@@ -360,7 +379,7 @@ void RPlane::edging(const RColor &color)
     glBindVertexArray(0);
 }
 
-void RPlane::edging(const RColor &color, const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
+void RPlane::edging(const RShaderProgram &shaders, GLuint mLoc)
 {
     if(dirty()) update();
 
@@ -373,7 +392,6 @@ void RPlane::edging(const RColor &color, const RShaderProgram &shaders, GLuint m
 
     RShaderProgram::Interface inter = shaders.useInterface();
     inter.setUniformMatrix(mLoc, mat);
-    inter.setUniform(eLoc, color.r()/255.f, color.g()/255.f, color.b()/255.f, 1.0f);
 
     glDrawArrays(GL_LINE_LOOP, 0, 4);
     glBindVertexArray(0);
@@ -403,7 +421,7 @@ void RPlane::edgingAll()
     glBindVertexArray(0);
 }
 
-void RPlane::edgingAll(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
+void RPlane::edgingAll(const RShaderProgram &shaders, GLuint mLoc)
 {
     if(dirty()) update();
 
@@ -421,7 +439,6 @@ void RPlane::edgingAll(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
 
     RShaderProgram::Interface inter = shaders.useInterface();
     inter.setUniformMatrix(mLoc, mats, 3);
-    inter.setUniform(eLoc, .0f, .0f, .0f, 1.0f);
 
     glDrawArraysInstanced(GL_LINE_LOOP, 0, 4, 3);
     glBindVertexArray(0);

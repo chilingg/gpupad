@@ -12,7 +12,7 @@ class RArea
 public:
     enum class Mode
     {
-        Fixed,
+        Fix,
         Auto,
         Cover,
         Contain
@@ -66,6 +66,8 @@ public:
     explicit RArea(const RRect &rect, int z = 0);
     explicit RArea(const Format &area);
     RArea(const RArea &area);
+    RArea(const RArea &&area);
+    RArea& operator=(const RArea &area);
     virtual ~RArea() = default;
 
     void setArea(Format format);
