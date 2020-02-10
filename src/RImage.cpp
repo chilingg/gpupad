@@ -90,6 +90,11 @@ int RImage::height() const
     return height_;
 }
 
+RSize RImage::size() const
+{
+    return { width_, height_ };
+}
+
 int RImage::channel() const
 {
     return channel_;
@@ -136,7 +141,8 @@ bool RImage::load(const RData *data, int width, int height, int channel)
 {
     size_t size = static_cast<size_t>(height) * width * channel;
     RData *d = static_cast<RData*>(malloc(size));
-    std::memcpy(d, data, size);
+
+    if(data) std::memcpy(d, data, size);
 
     data_.reset(d, stbi_image_free);
     width_ = width;

@@ -3,6 +3,7 @@
 
 #include "RResource.h"
 #include "../RColor.h"
+#include "../RSize.h"
 #include "../dependents/stb_image.h"
 
 namespace Redopera {
@@ -28,6 +29,7 @@ public:
     bool isValid() const;
     int width() const;
     int height() const;
+    RSize size() const;
     int channel() const;
     RData* data() const;
 
