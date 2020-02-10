@@ -9,11 +9,11 @@ namespace Redopera {
 class RRect
 {
 public:
-    constexpr RRect();
-    constexpr RRect(int width, int height, int x = 0, int y = 0);
-    constexpr RRect(int width, int height, const RPoint2 &bottomLeft);
-    constexpr RRect(const RSize &size, const RPoint2 &bottomLeft);
-    constexpr RRect(const RPoint2 &bottomLeft, const RPoint2 &topRight);
+    RRect();
+    RRect(int width, int height, int x = 0, int y = 0);
+    RRect(int width, int height, const RPoint2 &bottomLeft);
+    RRect(const RSize &size, const RPoint2 &bottomLeft);
+    RRect(const RPoint2 &bottomLeft, const RPoint2 &topRight);
 
     bool operator==(const RRect &rect);
     bool operator!=(const RRect &rect);
@@ -61,25 +61,25 @@ private:
     int height_;
 };
 
-inline constexpr RRect::RRect():
+inline RRect::RRect():
     RRect(RSize(), RPoint2(0))
 {}
 
-inline constexpr RRect::RRect(int width, int height, int x, int y):
+inline RRect::RRect(int width, int height, int x, int y):
     x_(x), y_(y), width_(width), height_(height)
 {}
 
-inline constexpr RRect::RRect(int width, int height, const RPoint2 &bottomLeft):
+inline RRect::RRect(int width, int height, const RPoint2 &bottomLeft):
     x_(bottomLeft.x()), y_(bottomLeft.y()), width_(width), height_(height)
 {
 
 }
 
-inline constexpr RRect::RRect(const RSize &size, const RPoint2 &bottomLeft):
+inline RRect::RRect(const RSize &size, const RPoint2 &bottomLeft):
     x_(bottomLeft.x()), y_(bottomLeft.y()), width_(size.width()), height_(size.height())
 {}
 
-inline constexpr RRect::RRect(const RPoint2 &bottomLeft, const RPoint2 &topRight):
+inline RRect::RRect(const RPoint2 &bottomLeft, const RPoint2 &topRight):
     x_(bottomLeft.x()), y_(bottomLeft.y()),
     width_(topRight.x() - bottomLeft.x()),
     height_(topRight.y() - bottomLeft.y())

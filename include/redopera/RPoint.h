@@ -12,9 +12,9 @@ class RPoint2
 public:
     constexpr static int INVALID_POINT_VALUE = ~0u >> 1;
 
-    constexpr explicit RPoint2(int x, int y = 0): x_(x), y_(y) {}
+    explicit RPoint2(int x, int y = 0): x_(x), y_(y) {}
 
-    constexpr RPoint2(): x_(INVALID_POINT_VALUE), y_(INVALID_POINT_VALUE) {}
+    RPoint2(): x_(INVALID_POINT_VALUE), y_(INVALID_POINT_VALUE) {}
 
     bool operator==(const RPoint2 &pos) const { return x_ == pos.x_ && y_ == pos.y_; }
 
