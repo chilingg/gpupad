@@ -185,6 +185,7 @@ void RWindow::setCursor(const RCursor *cursor)
 
 void RWindow::setCursorModel(RWindow::CursorMode mode)
 {
+    format_.cMode = mode;
     glfwSetInputMode(window_.get(), GLFW_CURSOR, static_cast<int>(mode));
 }
 
@@ -275,6 +276,11 @@ int RWindow::windowHeight() const
     int w, h;
     glfwGetWindowSize(window_.get(), &w, &h);
     return h;
+}
+
+RWindow::CursorMode RWindow::cursorMode() const
+{
+    return format_.cMode;
 }
 
 bool RWindow::isFocus() const

@@ -36,6 +36,7 @@ public:
         int initWidth       = 960;      // 初始窗口大小
         int initHeight      = 540;      // 初始窗口大小
         double vRatio_      = 16.0/9.0; // 视口比例 (Scale 模式)
+        CursorMode cMode    = CursorMode::Normal;
     };
 
     constexpr static const char* defaultName() { return "Window"; }
@@ -83,6 +84,7 @@ public:
     RSize size() const;
     int windowWidth() const;
     int windowHeight() const;
+    CursorMode cursorMode() const;
     bool isFocus() const;
     bool isShouldCloused() const;
 

@@ -2,6 +2,7 @@
 #include <RDebug.h>
 #include <RPlane.h>
 #include <RTextbox.h>
+#include <RTimer.h>
 
 using namespace Redopera;
 
@@ -102,11 +103,26 @@ protected:
 
     void inputEvent(RInputEvent &e) override
     {
+        // 光标隐藏，cursor.z只作标记用
+        RWindow* window = RWindow::getMainWindow();
+        if(e.cursorPos() != cursor && window->cursorMode() == RWindow::CursorMode::Hidden)
+            window->setCursorModel(RWindow::CursorMode::Normal);
+        else if(e.cursorPos() == cursor)
+        {
+            if(timer.elapsed() > 2000)
+            {
+                window->setCursorModel(RWindow::CursorMode::Hidden);
+                timer.start();
+            }
+        }
+        cursor = e.cursorPos();
+
+
         // inputEvent只能监测感兴趣的按键
         if(e.press(Keys::KEY_ESCAPE))
             getParent()->breakLoop();
 
-        RPoint2 p(0);
+        RPoint3 p(0);
         if(e.status(Keys::KEY_LEFT) == ButtonAction::PRESS)
             p.rx() -= 4;
         if(e.status(Keys::KEY_RIGHT) == ButtonAction::PRESS)
@@ -126,6 +142,8 @@ private:
     RTextsbxo texts;
     RRect viewpro;
     GLuint pro, view;
+    RTimer timer;
+    RPoint2 cursor;
 };
 
 int main()
