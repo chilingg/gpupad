@@ -508,7 +508,7 @@ void RWindow::resizeCallback(GLFWwindow *window, int width, int height)
         {
             n = static_cast<int>(height * wctrl->format_.vRatio_);
             glViewport((width - n) / 2, 0, n, height);
-            wctrl->vOffset_.setPoint((width - n) / 2, 0);
+            wctrl->vOffset_.set((width - n) / 2, 0);
             wctrl->width_ = n;
             wctrl->height_ = height;
         }
@@ -516,7 +516,7 @@ void RWindow::resizeCallback(GLFWwindow *window, int width, int height)
         {
             n = static_cast<int>(width / wctrl->format_.vRatio_);
             glViewport(0, (height - n) / 2, width, n);
-            wctrl->vOffset_.setPoint(0, (height - n) / 2);
+            wctrl->vOffset_.set(0, (height - n) / 2);
             wctrl->width_ = width;
             wctrl->height_ = n;
         }
@@ -527,7 +527,7 @@ void RWindow::resizeCallback(GLFWwindow *window, int width, int height)
     case Viewport::Full:
     {
         glViewport(0, 0, width, height);
-        wctrl->vOffset_.setPoint(0, 0);
+        wctrl->vOffset_.set(0, 0);
         TranslationInfo info { wctrl, {width, height} };
         wctrl->translation(info);
         break;
@@ -535,7 +535,7 @@ void RWindow::resizeCallback(GLFWwindow *window, int width, int height)
     case Viewport::Fix:
     {
         glViewport((width - wctrl->width_) / 2.0, (height - wctrl->height_) / 2.0, wctrl->width_, wctrl->height_);
-        wctrl->vOffset_.setPoint((width - wctrl->width_) / 2.0, (height - wctrl->height_) / 2.0);
+        wctrl->vOffset_.set((width - wctrl->width_) / 2.0, (height - wctrl->height_) / 2.0);
         TranslationInfo info { wctrl, {wctrl->width_, wctrl->height_} };
         wctrl->translation(info);
         break;

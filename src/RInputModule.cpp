@@ -378,7 +378,7 @@ void RInputModule::updateMouseInput(GLFWwindow *window)
 
 void RInputModule::updateCursorPos(int x, int y)
 {
-    cursorPos_.setPoint(x, y);
+    cursorPos_.set(x, y);
 }
 
 void Redopera::RInputModule::updateGamepad()

@@ -32,7 +32,6 @@ public:
     bool isValid() const { return x_ != INVALID_POINT_VALUE && y_ != INVALID_POINT_VALUE; }
     bool isOrigin() const { return x_ == 0 && y_ == 0; }
 
-    void setPoint(int x, int y) { x_ = x; y_ = y; }
     void setX(int x) { x_ = x; }
     void setY(int y) { y_ = y; }
     void set(int x, int y) { x_ = x; y_ = y; }
@@ -53,7 +52,7 @@ public:
     explicit RPoint3(int x, int y = 0, int z = 0):
         RPoint2(x, y), z_(z) {}
 
-    RPoint3(RPoint2 p2, int z = 0):
+    RPoint3(RPoint2 p2, int z):
         RPoint2(p2), z_(z) {}
 
     RPoint3():
@@ -74,9 +73,9 @@ public:
     bool isValid() const { return RPoint2::isValid() && z_ != INVALID_POINT_VALUE; }
     bool isOrigin() const { return RPoint2::isOrigin() && z_ == 0;}
 
-    void setPoint(int x, int y, int z) { x_ = x; y_ = y; z_ = z; }
     void setZ(int z) { z_ = z; }
     void set(int x, int y, int z) { x_ = x, y_ = y; z_ = z; }
+    void set(const RPoint2 &pos, int z) { x_ = pos.x(), y_ = pos.y(); z_ = z; }
 
 protected:
     int z_;
