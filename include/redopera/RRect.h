@@ -9,11 +9,14 @@ namespace Redopera {
 class RRect
 {
 public:
-    RRect();
-    RRect(int width, int height, int x = 0, int y = 0);
-    RRect(int width, int height, const RPoint2 &bottomLeft);
-    RRect(const RSize &size, const RPoint2 &bottomLeft);
-    RRect(const RPoint2 &bottomLeft, const RPoint2 &topRight);
+    constexpr RRect();
+    constexpr RRect(int width, int height, int x = 0, int y = 0);
+    constexpr RRect(int width, int height, const RPoint2 &bottomLeft);
+    constexpr RRect(const RSize &size, const RPoint2 &bottomLeft);
+    constexpr RRect(const RPoint2 &bottomLeft, const RPoint2 &topRight);
+
+    bool operator==(const RRect &rect);
+    bool operator!=(const RRect &rect);
 
     void setSize(const RSize &size);
     void setSize(int width, int height);
@@ -58,29 +61,39 @@ private:
     int height_;
 };
 
-inline RRect::RRect():
+inline constexpr RRect::RRect():
     RRect(RSize(), RPoint2(0))
 {}
 
-inline RRect::RRect(int width, int height, int x, int y):
+inline constexpr RRect::RRect(int width, int height, int x, int y):
     x_(x), y_(y), width_(width), height_(height)
 {}
 
-inline RRect::RRect(int width, int height, const RPoint2 &bottomLeft):
+inline constexpr RRect::RRect(int width, int height, const RPoint2 &bottomLeft):
     x_(bottomLeft.x()), y_(bottomLeft.y()), width_(width), height_(height)
 {
 
 }
 
-inline RRect::RRect(const RSize &size, const RPoint2 &bottomLeft):
+inline constexpr RRect::RRect(const RSize &size, const RPoint2 &bottomLeft):
     x_(bottomLeft.x()), y_(bottomLeft.y()), width_(size.width()), height_(size.height())
 {}
 
-inline RRect::RRect(const RPoint2 &bottomLeft, const RPoint2 &topRight):
+inline constexpr RRect::RRect(const RPoint2 &bottomLeft, const RPoint2 &topRight):
     x_(bottomLeft.x()), y_(bottomLeft.y()),
     width_(topRight.x() - bottomLeft.x()),
     height_(topRight.y() - bottomLeft.y())
 {}
+
+inline bool RRect::operator==(const RRect &rect)
+{
+    return x_ == rect.x_ && y_ == rect.y_ && width_ == rect.width_ && height_ == rect.height_;
+}
+
+inline bool RRect::operator!=(const RRect &rect)
+{
+    return x_ != rect.x_ || y_ != rect.y_ || width_ != rect.width_ || height_ != rect.height_;
+}
 
 inline void RRect::setSize(const RSize &size)
 {
