@@ -10,19 +10,19 @@ RTexture::Format RTexture::textureFormat = makeTexFormat();
 
 const RTexture &RTexture::whiteTex()
 {
-    static const RTexture WHITE_TEX(reinterpret_cast<const RData*>("\xff\xff\xff\xff"), 1, 1, 4, "WhiteTex", RTexture::NearestTex);
+    thread_local static const RTexture WHITE_TEX(reinterpret_cast<const RData*>("\xff\xff\xff\xff"), 1, 1, 4, "WhiteTex", RTexture::NearestTex);
     return WHITE_TEX;
 }
 
 const RTexture &RTexture::blackTex()
 {
-    static const RTexture BLACK_TEX(reinterpret_cast<const RData*>("\x0\x0\x0\xff"), 1, 1, 4, "BlackTex", RTexture::NearestTex);
+    thread_local static const RTexture BLACK_TEX(reinterpret_cast<const RData*>("\x0\x0\x0\xff"), 1, 1, 4, "BlackTex", RTexture::NearestTex);
     return BLACK_TEX;
 }
 
 const RTexture &RTexture::transTex()
 {
-    static const RTexture TRANS_TEX(reinterpret_cast<const RData*>("\x0\x0\x0\x0"), 1, 1, 4, "TransTex", RTexture::NearestTex);
+    thread_local static const RTexture TRANS_TEX(reinterpret_cast<const RData*>("\x0\x0\x0\x0"), 1, 1, 4, "TransTex", RTexture::NearestTex);
     return TRANS_TEX;
 }
 
