@@ -10,3 +10,6 @@ target_link_libraries(triangle redopera)
 
 add_executable(plane plane.cpp)
 target_link_libraries(plane redopera)
+
+add_executable(texts texts.cpp)
+target_link_libraries(texts redopera)

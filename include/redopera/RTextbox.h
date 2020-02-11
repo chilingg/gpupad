@@ -26,13 +26,13 @@ public:
 
     struct Format
     {
-        Typeset typeset = Typeset::Horizontal;
         float lSpacing = 1.2f;
         float wSpacing = 1.0f;
-        float spacing = 0.6f; // 空格
+        float spacing = 0.6f;   // 空格
+        Typeset typeset = Typeset::Horizontal;
         glm::vec3 color = { 1.f, 1.f, 1.f };
         RFont font;
-        bool ellipsis = true;
+        bool ellipsis = true;   //若不能显示所有字符，在末尾添加一个5x5方框
     };
 
     struct RenderTool
@@ -40,7 +40,7 @@ public:
         RShaderProgram &shaders;
         GLuint &modelLoc;
         GLuint &colorLoc;
-        GLuint &backLoc;
+        GLuint &textLoc;
         GLuint &edgingLoc;
     };
 
@@ -84,6 +84,8 @@ public:
     float wordSpacing() const;
     float spacing() const;
     Format textFormat() const;
+    const RTexture& textTexture() const;
+    const RImage& textImage() const;
     bool isSeting() const;
 
     void setFontColor(R_RGBA rgba);
@@ -122,7 +124,7 @@ private:
     thread_local static RShaderProgram tTextShaders;
     thread_local static GLuint MODEL_LOC;
     thread_local static GLuint COLOR_LOC;
-    thread_local static GLuint BACKCOLOR_LOC;
+    thread_local static GLuint TEXT_LOC;
     thread_local static GLuint EDGING_LOC;
 
     void verticalTextToTexture();
