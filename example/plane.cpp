@@ -1,5 +1,4 @@
 #include <RWindow.h>
-#include <RDebug.h>
 #include <RPlane.h>
 #include <RTextbox.h>
 #include <RTimer.h>
@@ -30,7 +29,6 @@ public:
         texts.setBackColor(0, 0, 0, 0);     // 默认透明，无需显示设置
         texts.setAlign(RArea::Align::Mind, RArea::Align::Left);  // 默认左上
         pro = RPlane::planeShader().getUniformLocation("projection");
-        view = RPlane::planeShader().getUniformLocation("view");
 
         arrow[0].setAlign(RArea::Align::Left, RArea::Align::Mind);
         arrow[0].setFontSize(36);
@@ -117,7 +115,6 @@ protected:
         }
         cursor = e.cursorPos();
 
-
         // inputEvent只能监测感兴趣的按键
         if(e.press(Keys::KEY_ESCAPE))
             getParent()->breakLoop();
@@ -141,7 +138,7 @@ private:
     RTextsbxo arrow[4];
     RTextsbxo texts;
     RRect viewpro;
-    GLuint pro, view;
+    GLuint pro;
     RTimer timer;
     RPoint2 cursor;
 };
@@ -149,8 +146,8 @@ private:
 int main()
 {
     RWindow::Format format;
-    format.initWidth = 800;
-    format.initHeight = 520;
+    format.initWidth = 480;
+    format.initHeight = 480;
     format.debug = true;
     format.background = 0x181010;
     RWindow window(format, nullptr, "Plane");
