@@ -53,7 +53,7 @@ public:
     void update();
     void render();
     void render(const RShaderProgram &shaders, GLuint mLoc);
-    void edging(const RColor &color);
+    void edging(const RColor &color = RColor(0xff0000ff));
     void edging(const RShaderProgram &shaders, GLuint mLoc);
     void edgingAll();
     void edgingAll(const RShaderProgram &shaders, GLuint mLoc);
