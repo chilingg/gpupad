@@ -33,7 +33,7 @@ public:
         bool keysSigal      = false;    // 键盘响应信号(entered)
         Viewport viewport   = Viewport::Full;  // 视口模式
         R_RGBA background   = 0x121212; // 背景色
-        int initWidth       = 960;      // 初始窗口大小
+        int initWidth       = 800;      // 初始窗口大小
         int initHeight      = 540;      // 初始窗口大小
         double vRatio_      = 16.0/9.0; // 视口比例 (Scale 模式)
         CursorMode cMode    = CursorMode::Normal;

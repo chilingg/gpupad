@@ -526,6 +526,8 @@ void RWindow::resizeCallback(GLFWwindow *window, int width, int height)
             wctrl->width_ = width;
             wctrl->height_ = n;
         }
+        wctrl->width_ = width;
+        wctrl->height_ =height;
         TranslationInfo info { wctrl, {width, height} };
         wctrl->translation(info);
         break;
@@ -534,6 +536,8 @@ void RWindow::resizeCallback(GLFWwindow *window, int width, int height)
     {
         glViewport(0, 0, width, height);
         wctrl->vOffset_.set(0, 0);
+        wctrl->width_ = width;
+        wctrl->height_ =height;
         TranslationInfo info { wctrl, {width, height} };
         wctrl->translation(info);
         break;
