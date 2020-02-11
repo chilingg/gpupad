@@ -25,3 +25,6 @@ target_link_libraries(glContex redopera)
 
 add_executable(opengl opengl.cpp)
 target_link_libraries(opengl redopera)
+
+add_executable(share share.cpp)
+target_link_libraries(share redopera)
