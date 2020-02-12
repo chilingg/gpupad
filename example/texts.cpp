@@ -78,7 +78,6 @@ int main()
     RWindow::Format format;
     format.initWidth = 450;
     format.initHeight = 490;
-    format.debug = true;
     format.background = 0x181010;
     format.fix = true;
     TextWindow textWin(format);

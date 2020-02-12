@@ -55,8 +55,8 @@ protected:
         GLuint vao, vbo;
         glGenVertexArrays(1, &vao);
         glGenBuffers(1, &vbo);
-        VAO.reset(vao, [](GLuint vao){ rDebug << "Delete VAO"; glDeleteVertexArrays(1, &vao); });
-        VBO.reset(vbo, [](GLuint vbo){ rDebug << "Delete VBO"; glDeleteBuffers(1, &vbo); });
+        VAO.reset(vao, [](GLuint vao){ glDeleteVertexArrays(1, &vao); });
+        VBO.reset(vbo, [](GLuint vbo){ glDeleteBuffers(1, &vbo); });
 
         float vertices[] = {
              0.0f, 53.0f, 0.0f,
@@ -115,7 +115,6 @@ int main()
     format.keysSigal = true;
     format.initWidth = 500;
     format.initHeight = 500;
-    format.debug = true;
     format.background = 0x181010;
     RWindow window(format, nullptr, "Triangle");
     p = &window;

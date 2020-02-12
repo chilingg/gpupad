@@ -65,17 +65,8 @@ protected:
         plane.setPosX(window->width()/2 - plane.width()/2);
         plane.setPosY(window->height()/2 - plane.height()/2);
 
-        // 必须设置一次的视口
-        {
-        // plane的着色器设置
-        RShaderProgram::Interface inter = RPlane::planeShader().useInterface();
-        inter.setViewprot(pro, 0, window->width(), 0, window->height());
-        } // 一个线程同一时间内只能有一个Interface对象
-
-        // textbox的着色器设置（与plane并不共享，建议永远与窗口尺寸等同，避免字体渲染虚化）
-        const RShaderProgram &shaders = RTextsbxo::textboxShader();
-        RShaderProgram::Interface inter = shaders.useInterface();
-        inter.setViewprot(shaders.getUniformLocation("projection"), 0, window->width(), 0, window->height());
+        TranslationInfo info = { this, window->size(), RPoint(0) };
+        translation(info);
     }
 
     void translation(const TranslationInfo &info) override
@@ -89,11 +80,14 @@ protected:
         texts.setPosX(info.size.width() - texts.width() - 10);
         icon.setPosX(texts.x() - icon.width() - 5);
 
-        { // 一个线程同一时间内只能有一个Interface对象
+        // 必须设置一次的视口
+        {
+        // plane的着色器设置
         RShaderProgram::Interface inter = RPlane::planeShader().useInterface();
         inter.setViewprot(pro, 0, info.size.width(), 0, info.size.height());
-        }
+        } // 一个线程同一时间内只能有一个Interface对象
 
+        // textbox的着色器设置（与plane并不共享，建议永远与窗口尺寸等同，避免字体渲染虚化）
         const RShaderProgram &shaders = RTextsbxo::textboxShader();
         RShaderProgram::Interface inter = shaders.useInterface();
         inter.setViewprot(shaders.getUniformLocation("projection"), 0, info.size.width(), 0, info.size.height());
@@ -148,7 +142,6 @@ int main()
     RWindow::Format format;
     format.initWidth = 480;
     format.initHeight = 480;
-    format.debug = true;
     format.background = 0x181010;
     RWindow window(format, nullptr, "Plane");
 
