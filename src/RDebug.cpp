@@ -205,7 +205,7 @@ const RDebug &RDebug::operator<<(const RTime &time) const
 
 const RDebug &RDebug::operator<<(const RArea &area) const
 {
-    std::cout << "Area:( " << area.x() << ", " << area.y()
+    std::cout << "Area:( " << area.x() << ", " << area.y() << ", " << area.z()
               << " | W: " << area.width() << " H: " << area.height()
               << " | M: " << area.area().margin.t << ' ' << area.area().margin.b
               << ' ' << area.area().margin.l << ' ' << area.area().margin.r
