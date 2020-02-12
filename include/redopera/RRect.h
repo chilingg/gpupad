@@ -26,11 +26,20 @@ public:
 
     void setSize(const RSize &size);
     void setSize(int width, int height);
-
+    void setWidth(int width);
+    void setHeight(int height);
     void setBottomLeft(const RPoint2 &pos);
     void setBottomLeft(int x, int y);
     void setTopRight(const RPoint2 &pos);
     void setTopRIght(int x, int y);
+    void setBottom(int bottom);
+    void setLeft(int left);
+    void setTop(int top);
+    void setRight(int right);
+
+    void move(RPoint2 pos);
+    void move(int x, int y);
+
     void setCenter(const RPoint2 &pos);
     void setCenter(int x, int y);
     void set(int width, int height, int x, int y);
@@ -132,13 +141,26 @@ inline void RRect::setSize(int width, int height)
     size_.set(width, height);
 }
 
+inline void RRect::setWidth(int width)
+{
+    size_.setWidth(width);
+}
+
+inline void RRect::setHeight(int height)
+{
+    size_.setHeight(height);
+}
+
 inline void RRect::setBottomLeft(const RPoint2 &pos)
 {
+    RPoint2 p = pos_ - pos;
     pos_ = pos;
+    size_.expand(p.x(), p.y());
 }
 
 inline void RRect::setBottomLeft(int x, int y)
 {
+    size_.expand(pos_.x() - x, pos_.y() - y);
     pos_.set(x, y);
 }
 
@@ -150,6 +172,39 @@ inline void RRect::setTopRight(const RPoint2 &pos)
 inline void RRect::setTopRIght(int x, int y)
 {
     size_.set(x - pos_.x(), y - pos_.y());
+}
+
+inline void RRect::setBottom(int bottom)
+{
+    size_.expand(0, pos_.y() - bottom);
+    pos_.setY(bottom);
+}
+
+inline void RRect::setLeft(int left)
+{
+    size_.expand(pos_.x() - left, 0);
+}
+
+inline void RRect::setTop(int top)
+{
+    size_.expand(0, top - size_.height() - pos_.y());
+}
+
+inline void RRect::setRight(int right)
+{
+    size_.expand(pos_.x() - right, 0);
+    pos_.setX(right);
+}
+
+inline void RRect::move(RPoint2 pos)
+{
+    pos_ += pos;
+}
+
+inline void RRect::move(int x, int y)
+{
+    pos_.rx() += x;
+    pos_.ry() += y;
 }
 
 inline void RRect::setCenter(const RPoint2 &pos)

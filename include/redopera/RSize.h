@@ -28,6 +28,8 @@ public:
     void setHeight(int height) { height_ = height; }
     void set(int width, int height) { width_ = width; height_ = height; }
 
+    void expand(int width, int height) { width_ += width; height_ += height; }
+
 private:
     int width_;
     int height_;
