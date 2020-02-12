@@ -321,13 +321,13 @@ RShaderProgram::Interface::Interface(GLuint id)
 }
 
 RShaderProgram::RShaderProgram():
-    RResource("ShaderProgram", typeid(this).name())
+    RResource("ShaderProgram", Type::ShaderProg)
 {
 
 }
 
 RShaderProgram::RShaderProgram(std::initializer_list<RShader> list, const std::string &name):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::ShaderProg)
 {
     for(auto &shader : list)
         shaders_.emplace(shader.type(), shader);

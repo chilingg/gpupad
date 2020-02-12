@@ -4,19 +4,19 @@
 using namespace Redopera;
 
 RLuaScript::RLuaScript():
-    RResource("Script", typeid(this).name())
+    RResource("Script", Type::Script)
 {
 
 }
 
 RLuaScript::RLuaScript(const std::string &lua, const std::string &name):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Script)
 {
     load(lua);
 }
 
 RLuaScript::RLuaScript(const RData *data, size_t size, const std::string &name):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Script)
 {
     load(data, size, name);
 }

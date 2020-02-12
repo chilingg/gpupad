@@ -10,31 +10,31 @@ const RImage &RImage::redoperaIcon()
 }
 
 RImage::RImage():
-    RResource("Image", typeid(this).name())
+    RResource("Image", Type::Image)
 {
 
 }
 
 RImage::RImage(const std::string &path, const std::string &name, bool flip):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Mp3)
 {
     load(path, flip);
 }
 
 RImage::RImage(const RData *data, size_t size, const std::string &name, bool flip):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Mp3)
 {
     load(data, size, flip);
 }
 
 RImage::RImage(const RData *data, int width, int height, int channel, const std::string &name):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Mp3)
 {
     load(data, width, height, channel);
 }
 
 RImage::RImage(std::shared_ptr<RData> data, int width, int height, int channel, const std::string &name):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Mp3)
 {
     load(data, width, height, channel);
 }

@@ -12,20 +12,20 @@ class RCursor : public RResource
     friend void swap(RCursor &cs1, RCursor &cs2);
 
 public:
-    enum class CursorShape
+    enum class Shape
     {
-        ARROW_CURSOR        = GLFW_ARROW_CURSOR,
-        IBEAM_CURSOR        = GLFW_IBEAM_CURSOR,
-        CROSSHAIR_CURSOR    = GLFW_CROSSHAIR_CURSOR,
-        HAND_CURSOR         = GLFW_HAND_CURSOR,
-        HRESIZE_CURSOR      = GLFW_HRESIZE_CURSOR,
-        VRESIZE_CURSOR      = GLFW_VRESIZE_CURSOR,
-        CUSTOM_CURSOR
+        Arrow        = GLFW_ARROW_CURSOR,
+        Ibeam        = GLFW_IBEAM_CURSOR,
+        Crosshair    = GLFW_CROSSHAIR_CURSOR,
+        Hand         = GLFW_HAND_CURSOR,
+        Hresize      = GLFW_HRESIZE_CURSOR,
+        Vresize      = GLFW_VRESIZE_CURSOR,
+        Custom
     };
 
     RCursor();
     RCursor(const RImage &image, const std::string &name = "Cursor", int xhot = 0, int yhot = 0);
-    RCursor(CursorShape shape, const std::string &name = "Cursor");
+    RCursor(Shape shape, const std::string &name = "Cursor");
     RCursor(const RCursor &cursor);
     RCursor(const RCursor &&cursor);
     RCursor& operator=(RCursor cursor);
@@ -33,16 +33,16 @@ public:
     void swap(RCursor &cursor);
 
     bool isValid() const;
-    CursorShape shape() const;
+    Shape shape() const;
     GLFWcursor* data() const;
 
     bool load(const RImage &image, int xhot = 0, int yhot = 0);
-    bool load(CursorShape shape);
+    bool load(Shape shape);
     void release();
 
 private:
     std::shared_ptr<GLFWcursor> data_;
-    CursorShape shape_ = CursorShape::CUSTOM_CURSOR;
+    Shape shape_ = Shape::Custom;
 };
 
 } // Redopera

@@ -6,19 +6,19 @@ using namespace Redopera;
 thread_local RMp3::Decoder RMp3::decoder;
 
 RMp3::RMp3():
-    RResource("Mp3", typeid(this).name())
+    RResource("Mp3", Type::Mp3)
 {
 
 }
 
 RMp3::RMp3(const std::string &path, const std::string &name):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Mp3)
 {
     load(path);
 }
 
 RMp3::RMp3(const RData *data, size_t size, const std::string &name):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Mp3)
 {
     load(data, size);
 }

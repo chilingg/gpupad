@@ -1,19 +1,19 @@
 #include "rsc/RCursor.h"
 
 Redopera::RCursor::RCursor():
-    RResource("Cursor", typeid(this).name())
+    RResource("Cursor", RResource::Type::Cursor)
 {
 
 }
 
 Redopera::RCursor::RCursor(const Redopera::RImage &image, const std::string &name, int xhot, int yhot):
-    RResource(name, typeid(this).name())
+    RResource(name, RResource::Type::Cursor)
 {
     load(image, xhot, yhot);
 }
 
-Redopera::RCursor::RCursor(Redopera::RCursor::CursorShape shape, const std::string &name):
-    RResource(name, typeid(this).name())
+Redopera::RCursor::RCursor(Redopera::RCursor::Shape shape, const std::string &name):
+    RResource(name, RResource::Type::Cursor)
 {
     load(shape);
 }
@@ -53,7 +53,7 @@ bool Redopera::RCursor::isValid() const
     return data_ != nullptr;
 }
 
-Redopera::RCursor::CursorShape Redopera::RCursor::shape() const
+Redopera::RCursor::Shape Redopera::RCursor::shape() const
 {
     return shape_;
 }
@@ -73,10 +73,11 @@ bool Redopera::RCursor::load(const Redopera::RImage &image, int xhot, int yhot)
         return false;
     }
 
+    shape_ = Shape::Custom;
     return true;
 }
 
-bool Redopera::RCursor::load(Redopera::RCursor::CursorShape shape)
+bool Redopera::RCursor::load(Redopera::RCursor::Shape shape)
 {
     GLFWcursor *cursor = glfwCreateStandardCursor(static_cast<int>(shape));
     if(cursor)

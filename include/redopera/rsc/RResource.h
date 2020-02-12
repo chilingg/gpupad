@@ -10,49 +10,64 @@ namespace Redopera{
 
 using RData = uint8_t;
 
+using RscID = unsigned;
+
 class RResource
 {
-    struct ResourceInfo
-    {
-        std::string name;
-        std::string typeName;
-    };
-
     friend void swap(RResource &rc1, RResource &rc2);
-    using ResourcesList = std::map<unsigned, ResourceInfo>;
 
 public:
-    using ResourceID = unsigned;
+    enum class Type
+    {
+        Cursor,
+        Font,
+        Image,
+        Script,
+        Mp3,
+        Pack,
+        Shader,
+        ShaderProg,
+        Texture
+    };
 
-    static const std::shared_ptr<ResourcesList> queryResourceList();
+    struct RscInfo
+    {
+        Type type;
+        std::string name;
+    };
+
+    using RscList = std::map<RscID, RscInfo>;
+
+    static const std::shared_ptr<RscList> queryResourceList();
 
     static std::string getTextFileContent(const std::string &path);
     static std::string rscpath(const std::string &path);
     static void setResourcePath(const std::string &path);
     static const std::string& getResourcePath();
 
-    RResource(const std::string &name, const std::string &typeName);
+    RResource(const std::string &name, Type type);
     RResource(const RResource &rc);
     RResource(const RResource &&rc);
-    RResource& operator=(RResource rc);
+    RResource& operator=(const RResource &rc);
+    RResource& operator=(RResource &&rc);
     void swap(RResource &rc) noexcept;
-    ~RResource() = default;
+    virtual ~RResource() = 0;
 
-    ResourceID resourceID() const;
+    RscID resourceID() const;
     const std::string& name() const;
     std::string nameAndID() const;
     void rename(const std::string &name);
 
 private:
-    static ResourceID registerResourceID(const std::string &name, const std::string &typeName);
-    static std::shared_ptr<ResourcesList>& resourcesList();
-    static void unregisterResourceID(unsigned *ID);
+    static RscID registerResourceID(const std::string &name, Type type);
+    static std::shared_ptr<RscList>& resourcesList();
+    static void unregisterResourceID(RscID *id);
 
     static std::string resourcesPath;
     static std::mutex mutex;
 
     std::string name_;
-    std::shared_ptr<ResourceID> resourceID_;
+    std::shared_ptr<RscID> resourceID_;
 };
 
 } // Redopera

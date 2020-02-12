@@ -31,13 +31,13 @@ const std::string &RShader::shaderTypeName(Type type)
 }
 
 RShader::RShader():
-    RResource("Shader", typeid(this).name())
+    RResource("Shader", RResource::Type::Shader)
 {
 
 }
 
 RShader::RShader(const std::string &shader, Type type, const std::string &name):
-    RResource(name, typeid(this).name())
+    RResource(name, RResource::Type::Shader)
 {
     load(shader, type);
 }

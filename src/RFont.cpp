@@ -23,7 +23,7 @@ void RFont::setDefaultFont(RFont font)
 }
 
 RFont::RFont():
-    RResource("Font", typeid(this).name()),
+    RResource("Font", RResource::Type::Font),
     resource_(defaultFont.resource_),
     caches_(defaultFont.caches_)
 {
@@ -31,14 +31,14 @@ RFont::RFont():
 }
 
 RFont::RFont(const std::string &path, const std::string &name, unsigned fsize):
-    RResource(name, typeid(this).name()),
+    RResource(name, RResource::Type::Font),
     size_(fsize)
 {
     load(path);
 }
 
 RFont::RFont(const std::shared_ptr<RData[]> &data, const std::string &name, unsigned fsize):
-    RResource(name, typeid(this).name()),
+    RResource(name, RResource::Type::Font),
     size_(fsize)
 {
     load(data);

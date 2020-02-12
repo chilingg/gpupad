@@ -10,7 +10,7 @@ using namespace Redopera;
 std::string RResource::resourcesPath = "resource/";
 std::mutex RResource::mutex;
 
-const std::shared_ptr<RResource::ResourcesList> RResource::queryResourceList()
+const std::shared_ptr<RResource::RscList> RResource::queryResourceList()
 {
     // 获取ID列表后的读取都是线程安全的，若其他线程对其修改会新建一个一样的列表进行
     std::lock_guard<std::mutex> guard(mutex);
@@ -67,9 +67,9 @@ const std::string &RResource::getResourcePath()
     return resourcesPath;
 }
 
-RResource::RResource(const std::string &name, const std::string &typeName):
+RResource::RResource(const std::string &name, Type type):
     name_(name),
-    resourceID_(new unsigned(registerResourceID(name, typeName)), unregisterResourceID)
+    resourceID_(new unsigned(registerResourceID(name, type)), unregisterResourceID)
 {
 
 }
@@ -88,10 +88,17 @@ RResource::RResource(const RResource &&rc):
 
 }
 
-RResource &RResource::operator=(RResource rc)
+RResource &RResource::operator=(const RResource &rc)
 {
     name_ = rc.name_;
     resourceID_ = rc.resourceID_;
+    return *this;
+}
+
+RResource &RResource::operator=(RResource &&rc)
+{
+    name_ = std::move(rc.name_);
+    resourceID_ = std::move(rc.resourceID_);
     return *this;
 }
 
@@ -101,7 +108,7 @@ void RResource::swap(RResource &rc) noexcept
     resourceID_.swap(rc.resourceID_);
 }
 
-RResource::ResourceID RResource::resourceID() const
+RscID RResource::resourceID() const
 {
     return *resourceID_;
 }
@@ -119,11 +126,20 @@ std::string RResource::nameAndID() const
 void RResource::rename(const std::string &name)
 {
     name_ = name;
+    std::string temp = name;
+
+    {
+    std::lock_guard<std::mutex> guard(mutex);
+    if(!resourcesList().unique())
+        resourcesList() = std::make_shared<RscList>(*resourcesList());
+    auto it = resourcesList()->find(*resourceID_);
+    it->second.name.swap(temp);
+    }
 }
 
-RResource::ResourceID RResource::registerResourceID(const std::string &name, const std::string &typeName)
+RscID RResource::registerResourceID(const std::string &name, Type type)
 {
-    ResourceID i = 0;
+    RscID i = 0;
     std::lock_guard<std::mutex> guard(mutex);
 
     while(resourcesList()->count(i))
@@ -131,28 +147,28 @@ RResource::ResourceID RResource::registerResourceID(const std::string &name, con
 
     // 若有其他线程在查询资源ID列表 则新建一个ID列表
     if(!resourcesList().unique())
-        resourcesList() = std::make_shared<ResourcesList>(*resourcesList());
-    resourcesList()->emplace(i, ResourceInfo{ name, typeName });
+        resourcesList() = std::make_shared<RscList>(*resourcesList());
+    resourcesList()->emplace(i, RscInfo{ type, name });
     return i;
 }
 
-std::shared_ptr<RResource::ResourcesList> &RResource::resourcesList()
+std::shared_ptr<RResource::RscList> &RResource::resourcesList()
 {
-    static std::shared_ptr<ResourcesList> RESOURCE_LIST(new ResourcesList);
+    static std::shared_ptr<RscList> RESOURCE_LIST(new RscList);
     return RESOURCE_LIST;
 }
 
-void RResource::unregisterResourceID(unsigned *ID)
+void RResource::unregisterResourceID(RscID *id)
 {
+    {
     std::lock_guard<std::mutex> guard(mutex);
-    assert(resourcesList()->count(*ID));
-
     // 若有其他线程在查询资源ID列表 则新建一个ID列表
     if(!resourcesList().unique())
-        resourcesList() = std::make_shared<ResourcesList>(*resourcesList());
-    resourcesList()->erase(*ID);
+        resourcesList() = std::make_shared<RscList>(*resourcesList());
+    resourcesList()->erase(*id);
+    }
 
-    delete ID;
+    delete id;
 }
 
 void swap(RResource &rc1, RResource &rc2)

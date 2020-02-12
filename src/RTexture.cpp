@@ -42,25 +42,25 @@ void RTexture::unbindTexture()
 }
 
 RTexture::RTexture():
-    RResource("Texture", typeid(this).name())
+    RResource("Texture", Type::Texture)
 {
 
 }
 
 RTexture::RTexture(const std::string &path, const std::string &name, const RTexture::Format &format):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Texture)
 {
     load(path, format);
 }
 
 RTexture::RTexture(const RImage &img, const std::string &name, const RTexture::Format &format):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Texture)
 {
     load(img, format);
 }
 
 RTexture::RTexture(const RData *data, int width, int height, int channel, const std::string &name, const RTexture::Format &format):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Texture)
 {
     load(data, width, height, channel, format);
 }

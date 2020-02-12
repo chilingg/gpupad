@@ -8,13 +8,13 @@
 using namespace Redopera;
 
 RPack::RPack():
-    RResource("Pack", typeid(this).name())
+    RResource("Pack", Type::Pack)
 {
 
 }
 
 RPack::RPack(const std::string &path, const std::string &name):
-    RResource(name, typeid(this).name())
+    RResource(name, Type::Pack)
 {
     load(path);
 }
