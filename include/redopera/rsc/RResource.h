@@ -45,18 +45,20 @@ public:
     static void setResourcePath(const std::string &path);
     static const std::string& getResourcePath();
 
-    RResource(const std::string &name, Type type);
     RResource(const RResource &rc);
     RResource(const RResource &&rc);
     RResource& operator=(const RResource &rc);
     RResource& operator=(RResource &&rc);
     void swap(RResource &rc) noexcept;
-    virtual ~RResource() = 0;
+    ~RResource() = default;
 
     RscID resourceID() const;
     const std::string& name() const;
     std::string nameAndID() const;
     void rename(const std::string &name);
+
+protected:
+    RResource(const std::string &name, Type type);
 
 private:
     static RscID registerResourceID(const std::string &name, Type type);
