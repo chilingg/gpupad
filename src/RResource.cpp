@@ -147,7 +147,7 @@ void RResource::rename(const std::string &name)
 
 RscID RResource::registerResourceID(const std::string &name, Type type)
 {
-    RscID i = 0;
+    RscID i = 1;
     std::lock_guard<std::mutex> guard(mutex);
 
     while(resourcesList()->count(i))
