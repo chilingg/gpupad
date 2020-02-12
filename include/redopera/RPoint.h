@@ -56,7 +56,7 @@ public:
         RPoint2(p2), z_(z) {}
 
     RPoint3():
-        RPoint2(), z_(INVALID_POINT_VALUE) {}
+        RPoint2(), z_(0) {}
 
     bool operator==(const RPoint3 &pos) const { return x_ == pos.x_ && y_ == pos.y_ && z_ == pos.z_; }
     bool operator!=(const RPoint3 &pos) const { return x_ != pos.x_ || y_ != pos.y_ || z_ != pos.z_; }
