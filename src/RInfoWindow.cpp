@@ -32,6 +32,17 @@ void RInfoWIndow::control()
     rcCountNum_.render();
     rcScrBack_.render();
     rcScroll_.render();
+
+    if(!queryTreeList(trList_))
+    {
+        trString_.clear();
+        for(auto &node : trList_)
+            trString_ += node.second + '\n';
+        trView_.setTexts(trString_);
+    }
+    trBack_.render();
+    trTitle_.render();
+    trView_.render();
 }
 
 void RInfoWIndow::renderRscList()
@@ -102,7 +113,6 @@ void RInfoWIndow::renderRscList()
         rcIcon_.edging(RColor(30, 30, 40));
         rcName_.setTexts(rc.second.name);
         rcName_.render();
-        rcName_.edging();
 
         rcID_.setPos(LIST_LEFT_ALIGN, rcID_.y() - TITLE_H);
         rcIcon_.move(0, -TITLE_H);
@@ -181,9 +191,24 @@ void RInfoWIndow::startEvent(RStartEvent &)
     rcScrBack_.setColorTexture(COLOR_ZERO);
     rcScrBack_.setPos(rcScroll_.x(), TITLE_H);
 
-    reArea_ = rcScrBack_.rect();
-    reArea_.setWidth(40);
-    reArea_.move(-reArea_.width()/2, 0);
+    reArea_[0] = rcScrBack_.rect();
+    reArea_[0].move(reArea_[0].width()/2, 0);
+
+    trBack_.rename("trBack");
+    trBack_.setPos(rcBack_.width() + 1, 0);
+    trBack_.setColorTexture(COLOR_TOW);
+
+    trTitle_ = rcTitle_;
+    trTitle_.setTextureName("trTile");
+    trTitle_.setPosX(trBack_.x());
+    trTitle_.setTexts("Tree View");
+
+    trView_.setTextureName("trView");
+    trView_.setFontSize(13);
+    trView_.setlineSpacing(1.8f);
+    trView_.setFontColor(FONT_COLOR);
+    trView_.setPadding(LIST_LEFT_ALIGN, 0, LIST_LEFT_ALIGN, 0);
+    trView_.setPos(trTitle_.x(), 0);
 
     pProLoc_ = RPlane::planeShader().getUniformLocation("projection");
     tProLoc_ = RTextsbxo::textboxShader().getUniformLocation("projection");
@@ -199,7 +224,11 @@ void RInfoWIndow::translation(const RController::TranslationInfo &info)
     rcBack_.setHeight(info.size.height() - TITLE_H);
     rcNumBack_.setHeight(rcBack_.height());
     rcScrBack_.setHeight(rcBack_.height() - TITLE_H);
-    reArea_.setHeight(rcScrBack_.height());
+    reArea_[0].setHeight(rcScrBack_.height());
+    trBack_.setSize(info.size.width() - rcBack_.width() - 1, info.size.height());
+    trTitle_.setWidth(trBack_.width());
+    trTitle_.setPosY(trBack_.height() - TITLE_H);
+    trView_.setSize(trBack_.width(), trBack_.height() - TITLE_H);
 
     {
     RShaderProgram::Interface interface = RPlane::planeShader().useInterface();
@@ -221,19 +250,35 @@ void RInfoWIndow::inputEvent(RInputEvent &event)
         wheel_ = 0;
     }
 
-    if(reArea_.contains(event.cursorPos()))
+    if(reArea_[0].contains(event.cursorPos()))
     {
         shape = RCursor::Shape::Hresize;
+
+        if(event.press(MouseButtons::MOUSE_BUTTON_LEFT))
+        {
+            std::swap(reArea_[0], reArea_[1]);
+            reArea_[0].set(size(), RPoint2(0, 0));
+        }
+
         if(event.status(MouseButtons::MOUSE_BUTTON_LEFT) == ButtonAction::PRESS && event.cursorPos().x() > LIST_W/2)
         {
-            reArea_.setCenter(event.cursorPos());
+            reArea_[0].setCenter(event.cursorPos());
             rcTitle_.setWidth(event.cursorPos().x() + SCROLL_BAR_W);
             rcCount_.setWidth(rcTitle_.width());
             rcBack_.setWidth(rcTitle_.width());
-            //rcName_.setWidth(rcTitle_.width() - rcName_.x());
+            rcName_.setWidth(rcTitle_.width() - rcName_.x());
             rcScroll_.setPosX(rcBack_.width() - rcScroll_.width());
             rcScrBack_.setPosX(rcScroll_.x());
+            trBack_.setPosX(rcBack_.width() + 1);
+            trBack_.setWidth(width() - rcBack_.width() + 1);
+            trTitle_.setPosX(trBack_.x());
+            trTitle_.setWidth(trBack_.width());
+            trView_.setPosX(trBack_.x());
+            trView_.setWidth(trBack_.width());
         }
+
+        if(event.release(MouseButtons::MOUSE_BUTTON_LEFT))
+            std::swap(reArea_[0], reArea_[1]);
     }
 
     if(event.press(Keys::KEY_ESCAPE))

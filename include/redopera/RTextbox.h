@@ -132,6 +132,7 @@ private:
     void verticalTextToTexture();
     void horizontalTextToTexture();
 
+    std::vector<RData> loader_;
     RTexture backTex_;
     RTexture textTex_;
     std::wstring texts_;

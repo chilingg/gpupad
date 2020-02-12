@@ -131,7 +131,7 @@ void RTexture::bind(unsigned unit) const
 
 bool RTexture::load(const RData *data, int width, int height, int echannel, const RTexture::Format &format)
 {
-    if(!textureID_.unique() || textureID_ != nullptr)
+    if(!textureID_.unique() && textureID_ != nullptr)
         resetRscID();
     GLuint id;
     glGenTextures(1, &id);

@@ -4,7 +4,6 @@
 #include "RWindow.h"
 #include "RPlane.h"
 #include "RTextbox.h"
-#include "RTimer.h"
 #include "rsc/RCursor.h"
 
 namespace Redopera {
@@ -46,11 +45,16 @@ private:
     int itemNum_;
     int wheel_ = 0;
 
-    RRect reArea_;
+    RRect reArea_[2];
+
+    RPlane trBack_;
+    RTextsbxo trTitle_;
+    RTextsbxo trView_;
+    TreeList trList_;
+    std::string trString_;
 
     RCursor cursor_;
     GLint pProLoc_ = -1, tProLoc_ = -1;
-    RTimer timer_;
 };
 
 } // Redopera

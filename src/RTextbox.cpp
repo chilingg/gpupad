@@ -11,6 +11,17 @@ thread_local GLuint RTextsbxo::EDGING_LOC;
 thread_local GLuint RTextsbxo::COLOR_LOC;
 thread_local GLuint RTextsbxo::TEXT_LOC;
 
+void flipVertical(RData *data, int width, int height)
+{
+    for(int h = 0, h2 = height - 1; h < height/2; ++h, --h2)
+    {
+        for(int w = 0, w2 = 0; w < width; ++w, ++w2)
+        {
+            std::swap(data[h*width+w], data[h2*width+w2]);
+        }
+    }
+}
+
 const RTextsbxo::RenderTool &RTextsbxo::textboxRenderTool()
 {
     if(!tTextShaders.isValid())
@@ -691,13 +702,12 @@ void RTextsbxo::verticalTextToTexture()
     if(!lines.empty() && lines.back() == 0) lines.pop_back();//末尾换行
 
     // 四方预留5px
-    int boxw = lenMax + 10;
-    int boxl = lineMax + 10;
-    RImage loader(nullptr, boxl, boxw, 1, "FontLoader");
-    std::fill(loader.data(), loader.data() + boxw * boxl, '\0');
-
     lenMax += 10;
     lineMax += 10;
+    if(loader_.size() < lenMax*lineMax)
+        loader_.resize(lenMax*lineMax);
+    std::fill(loader_.begin(), loader_.begin() + lenMax*lineMax, '\0');
+
     if(hAlign() == RArea::Align::Left) linepos = lineMax - ((lines.size()-1) * advanceL + fsize) - 5;
     else if(hAlign() == RArea::Align::Mind) linepos = (((lines.size()-1) * advanceL + fsize) + lineMax) / 2;
     else linepos = lineMax - 5;
@@ -741,7 +751,7 @@ void RTextsbxo::verticalTextToTexture()
                 {
                     if(!glyph->data.get()[y * glyph->width + x])
                         continue;
-                    loader.data()[(starty + y) * lineMax + startx + x] = glyph->data.get()[y*glyph->width+x];
+                    loader_[(starty + y) * lineMax + startx + x] = glyph->data.get()[y*glyph->width+x];
                 }
             }
 
@@ -761,14 +771,15 @@ void RTextsbxo::verticalTextToTexture()
         {
             for(unsigned y = lenMax - 5; y < lenMax; ++y)
                 for(unsigned x = 0; x < 5; ++x)
-                    loader.data()[y * lineMax + x] = '\xff';
+                    loader_[y * lineMax + x] = '\xff';
         }
     }
-    loader.flipVertical();
-    if(textTex_.height() != loader.height() || textTex_.width() != loader.width())
-        textTex_.load(loader, RTexture::SingleTex);
+
+    flipVertical(loader_.data(), lineMax, lenMax);
+    if(lineMax != static_cast<unsigned>(textTex_.width()) || lenMax != static_cast<unsigned>(textTex_.height()))
+        textTex_.load(loader_.data(), lineMax, lenMax, 1, RTexture::SingleTex);
     else
-        textTex_.reload(loader.data());
+        textTex_.reload(loader_.data());
     complete();
 }
 
@@ -839,13 +850,12 @@ void RTextsbxo::horizontalTextToTexture()
     if(!lines.empty() && lines.back() == 0) lines.pop_back();//末尾换行
 
     // 四方预留5px
-    int boxw = lenMax + 10;
-    int boxl = lineMax + 10;
-    RImage loader(nullptr, boxw, boxl, 1);
-    std::fill(loader.data(), loader.data() + boxw * boxl, '\0');
-
     lenMax += 10;  // 纹理行宽
     lineMax += 10;    // 纹理行高
+    if(loader_.size() < lenMax*lineMax)
+        loader_.resize(lenMax*lineMax);
+    std::fill(loader_.begin(), loader_.begin() + lenMax*lineMax, '\0');
+
     if(vAlign() == RArea::Align::Bottom) linepos = lineMax - ((lines.size()-1) * advanceL + fsize) - 5;
     else if(vAlign() == RArea::Align::Mind) linepos = (lineMax - ((lines.size()-1) * advanceL + fsize)) / 2;
     else linepos = 5; // Top 缺省默认
@@ -888,7 +898,7 @@ void RTextsbxo::horizontalTextToTexture()
                 {
                     if(!glyph->data.get()[y * glyph->width + x])
                         continue;
-                    loader.data()[(starty + y) * lenMax + startx + x] = glyph->data.get()[y*glyph->width+x];
+                    loader_[(starty + y) * lenMax + startx + x] = glyph->data.get()[y*glyph->width+x];
                 }
             }
 
@@ -908,13 +918,14 @@ void RTextsbxo::horizontalTextToTexture()
         {
             for(unsigned y = lineMax - 5; y < lineMax; ++y)
                 for(unsigned x = lenMax - 5; x < lenMax; ++x)
-                    loader.data()[y * lenMax + x] = '\xff';
+                    loader_[y * lenMax + x] = '\xff';
         }
     }
-    loader.flipVertical();
-    if(loader.width() != textTex_.width() || loader.height() != loader.height())
-        textTex_.load(loader, RTexture::SingleTex);
+
+    flipVertical(loader_.data(), lenMax, lineMax);
+    if(lenMax != static_cast<unsigned>(textTex_.width()) || lineMax != static_cast<unsigned>(textTex_.height()))
+        textTex_.load(loader_.data(), lenMax, lineMax, 1, RTexture::SingleTex);
     else
-        textTex_.reload(loader.data());
+        textTex_.reload(loader_.data());
     complete();
 }
