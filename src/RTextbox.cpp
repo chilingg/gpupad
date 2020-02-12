@@ -67,7 +67,9 @@ const RTextsbxo::RenderTool &RTextsbxo::textboxRenderTool()
         };
 
         tTextShaders.releaseShader();
-        tTextShaders.attachShader({ RShader(vCode, RShader::Type::Vertex), RShader(fCode, RShader::Type::Fragment)});
+        tTextShaders.rename("TextShaders");
+        tTextShaders.attachShader({ RShader(vCode, RShader::Type::Vertex, "Text-VS"),
+                                    RShader(fCode, RShader::Type::Fragment, "Text-FS")});
         tTextShaders.linkProgram();
         auto inter = tTextShaders.useInterface();
         MODEL_LOC = tTextShaders.getUniformLocation("model");
@@ -106,7 +108,8 @@ RTextsbxo::RTextsbxo(const std::wstring &text, int width, int height, int x, int
     texts_(text),
     model_{ glm::mat4(1), glm::mat4(1) }
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo::RTextsbxo(const std::string &text, int width, int height, int x, int y, int z):
@@ -115,7 +118,8 @@ RTextsbxo::RTextsbxo(const std::string &text, int width, int height, int x, int 
     texts_(strcnv.from_bytes(text)),
     model_{ glm::mat4(1), glm::mat4(1) }
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo::RTextsbxo(const std::wstring &text, int width, int height, const RPoint &pos):
@@ -124,7 +128,8 @@ RTextsbxo::RTextsbxo(const std::wstring &text, int width, int height, const RPoi
     texts_(text),
     model_{ glm::mat4(1), glm::mat4(1) }
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo::RTextsbxo(const std::string &text, int width, int height, const RPoint &pos):
@@ -133,7 +138,8 @@ RTextsbxo::RTextsbxo(const std::string &text, int width, int height, const RPoin
     texts_(strcnv.from_bytes(text)),
     model_{ glm::mat4(1), glm::mat4(1) }
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo::RTextsbxo(const std::wstring &text, const RSize &size, const RPoint &pos):
@@ -142,7 +148,8 @@ RTextsbxo::RTextsbxo(const std::wstring &text, const RSize &size, const RPoint &
     texts_(text),
     model_{ glm::mat4(1), glm::mat4(1) }
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo::RTextsbxo(const std::string &text, const RSize &size, const RPoint &pos):
@@ -151,7 +158,8 @@ RTextsbxo::RTextsbxo(const std::string &text, const RSize &size, const RPoint &p
     texts_(strcnv.from_bytes(text)),
     model_{ glm::mat4(1), glm::mat4(1) }
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo::RTextsbxo(const std::wstring &text, const RRect &rect, int z):
@@ -160,7 +168,8 @@ RTextsbxo::RTextsbxo(const std::wstring &text, const RRect &rect, int z):
     texts_(text),
     model_{ glm::mat4(1), glm::mat4(1) }
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo::RTextsbxo(const std::string &text, const RRect &rect, int z):
@@ -169,7 +178,8 @@ RTextsbxo::RTextsbxo(const std::string &text, const RRect &rect, int z):
     texts_(strcnv.from_bytes(text)),
     model_{ glm::mat4(1), glm::mat4(1) }
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo::RTextsbxo(const std::wstring &text, const RArea::Format &area):
@@ -178,7 +188,8 @@ RTextsbxo::RTextsbxo(const std::wstring &text, const RArea::Format &area):
     texts_(text),
     model_{ glm::mat4(1), glm::mat4(1) }
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo::RTextsbxo(const std::string &text, const RArea::Format &area):
@@ -187,7 +198,8 @@ RTextsbxo::RTextsbxo(const std::string &text, const RArea::Format &area):
     texts_(strcnv.from_bytes(text)),
     model_{ glm::mat4(1), glm::mat4(1) }
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo::RTextsbxo(const RTextsbxo &box):
@@ -199,7 +211,8 @@ RTextsbxo::RTextsbxo(const RTextsbxo &box):
     resetting_(box.resetting_),
     typesetting(box.typesetting)
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo::RTextsbxo(RTextsbxo &&box):
@@ -211,7 +224,8 @@ RTextsbxo::RTextsbxo(RTextsbxo &&box):
     resetting_(box.resetting_),
     typesetting(box.typesetting)
 {
-
+    backTex_.rename("Textsbox-Back");
+    textTex_.rename("Textsbox-Text");
 }
 
 RTextsbxo &RTextsbxo::operator=(const RTextsbxo &box)
@@ -283,11 +297,6 @@ RTextsbxo::Format RTextsbxo::textFormat() const
 const RTexture &RTextsbxo::textTexture() const
 {
     return textTex_;
-}
-
-const RImage &RTextsbxo::textImage() const
-{
-    return textImg_;
 }
 
 bool RTextsbxo::isSeting() const
@@ -383,6 +392,11 @@ void RTextsbxo::setEllipsis(bool b)
     format_.ellipsis = b;
 }
 
+void RTextsbxo::setTexture(const RTexture &tex)
+{
+    textTex_ = tex;
+}
+
 void RTextsbxo::verticalTypeset()
 {
     typesetting = &RTextsbxo::verticalTextToTexture;
@@ -400,6 +414,11 @@ void RTextsbxo::horizontalTypeset()
 void RTextsbxo::reseting()
 {
     resetting_ = true;
+}
+
+void RTextsbxo::resetingNow()
+{
+    (this->*typesetting)();
 }
 
 void RTextsbxo::complete()
@@ -462,7 +481,7 @@ void RTextsbxo::update()
     model_[0] = model_[0] * glm::mat4_cast(glm::qua<float>(glm::vec3{ area().rotate.x, area().rotate.y, area().rotate.z }));
     model_[0] = glm::scale(model_[0], { width(), height(), 0 });
 
-    if(dirty() & (RArea::Scale | RArea::Typeset))
+    if(dirty() & (RArea::Scale | RArea::Typeset) || resetting_)
     {
         (this->*typesetting)();
         complete();
@@ -668,11 +687,8 @@ void RTextsbxo::verticalTextToTexture()
     // 四方预留5px
     int boxw = lenMax + 10;
     int boxl = lineMax + 10;
-    if(boxw != textImg_.height() || boxl != textImg_.width())
-    {
-        textImg_.load(nullptr, boxl, boxw, 1);
-        std::fill(textImg_.data(), textImg_.data() + boxw * boxl, '\0');
-    }
+    RImage loader(nullptr, boxl, boxw, 1, "FontLoader");
+    std::fill(loader.data(), loader.data() + boxw * boxl, '\0');
 
     lenMax += 10;
     lineMax += 10;
@@ -719,7 +735,7 @@ void RTextsbxo::verticalTextToTexture()
                 {
                     if(!glyph->data.get()[y * glyph->width + x])
                         continue;
-                    textImg_.data()[(starty + y) * lineMax + startx + x] = glyph->data.get()[y*glyph->width+x];
+                    loader.data()[(starty + y) * lineMax + startx + x] = glyph->data.get()[y*glyph->width+x];
                 }
             }
 
@@ -739,11 +755,14 @@ void RTextsbxo::verticalTextToTexture()
         {
             for(unsigned y = lenMax - 5; y < lenMax; ++y)
                 for(unsigned x = 0; x < 5; ++x)
-                    textImg_.data()[y * lineMax + x] = '\xff';
+                    loader.data()[y * lineMax + x] = '\xff';
         }
     }
-    textImg_.flipVertical();
-    textTex_.load(textImg_, RTexture::SingleTex);
+    loader.flipVertical();
+    if(textTex_.height() != loader.height() || textTex_.width() != loader.width())
+        textTex_.load(loader, RTexture::SingleTex);
+    else
+        textTex_.reload(loader.data());
     complete();
 }
 
@@ -816,11 +835,8 @@ void RTextsbxo::horizontalTextToTexture()
     // 四方预留5px
     int boxw = lenMax + 10;
     int boxl = lineMax + 10;
-    if(boxw != textImg_.width() || boxl != textImg_.height())
-    {
-        textImg_.load(nullptr, boxw, boxl, 1);
-        std::fill(textImg_.data(), textImg_.data() + boxw * boxl, '\0');
-    }
+    RImage loader(nullptr, boxw, boxl, 1);
+    std::fill(loader.data(), loader.data() + boxw * boxl, '\0');
 
     lenMax += 10;  // 纹理行宽
     lineMax += 10;    // 纹理行高
@@ -866,7 +882,7 @@ void RTextsbxo::horizontalTextToTexture()
                 {
                     if(!glyph->data.get()[y * glyph->width + x])
                         continue;
-                    textImg_.data()[(starty + y) * lenMax + startx + x] = glyph->data.get()[y*glyph->width+x];
+                    loader.data()[(starty + y) * lenMax + startx + x] = glyph->data.get()[y*glyph->width+x];
                 }
             }
 
@@ -886,10 +902,13 @@ void RTextsbxo::horizontalTextToTexture()
         {
             for(unsigned y = lineMax - 5; y < lineMax; ++y)
                 for(unsigned x = lenMax - 5; x < lenMax; ++x)
-                    textImg_.data()[y * lenMax + x] = '\xff';
+                    loader.data()[y * lenMax + x] = '\xff';
         }
     }
-    textImg_.flipVertical();
-    textTex_.load(textImg_, RTexture::SingleTex);
+    loader.flipVertical();
+    if(loader.width() != textTex_.width() || loader.height() != loader.height())
+        textTex_.load(loader, RTexture::SingleTex);
+    else
+        textTex_.reload(loader.data());
     complete();
 }

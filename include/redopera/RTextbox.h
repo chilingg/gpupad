@@ -85,7 +85,6 @@ public:
     float spacing() const;
     Format textFormat() const;
     const RTexture& textTexture() const;
-    const RImage& textImage() const;
     bool isSeting() const;
 
     void setFontColor(R_RGBA rgba);
@@ -105,11 +104,13 @@ public:
     void setSpacing(float value);
     void setTextFormat(Format format);
     void setEllipsis(bool b);
+    void setTexture(const RTexture &tex);
 
     void verticalTypeset();
     void horizontalTypeset();
 
     void reseting();
+    void resetingNow();
     void complete();
 
     void update();
@@ -130,7 +131,6 @@ private:
     void verticalTextToTexture();
     void horizontalTextToTexture();
 
-    RImage textImg_;
     RTexture backTex_;
     RTexture textTex_;
     std::wstring texts_;
