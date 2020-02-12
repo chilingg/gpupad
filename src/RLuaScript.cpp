@@ -214,6 +214,8 @@ bool RLuaScript::call(const std::string &func, std::initializer_list<double> num
 
 bool RLuaScript::load(const std::string &lua)
 {
+    if(!lua_.unique())
+        resetRscID();
     lua_ .reset(luaL_newstate(), lua_close);
     luaL_openlibs(lua_.get());
 
@@ -234,6 +236,8 @@ bool RLuaScript::load(const std::string &lua)
 
 bool RLuaScript::load(const RData *buff, size_t size, const std::string &name)
 {
+    if(!lua_.unique())
+        resetRscID();
     lua_ .reset(luaL_newstate(), lua_close);
     luaL_openlibs(lua_.get());
 

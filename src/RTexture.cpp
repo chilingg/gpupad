@@ -131,6 +131,12 @@ void RTexture::bind(unsigned unit) const
 
 bool RTexture::load(const RData *data, int width, int height, int echannel, const RTexture::Format &format)
 {
+    if(!textureID_.unique() || textureID_ != nullptr)
+        resetRscID();
+    GLuint id;
+    glGenTextures(1, &id);
+    textureID_.reset(new GLuint(id), deleteTexture);
+
     ExtFormat eformat;
     switch(echannel)
     {
@@ -161,10 +167,7 @@ bool RTexture::load(const RData *data, int width, int height, int echannel, cons
         throw std::invalid_argument("Invalid set texture ichannel to " + std::to_string(format->inChannel));
     }
 
-    std::shared_ptr<GLuint> id(new GLuint, deleteTexture);
-    glGenTextures(1, id.get());
-
-    glBindTexture(GL_TEXTURE_2D, *id);
+    glBindTexture(GL_TEXTURE_2D, *textureID_);
     glTexParameterIuiv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, format->edgeColor.data());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLint>(format->wrapS));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(format->wrapT));
@@ -175,7 +178,6 @@ bool RTexture::load(const RData *data, int width, int height, int echannel, cons
     glBindTexture(GL_TEXTURE_2D, 0);
 
     format_ = format;
-    textureID_.swap(id);
     width_ = width;
     height_ = height;
     return true;
@@ -193,6 +195,9 @@ bool RTexture::load(const std::string &path, const RTexture::Format &format)
 
 void RTexture::reload(const RData *data)
 {
+    if(!textureID_.unique())
+        load(data, width_, height_, format_->inChannel, format_);
+
     ExtFormat eformat;
     inFormat iformat;
     switch(format_->inChannel)

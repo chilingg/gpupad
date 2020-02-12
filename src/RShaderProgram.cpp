@@ -419,6 +419,8 @@ bool RShaderProgram::linkProgram()
         return false;
     }
 
+    if(!progID_.unique())
+        resetRscID();
     progID_.swap(id);
     return true;
 }

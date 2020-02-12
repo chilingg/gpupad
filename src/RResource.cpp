@@ -68,6 +68,7 @@ const std::string &RResource::getResourcePath()
 }
 
 RResource::RResource(const std::string &name, Type type):
+    type_(type),
     name_(name),
     resourceID_(new unsigned(registerResourceID(name, type)), unregisterResourceID)
 {
@@ -75,6 +76,7 @@ RResource::RResource(const std::string &name, Type type):
 }
 
 RResource::RResource(const RResource &rc):
+    type_(rc.type_),
     name_(rc.name_),
     resourceID_(rc.resourceID_)
 {
@@ -82,6 +84,7 @@ RResource::RResource(const RResource &rc):
 }
 
 RResource::RResource(const RResource &&rc):
+    type_(rc.type_),
     name_(std::move(rc.name_)),
     resourceID_(std::move(rc.resourceID_))
 {
@@ -121,6 +124,11 @@ const std::string &RResource::name() const
 std::string RResource::nameAndID() const
 {
     return '(' + std::to_string(*resourceID_) + ')' + name_;
+}
+
+void RResource::resetRscID()
+{
+    resourceID_.reset(new RscID(registerResourceID(name_, type_)), unregisterResourceID);
 }
 
 void RResource::rename(const std::string &name)

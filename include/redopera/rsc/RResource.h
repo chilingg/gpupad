@@ -55,6 +55,8 @@ public:
     RscID resourceID() const;
     const std::string& name() const;
     std::string nameAndID() const;
+
+    void resetRscID();
     void rename(const std::string &name);
 
 protected:
@@ -68,6 +70,7 @@ private:
     static std::string resourcesPath;
     static std::mutex mutex;
 
+    const Type type_;
     std::string name_;
     std::shared_ptr<RscID> resourceID_;
 };

@@ -102,6 +102,8 @@ bool RMp3::load(const std::string &path)
     hz_ = static_cast<unsigned>(info.hz);
     samples_ = info.samples;
     channel_ = info.channels;
+    if(!data_.unique())
+        resetRscID();
     data_.reset(info.buffer, std::free);
 
     return true;
@@ -124,6 +126,8 @@ bool RMp3::load(const RData *data, size_t size)
     hz_ = static_cast<unsigned>(info.hz);
     samples_ = info.samples;
     channel_ = info.channels;
+    if(!data_.unique())
+        resetRscID();
     data_.reset(info.buffer, std::free);
 
     return true;

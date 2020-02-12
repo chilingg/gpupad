@@ -69,12 +69,14 @@ bool Redopera::RCursor::load(const Redopera::RImage &image, int xhot, int yhot)
     GLFWcursor *cursor = glfwCreateCursor(&img, xhot, yhot);
     if(cursor)
     {
+        if(!data_.unique())
+            resetRscID();
         data_.reset(cursor, glfwDestroyCursor);
-        return false;
+        shape_ = Shape::Custom;
+        return true;
     }
 
-    shape_ = Shape::Custom;
-    return true;
+    return false;
 }
 
 bool Redopera::RCursor::load(Redopera::RCursor::Shape shape)
@@ -82,12 +84,14 @@ bool Redopera::RCursor::load(Redopera::RCursor::Shape shape)
     GLFWcursor *cursor = glfwCreateStandardCursor(static_cast<int>(shape));
     if(cursor)
     {
+        if(!data_.unique())
+            resetRscID();
         data_.reset(cursor, glfwDestroyCursor);
-        return false;
+        shape_ = shape;
+        return true;
     }
 
-    shape_ = shape;
-    return true;
+    return false;
 }
 
 void Redopera::RCursor::release()

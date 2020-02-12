@@ -138,6 +138,8 @@ bool RFont::load(const std::string &path)
         return false;
     }
 
+    if(!resource_.unique())
+        resetRscID();
     resource_ = std::make_shared<FontResource>();
     stbtt_InitFont(&resource_->info, data, 0);
 
@@ -155,6 +157,8 @@ bool RFont::load(const std::string &path)
 
 bool RFont::load(const std::shared_ptr<RData[]> &data)
 {
+    if(!resource_.unique())
+        resetRscID();
     resource_ = std::make_shared<FontResource>();
     stbtt_InitFont(&resource_->info, data.get(), 0);
 

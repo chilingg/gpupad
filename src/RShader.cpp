@@ -114,6 +114,8 @@ bool RShader::load(const std::string &shader, Type type)
     }
 
     type_ = type;
+    if(!shaderID_.unique())
+        resetRscID();
     shaderID_.swap(id);
     return true;
 }

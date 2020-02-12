@@ -109,6 +109,8 @@ bool RImage::load(const std::string path, bool flip)
 {
     std::string newpath = rscpath(path);
 
+    if(!data_.unique())
+        resetRscID();
     stbi_set_flip_vertically_on_load(flip);
     data_.reset(stbi_load(newpath.c_str(), &width_, &height_, &channel_, 0), stbi_image_free);
 
@@ -124,6 +126,8 @@ bool RImage::load(const std::string path, bool flip)
 
 bool RImage::load(const RData *buf, size_t size, bool flip)
 {
+    if(!data_.unique())
+        resetRscID();
     stbi_set_flip_vertically_on_load(flip);
     data_.reset(stbi_load_from_memory(buf, size, &width_, &height_, &channel_, 0), stbi_image_free);
 
@@ -144,6 +148,8 @@ bool RImage::load(const RData *data, int width, int height, int channel)
 
     if(data) std::memcpy(d, data, size);
 
+    if(!data_.unique())
+        resetRscID();
     data_.reset(d, stbi_image_free);
     width_ = width;
     height_ = height;
@@ -154,6 +160,8 @@ bool RImage::load(const RData *data, int width, int height, int channel)
 
 bool RImage::load(std::shared_ptr<RData> data, int width, int height, int channel)
 {
+    if(!data_.unique())
+        resetRscID();
     data_ = data;
     width_ = width;
     height_ = height;
@@ -220,13 +228,14 @@ void RImage::release()
 
 void RImage::copyOnWrite()
 {
-    if(data_.unique() || data_ == nullptr) return;
+    if(data_.unique()) return;
 
     size_t size = static_cast<size_t>(height_) * width_ * channel_;
     RData *source = data_.get();
     RData *data = static_cast<RData*>(malloc(size));
     std::memcpy(data, source, size);
 
+    resetRscID();
     data_.reset(data);
 }
 
