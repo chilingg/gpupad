@@ -197,6 +197,18 @@ void RArea::setInnerPos(const RPoint &pos)
     addDirty(Move);
 }
 
+void RArea::move(int x, int y, int z)
+{
+    format_.pos += RPoint(x, y, z);
+    addDirty(Move);
+}
+
+void RArea::move(const RPoint &pos)
+{
+    format_.pos += pos;
+    addDirty(Move);
+}
+
 void RArea::setMargin(int top, int bottom, int left, int right)
 {
     format_.margin = { top, bottom, left, right };

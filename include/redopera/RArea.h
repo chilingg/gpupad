@@ -92,6 +92,9 @@ public:
     void setCenterPos(const RPoint &pos);
     void setInnerPos(const RPoint &pos);
 
+    void move(int x, int y, int z = 0);
+    void move(const RPoint &pos);
+
     void setMargin(int top, int bottom, int left, int right);
     void setMargin(int value);
     void setPadding(int top, int bottom, int left, int right);
