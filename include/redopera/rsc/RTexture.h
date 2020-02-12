@@ -90,6 +90,7 @@ public:
     bool load(const RData *data, int width, int height, int echannel, const Format &format = textureFormat);
     bool load(const RImage &img, const Format &format = textureFormat);
     bool load(const std::string &path, const Format &format = textureFormat);
+    void reload(const RData* data);
     void release();
 
 private:
@@ -98,7 +99,7 @@ private:
 
     std::shared_ptr<GLuint> textureID_;
     Format format_;
-    int widht_ = 0, height_ = 0;
+    int width_ = 0, height_ = 0;
 };
 
 } // Redopera

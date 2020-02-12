@@ -69,7 +69,7 @@ RTexture::RTexture(const RTexture &tex):
     RResource(tex),
     textureID_(tex.textureID_),
     format_(tex.format_),
-    widht_(tex.widht_),
+    width_(tex.width_),
     height_(tex.height_)
 {
 
@@ -79,7 +79,7 @@ RTexture::RTexture(const RTexture &&tex):
     RResource(std::move(tex)),
     textureID_(std::move(tex.textureID_)),
     format_(std::move(tex.format_)),
-    widht_(tex.widht_),
+    width_(tex.width_),
     height_(tex.height_)
 {
 
@@ -105,7 +105,7 @@ bool RTexture::isValid() const
 
 int RTexture::width() const
 {
-    return widht_;
+    return width_;
 }
 
 int RTexture::height() const
@@ -115,7 +115,7 @@ int RTexture::height() const
 
 RSize RTexture::size() const
 {
-    return RSize(widht_, height_);
+    return RSize(width_, height_);
 }
 
 GLuint RTexture::textureID() const
@@ -131,7 +131,7 @@ void RTexture::bind(unsigned unit) const
 
 bool RTexture::load(const RData *data, int width, int height, int echannel, const RTexture::Format &format)
 {
-    ExtFormat eformat = ExtFormat::RGBA;
+    ExtFormat eformat;
     switch(echannel)
     {
     case 4:
@@ -146,7 +146,7 @@ bool RTexture::load(const RData *data, int width, int height, int echannel, cons
         throw std::invalid_argument("Invalid set texture echannel to " + std::to_string(echannel));
     }
 
-    inFormat iformat = inFormat::RGBA8;
+    inFormat iformat;
     switch(format->inChannel)
     {
     case 4:
@@ -157,6 +157,7 @@ bool RTexture::load(const RData *data, int width, int height, int echannel, cons
         iformat = inFormat::RG8; break;
     case 1:
         iformat = inFormat::R8; break;
+    default:
         throw std::invalid_argument("Invalid set texture ichannel to " + std::to_string(format->inChannel));
     }
 
@@ -175,7 +176,7 @@ bool RTexture::load(const RData *data, int width, int height, int echannel, cons
 
     format_ = format;
     textureID_.swap(id);
-    widht_ = width;
+    width_ = width;
     height_ = height;
     return true;
 }
@@ -188,6 +189,33 @@ bool RTexture::load(const RImage &img, const RTexture::Format &format)
 bool RTexture::load(const std::string &path, const RTexture::Format &format)
 {
     return load(RImage(path), format);
+}
+
+void RTexture::reload(const RData *data)
+{
+    ExtFormat eformat;
+    inFormat iformat;
+    switch(format_->inChannel)
+    {
+    case 4:
+        eformat = ExtFormat::RGBA;
+        iformat = inFormat::RGBA8; break;
+    case 3:
+        eformat = ExtFormat::RGB;
+        iformat = inFormat::RGB8; break;
+    case 2:
+        eformat = ExtFormat::RG;
+        iformat = inFormat::RG8; break;
+    case 1:
+        eformat = ExtFormat::RED;
+        iformat = inFormat::R8; break;
+    default:
+        throw std::invalid_argument("Invalid set texture ichannel to " + std::to_string(format_->inChannel));
+    }
+
+    glBindTexture(GL_TEXTURE_2D, *textureID_);
+    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(iformat), width_, height_, 0, static_cast<GLenum>(eformat), GL_UNSIGNED_BYTE, data);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void RTexture::release()
