@@ -1,0 +1,247 @@
+#include "RInfoWindow.h"
+#include "RDebug.h"
+
+using namespace Redopera;
+
+namespace  {
+constexpr int LIST_W = 200;
+constexpr int TITLE_H = 26;
+constexpr int LIST_LEFT_ALIGN = 8;
+constexpr int SCROLL_BAR_W = 8;
+
+const RColor COLOR_ZERO(20, 20, 25);
+const RColor COLOR_ONE(30, 30, 40);
+const RColor COLOR_TOW(45, 45, 55);
+const RColor COLOR_THREE(55, 55, 65);
+const RColor COLOR_FOUR(65, 65, 80);
+const RColor FONT_COLOR(210, 210, 230);
+}
+
+RInfoWIndow::RInfoWIndow(const RWindow::Format &format, const std::string &name):
+    RWindow(format, nullptr, name)
+{
+
+}
+
+void RInfoWIndow::control()
+{
+    renderRscList();
+
+    rcTitle_.render();
+    rcCount_.render();
+    rcCountNum_.render();
+    rcScrBack_.render();
+    rcScroll_.render();
+}
+
+void RInfoWIndow::renderRscList()
+{
+    int n = RResource::queryResourceList()->size();
+    rcCountNum_.setTexts(std::to_wstring(n));
+    rcScroll_.setHeight(n * LIST_W);
+
+    int listLen = n * TITLE_H;
+    if(listLen > rcScrBack_.height())
+    {
+        sOff_ = glm::clamp(sOff_, 0, listLen - rcScrBack_.height());
+
+        double ratio = rcScrBack_.height()*1.0 / listLen;
+        rcScroll_.setHeight(rcScrBack_.height() * ratio);
+        ratio = sOff_*1.0 / listLen;
+        rcScroll_.setPosY(height() - TITLE_H - rcScroll_.height());
+        rcScroll_.move(0, -rcScrBack_.height() * ratio);
+    }
+    else {
+        rcScroll_.setHeight(rcScrBack_.height());
+        rcScroll_.setPosY(TITLE_H);
+        sOff_ = 0;
+    }
+
+    rcID_.setPosY(rcTitle_.y() - TITLE_H + sOff_);
+    rcIcon_.setPosY(rcID_.y());
+    rcName_.setPosY(rcID_.y());
+
+    rcBack_.render();
+    rcNumBack_.render();
+
+    for(auto &rc : *RResource::queryResourceList())
+    {
+        if(rcID_.y() < 0)
+            break;
+        else if(rcID_.y() > height() - TITLE_H)
+        {
+            rcID_.move(0, -TITLE_H);
+            rcIcon_.move(0, -TITLE_H);
+            rcName_.move(0, -TITLE_H);
+            continue;
+        }
+
+        // 百位
+        int n = rc.first / 100 % 10;
+        if(n)
+        {
+            rcID_.setTexture(numbers_[n]);
+            rcID_.render();
+        }
+        // 十位
+        rcID_.move(7, 0);
+        n = rc.first / 10 % 10;
+        if(n || rc.first > 99)
+        {
+            rcID_.setTexture(numbers_[n]);
+            rcID_.render();
+        }
+        // 个位
+        rcID_.move(7, 0);
+        n = rc.first % 10;
+        rcID_.setTexture(numbers_[n]);
+        rcID_.render();
+
+        rcIcon_.setTexture(rcIcons_[rc.second.type]);
+        //rcIcon_.render();
+        rcIcon_.edging(RColor(30, 30, 40));
+        rcName_.setTexts(rc.second.name);
+        rcName_.render();
+        rcName_.edging();
+
+        rcID_.setPos(LIST_LEFT_ALIGN, rcID_.y() - TITLE_H);
+        rcIcon_.move(0, -TITLE_H);
+        rcName_.move(0, -TITLE_H);
+    }
+}
+
+void RInfoWIndow::startEvent(RStartEvent &)
+{
+    rcTitle_.setTextureName("rcTitle");
+    rcTitle_.setTexts(L"Resource List");
+    rcTitle_.setSize(LIST_W, TITLE_H);
+    rcTitle_.setFontSize(13);
+    rcTitle_.setFontColor(FONT_COLOR);
+    rcTitle_.setPadding(0, 0, LIST_LEFT_ALIGN, 0);
+    rcTitle_.setBackColor(COLOR_ONE);
+    rcTitle_.setAlign(RArea::Align::Mind, RArea::Align::Left);
+
+    rcBack_.rename("rcBack");
+    rcBack_.setWidth(LIST_W);
+    rcBack_.setPos(0, 0);
+    rcBack_.setColorTexture(COLOR_TOW);
+
+    rcCount_.setTextureName("rcCount");
+    rcCount_ = rcTitle_;
+    rcCount_.setPos(0, 0);
+    rcCount_.setTexts(L"Count:");
+    rcCountNum_ = rcCount_;
+    rcCountNum_.setBackColor(0x0);
+    rcCountNum_.setTexts(L"0");
+    rcCountNum_.setPosX(51);
+
+    rcID_.setFontSize(13);
+    rcID_.setPosX(LIST_LEFT_ALIGN);
+    rcID_.setSize(15, TITLE_H);
+    rcID_.setAlign(RArea::Align::Mind, RArea::Align::Left);
+    rcID_.setFontColor(FONT_COLOR);
+    for(int i = 0; i < 10; ++i)
+    {
+        rcID_.setTexts(std::to_wstring(i));
+        rcID_.resetingNow();
+        numbers_[i] = rcID_.textTexture();
+        numbers_[i].rename("rcNum " + std::to_string(i));
+    }
+    rcIcons_[RResource::Type::Cursor] = RTexture::whiteTex();
+    rcIcons_[RResource::Type::Font] = RTexture::whiteTex();
+    rcIcons_[RResource::Type::Image] = RTexture::whiteTex();
+    rcIcons_[RResource::Type::Script] = RTexture::whiteTex();
+    rcIcons_[RResource::Type::Mp3] = RTexture::whiteTex();
+    rcIcons_[RResource::Type::Pack] = RTexture::whiteTex();
+    rcIcons_[RResource::Type::Shader] = RTexture::whiteTex();
+    rcIcons_[RResource::Type::ShaderProg] = RTexture::whiteTex();
+    rcIcons_[RResource::Type::Texture] = RTexture::whiteTex();
+    rcIcon_.rename("rcIcon");
+    rcIcon_.setSize(TITLE_H, TITLE_H);
+    rcIcon_.setPosX(LIST_LEFT_ALIGN + 30);
+
+    rcNumBack_.rename("rcNumBack");
+    rcNumBack_.setPos(0, 0);
+    rcNumBack_.setWidth(rcIcon_.x());
+    rcNumBack_.setColorTexture(COLOR_THREE);
+
+    rcName_ = rcID_;
+    rcName_.setTextureName("rcName");
+    rcName_.setPosX(rcIcon_.x() + TITLE_H);
+    rcName_.setWidth(LIST_W - rcName_.x());
+    rcName_.setEllipsis(false);
+
+    rcScroll_.rename("rcScroll");
+    rcScroll_.setWidth(SCROLL_BAR_W);
+    rcScroll_.setColorTexture(COLOR_FOUR);
+    rcScroll_.setPosX(rcBack_.width() - SCROLL_BAR_W);
+    rcScroll_.setMinSize(0, 10);
+    rcScrBack_.rename("rcScrBack");
+    rcScrBack_.setWidth(SCROLL_BAR_W);
+    rcScrBack_.setColorTexture(COLOR_ZERO);
+    rcScrBack_.setPos(rcScroll_.x(), TITLE_H);
+
+    reArea_ = rcScrBack_.rect();
+    reArea_.setWidth(40);
+    reArea_.move(-reArea_.width()/2, 0);
+
+    pProLoc_ = RPlane::planeShader().getUniformLocation("projection");
+    tProLoc_ = RTextsbxo::textboxShader().getUniformLocation("projection");
+
+    rolled.connect([this](int direct){ wheel_ = direct; return true; });
+
+    translation({ this, size(), RPoint(0) });
+}
+
+void RInfoWIndow::translation(const RController::TranslationInfo &info)
+{
+    rcTitle_.setPos(0, info.size.height() - rcTitle_.height());
+    rcBack_.setHeight(info.size.height() - TITLE_H);
+    rcNumBack_.setHeight(rcBack_.height());
+    rcScrBack_.setHeight(rcBack_.height() - TITLE_H);
+    reArea_.setHeight(rcScrBack_.height());
+
+    {
+    RShaderProgram::Interface interface = RPlane::planeShader().useInterface();
+    interface.setViewprot(pProLoc_, 0, width(), 0, height());
+    }
+
+    RShaderProgram::Interface interface = RTextsbxo::textboxShader().useInterface();
+    interface.setViewprot(tProLoc_, 0, width(), 0, height());
+}
+
+void RInfoWIndow::inputEvent(RInputEvent &event)
+{
+    RCursor::Shape shape = RCursor::Shape::Arrow;
+
+    if(wheel_)
+    {
+        if(rcBack_.rect().contains(event.cursorPos()))
+            sOff_ += TITLE_H/2.0 * -wheel_;
+        wheel_ = 0;
+    }
+
+    if(reArea_.contains(event.cursorPos()))
+    {
+        shape = RCursor::Shape::Hresize;
+        if(event.status(MouseButtons::MOUSE_BUTTON_LEFT) == ButtonAction::PRESS && event.cursorPos().x() > LIST_W/2)
+        {
+            reArea_.setCenter(event.cursorPos());
+            rcTitle_.setWidth(event.cursorPos().x() + SCROLL_BAR_W);
+            rcCount_.setWidth(rcTitle_.width());
+            rcBack_.setWidth(rcTitle_.width());
+            //rcName_.setWidth(rcTitle_.width() - rcName_.x());
+            rcScroll_.setPosX(rcBack_.width() - rcScroll_.width());
+            rcScrBack_.setPosX(rcScroll_.x());
+        }
+    }
+
+    if(event.press(Keys::KEY_ESCAPE))
+        breakLoop();
+
+    if(cursor_.shape() != shape)
+    {
+        cursor_.load(shape);
+        setCursor(&cursor_);
+    }
+}
