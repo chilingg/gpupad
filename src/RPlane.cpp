@@ -92,7 +92,9 @@ const RPlane::RenderTool& RPlane::planeRenderTool()
         };
 
         tPlaneShaders.releaseShader();
-        tPlaneShaders.attachShader({ RShader(vCode, RShader::Type::Vertex), RShader(fCode, RShader::Type::Fragment)});
+        tPlaneShaders.rename("PlaneShaders");
+        tPlaneShaders.attachShader({ RShader(vCode, RShader::Type::Vertex, "Plane-VS"),
+                                     RShader(fCode, RShader::Type::Fragment, "Plane-FS") });
         tPlaneShaders.linkProgram();
         auto inter = tPlaneShaders.useInterface();
         MODEL_LOC = tPlaneShaders.getUniformLocation("model");
@@ -118,91 +120,103 @@ const RShaderProgram &RPlane::planeShader()
 }
 
 RPlane::RPlane():
+    name_("Plane"),
     mats_{ glm::mat4(1), glm::mat4(1), glm::mat4(1) },
     model_(1),
     texture_(RTexture::whiteTex())
 {
-
+    texture_.rename(name_ + "-Tex");
 }
 
-RPlane::RPlane(int width, int height, int x, int y, int z, const RTexture &tex):
+RPlane::RPlane(int width, int height, int x, int y, int z, const RTexture &tex, const std::string &name):
     RArea(width, height, x, y, z),
+    name_(name),
     mats_{ glm::mat4(1), glm::mat4(1), glm::mat4(1) },
     model_(1),
     texture_(tex)
 {
-
+    texture_.rename(name + "-Tex");
 }
 
-RPlane::RPlane(int width, int height, const RPoint &pos, const RTexture &tex):
+RPlane::RPlane(int width, int height, const RPoint &pos, const RTexture &tex, const std::string &name):
     RArea(width, height, pos),
+    name_(name),
     mats_{ glm::mat4(1), glm::mat4(1), glm::mat4(1) },
     model_(1),
     texture_(tex)
 {
-
+    texture_.rename(name + "-Tex");
 }
 
-RPlane::RPlane(const RSize &size, const RPoint &pos, const RTexture &tex):
+RPlane::RPlane(const RSize &size, const RPoint &pos, const RTexture &tex, const std::string &name):
     RArea(size, pos),
+    name_(name),
     mats_{ glm::mat4(1), glm::mat4(1), glm::mat4(1) },
     model_(1),
     texture_(tex)
 {
-
+    texture_.rename(name + "-Tex");
 }
 
-RPlane::RPlane(const RRect &rect, int z, const RTexture &tex):
+RPlane::RPlane(const RRect &rect, int z, const RTexture &tex, const std::string &name):
     RArea(rect, z),
+    name_(name),
     mats_{ glm::mat4(1), glm::mat4(1), glm::mat4(1) },
     model_(1),
     texture_(tex)
 {
-
+    texture_.rename(name + "-Tex");
 }
 
-RPlane::RPlane(const RArea::Format &format, const RTexture &tex):
+RPlane::RPlane(const RArea::Format &format, const RTexture &tex, const std::string &name):
     RArea(format),
+    name_(name),
     mats_{ glm::mat4(1), glm::mat4(1), glm::mat4(1) },
     model_(1),
     texture_(tex)
 {
-
+    texture_.rename(name + "-Tex");
 }
 
 RPlane::RPlane(const RPlane &plane):
     RArea(plane),
+    name_(plane.name_),
     mats_(plane.mats_),
     model_(plane.model_),
     texture_(plane.texture_)
 {
-
+    texture_.rename(name_ + "-Tex");
 }
 
 RPlane::RPlane(const RPlane &&plane):
     RArea(plane),
+    name_(plane.name_),
     mats_(std::move(plane.mats_)),
     model_(std::move(plane.model_)),
     texture_(std::move(plane.texture_))
 {
-
+    texture_.rename(name_ + "-Tex");
 }
 
 RPlane &RPlane::operator=(const RPlane &plane)
 {
     RArea::operator=(plane);
+    name_ = plane.name_;
     mats_ = plane.mats_;
     model_ = plane.model_;
     texture_ = plane.texture_;
+    texture_.rename(name_ + "-Tex");
     return *this;
 }
 
 RPlane &RPlane::operator=(const RPlane &&plane)
 {
     RArea::operator=(plane);
+    name_ = std::move(plane.name_);
     mats_ = std::move(plane.mats_);
     model_ = std::move(plane.model_);
     texture_ = std::move(plane.texture_);
+    texture_.rename(name_ + "-Tex");
     return *this;
 }
 
@@ -247,6 +261,13 @@ void RPlane::setTexture(const RImage &img)
 void RPlane::setTexture(const RTexture &tex)
 {
     texture_ = tex;
+    texture_.rename(name_ + "-Tex");
+}
+
+void RPlane::rename(std::string name)
+{
+    name_.swap(name);
+    texture_.rename(name);
 }
 
 void RPlane::update()

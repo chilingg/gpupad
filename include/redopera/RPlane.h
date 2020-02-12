@@ -29,11 +29,11 @@ public:
     static const RShaderProgram& planeShader();
 
     RPlane();
-    RPlane(int width, int height, int x, int y, int z = 0, const RTexture &tex = RTexture::whiteTex());
-    RPlane(int width, int height, const RPoint &pos, const RTexture &tex = RTexture::whiteTex());
-    RPlane(const RSize &size, const RPoint &pos, const RTexture &tex = RTexture::whiteTex());
-    explicit RPlane(const RRect &rect, int z = 0, const RTexture &tex = RTexture::whiteTex());
-    explicit RPlane(const Format &area, const RTexture &tex = RTexture::whiteTex());
+    RPlane(int width, int height, int x, int y, int z = 0, const RTexture &tex = RTexture::whiteTex(), const std::string &name = "Plane");
+    RPlane(int width, int height, const RPoint &pos, const RTexture &tex = RTexture::whiteTex(), const std::string &name = "Plane");
+    RPlane(const RSize &size, const RPoint &pos, const RTexture &tex = RTexture::whiteTex(), const std::string &name = "Plane");
+    explicit RPlane(const RRect &rect, int z = 0, const RTexture &tex = RTexture::whiteTex(), const std::string &name = "Plane");
+    explicit RPlane(const Format &area, const RTexture &tex = RTexture::whiteTex(), const std::string &name = "Plane");
     RPlane(const RPlane &plane);
     RPlane(const RPlane &&plane);
     RPlane& operator=(const RPlane &plane);
@@ -49,6 +49,7 @@ public:
     void setColorTexture(unsigned r, unsigned g, unsigned b, unsigned a = 0xffu);
     void setTexture(const RImage &img);
     void setTexture(const RTexture &tex);
+    void rename(std::string name);
 
     void update();
     void render();
@@ -66,6 +67,7 @@ private:
     thread_local static GLuint MODEL_LOC;
     thread_local static GLuint EDGING_LOC;
 
+    std::string name_;
     ModelMat mats_;
     glm::mat4 model_;
     RTexture texture_;
