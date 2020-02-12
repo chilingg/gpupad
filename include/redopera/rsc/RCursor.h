@@ -24,8 +24,8 @@ public:
     };
 
     RCursor();
-    RCursor(const RImage &image, const std::string &name = "Cursor", int xhot = 0, int yhot = 0);
-    RCursor(Shape shape, const std::string &name = "Cursor");
+    explicit RCursor(const RImage &image, const std::string &name = "Cursor", int xhot = 0, int yhot = 0);
+    explicit RCursor(Shape shape, const std::string &name = "Cursor");
     RCursor(const RCursor &cursor);
     RCursor(const RCursor &&cursor);
     RCursor& operator=(RCursor cursor);
