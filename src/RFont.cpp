@@ -7,6 +7,8 @@ using namespace Redopera;
 
 unsigned RFont::cacheMaxSize_ = 1000;
 
+thread_local RFont RFont::defaultFont;
+
 void RFont::setCasheSize(unsigned size)
 {
     cacheMaxSize_ = size;
@@ -17,15 +19,21 @@ void RFont::setDefaultFontSize(unsigned size)
     defaultFont.setSize(size);
 }
 
-void RFont::setDefaultFont(RFont font)
+const RFont &RFont::getDefaulteFont()
+{
+    if(!defaultFont.isValid())
+        defaultFont = sourceCodePro();
+
+    return defaultFont;
+}
+
+void RFont::setDefaultFont(const RFont &font)
 {
     defaultFont = font;
 }
 
 RFont::RFont():
-    RResource("Font", RResource::Type::Font),
-    resource_(defaultFont.resource_),
-    caches_(defaultFont.caches_)
+    RFont(getDefaulteFont())
 {
 
 }

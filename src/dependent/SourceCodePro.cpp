@@ -6079,9 +6079,7 @@ std::shared_ptr<RData[]> getSourceCodeProData()
     return SourceCodePro;
 }
 
-thread_local RFont RFont::defaultFont(getSourceCodeProData(), "SourceCodePro-Font");
-
-void RFont::setDsetDefaultFont()
+RFont RFont::sourceCodePro()
 {
-    defaultFont = RFont(getSourceCodeProData(), "SourceCodePro-Font");
+    return RFont(getSourceCodeProData(), "SourceCodePro-Font");
 }

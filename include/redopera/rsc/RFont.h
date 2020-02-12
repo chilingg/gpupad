@@ -33,12 +33,13 @@ public:
         stbtt_fontinfo info;
     };
 
-    // setDsetDefaultFont定义在字体资源文件中 (SourceCodePro.cpp)
-    static void setDsetDefaultFont();
+    // sourceCodePro()定义在字体资源文件中 (SourceCodePro.cpp)
+    static RFont sourceCodePro();
 
     static void setCasheSize(unsigned size);
     static void setDefaultFontSize(unsigned size);
-    static void setDefaultFont(RFont font);
+    static void setDefaultFont(const RFont &font);
+    static const RFont& getDefaulteFont();
 
     RFont();
     explicit RFont(const std::string &path, const std::string &name = "Font", unsigned fsize = 14);
