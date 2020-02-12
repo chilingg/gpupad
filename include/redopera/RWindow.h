@@ -66,9 +66,9 @@ public:
     void setCursor(const RCursor *cursor);
     void setCursorModel(CursorMode mode);
 
-    void setBackgroundColor(unsigned r, unsigned g, unsigned b);
-    void setBackgroundColor(const RColor &color);
-    void setBackgroundColor(R_RGBA rgba);
+    void setBackColor(unsigned r, unsigned g, unsigned b);
+    void setBackColor(const RColor &color);
+    void setBackColor(R_RGBA rgba);
 
     void setViewportSize(int width, int height);
     void setViewportRatio(double ratio);

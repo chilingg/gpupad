@@ -189,19 +189,19 @@ void RWindow::setCursorModel(RWindow::CursorMode mode)
     glfwSetInputMode(window_.get(), GLFW_CURSOR, static_cast<int>(mode));
 }
 
-void RWindow::setBackgroundColor(unsigned r, unsigned g, unsigned b)
+void RWindow::setBackColor(unsigned r, unsigned g, unsigned b)
 {
     format_.background = RColor(r, g, b, 255).rgba();
     glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
 }
 
-void RWindow::setBackgroundColor(const RColor &color)
+void RWindow::setBackColor(const RColor &color)
 {
     format_.background = color.rgba();
     glClearColor(color.r() / 255.0f, color.g() / 255.0f, color.b() / 255.0f, 1.0f);
 }
 
-void RWindow::setBackgroundColor(R_RGBA rgba)
+void RWindow::setBackColor(R_RGBA rgba)
 {
     RColor color(rgba);
     format_.background = rgba;
@@ -212,19 +212,22 @@ void RWindow::setViewportSize(int width, int height)
 {
     width_ = width;
     height_ = height;
-    resizeCallback(window_.get(), windowWidth(), windowHeight());
+    if(isLooping())
+        resizeCallback(window_.get(), windowWidth(), windowHeight());
 }
 
 void RWindow::setViewportRatio(double ratio)
 {
     format_.vRatio_ = ratio;
-    resizeCallback(window_.get(), windowWidth(), windowHeight());
+    if(isLooping())
+        resizeCallback(window_.get(), windowWidth(), windowHeight());
 }
 
 void RWindow::setViewportPattern(RWindow::Viewport pattern)
 {
     format_.viewport = pattern;
-    resizeCallback(window_.get(), windowWidth(), windowHeight());
+    if(isLooping())
+        resizeCallback(window_.get(), windowWidth(), windowHeight());
 }
 
 void RWindow::enableDepthTest()
@@ -313,8 +316,6 @@ void RWindow::show()
        mainWindow->closed.connect(this, &RController::breakLoop);
 
     glfwShowWindow(window_.get());
-    // 传递一次translation信息
-    resizeCallback(window_.get(), windowWidth(), windowHeight());
 }
 
 void RWindow::hide()
