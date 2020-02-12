@@ -235,6 +235,11 @@ const RTexture &RPlane::texture() const
     return texture_;
 }
 
+const std::string &RPlane::name() const
+{
+    return name_;
+}
+
 void RPlane::setColorTexture(const RColor &color)
 {
     R_RGBA rgba = color.rgba();
@@ -261,13 +266,12 @@ void RPlane::setTexture(const RImage &img)
 void RPlane::setTexture(const RTexture &tex)
 {
     texture_ = tex;
-    texture_.rename(name_ + "-Tex");
 }
 
 void RPlane::rename(std::string name)
 {
     name_.swap(name);
-    texture_.rename(name);
+    texture_.rename(name_ + "-Tex");
 }
 
 void RPlane::update()

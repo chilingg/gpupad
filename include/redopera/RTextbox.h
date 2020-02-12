@@ -105,6 +105,7 @@ public:
     void setTextFormat(Format format);
     void setEllipsis(bool b);
     void setTexture(const RTexture &tex);
+    void setTextureName(const std::string &name);
 
     void verticalTypeset();
     void horizontalTypeset();

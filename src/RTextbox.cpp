@@ -397,6 +397,12 @@ void RTextsbxo::setTexture(const RTexture &tex)
     textTex_ = tex;
 }
 
+void RTextsbxo::setTextureName(const std::string &name)
+{
+    backTex_.rename(name + "...Back");
+    textTex_.rename(name + "...Text");
+}
+
 void RTextsbxo::verticalTypeset()
 {
     typesetting = &RTextsbxo::verticalTextToTexture;
