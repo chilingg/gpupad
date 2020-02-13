@@ -16,25 +16,25 @@ RImage::RImage():
 }
 
 RImage::RImage(const std::string &path, const std::string &name, bool flip):
-    RResource(name, Type::Mp3)
+    RResource(name, Type::Image)
 {
     load(path, flip);
 }
 
 RImage::RImage(const RData *data, size_t size, const std::string &name, bool flip):
-    RResource(name, Type::Mp3)
+    RResource(name, Type::Image)
 {
     load(data, size, flip);
 }
 
 RImage::RImage(const RData *data, int width, int height, int channel, const std::string &name):
-    RResource(name, Type::Mp3)
+    RResource(name, Type::Image)
 {
     load(data, width, height, channel);
 }
 
 RImage::RImage(std::shared_ptr<RData> data, int width, int height, int channel, const std::string &name):
-    RResource(name, Type::Mp3)
+    RResource(name, Type::Image)
 {
     load(data, width, height, channel);
 }
@@ -116,7 +116,7 @@ bool RImage::load(const std::string path, bool flip)
 
     if(!data_)
     {
-        prError("Failed to load mp3 <" + name() + "> in " + newpath);
+        prError("Failed to load image <" + name() + "> in " + newpath);
         data_.reset();
         return false;
     }
@@ -133,7 +133,7 @@ bool RImage::load(const RData *buf, size_t size, bool flip)
 
     if(!data_)
     {
-        prError("Failed to load mp3 <" + name() + "> in memory");
+        prError("Failed to load image <" + name() + "> in memory");
         data_.reset();
         return false;
     }
