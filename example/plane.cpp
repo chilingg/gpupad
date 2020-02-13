@@ -12,8 +12,8 @@ public:
         RController(parent, name),
         plane(36, 36, RPoint(0, 0), RImage::redoperaIcon()),
         icon(16, 16, RPoint(0, 10), RImage::redoperaIcon()),
-        arrow{ {"↑", 40, 40, 0, 0} },
-        texts("Testing...", 70, 20, 10, 10)
+        arrow{ {L"↑", 40, 40, 0, 0} },
+        texts(L"Testing...", 70, 20, 10, 10)
     {
         plane.flipV();
         plane.setMargin(6);    // 外框一般用于检测碰撞

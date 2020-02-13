@@ -5,8 +5,8 @@
 
 using namespace Redopera;
 
-const char* texts =
-        "If I should see you,\n"
+const wchar_t* texts =
+        L"If I should see you,\n"
         "After long years,\n"
         "How should I greet you?\n"
         "With silence and tears?";
