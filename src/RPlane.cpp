@@ -3,7 +3,7 @@
 
 using namespace Redopera;
 
-thread_local RShaderProgram RPlane::tPlaneShaders;
+thread_local RShaderProg RPlane::tPlaneShaders;
 thread_local GLuint RPlane::MODEL_LOC;
 thread_local GLuint RPlane::EDGING_LOC;
 
@@ -107,14 +107,14 @@ const RPlane::RenderTool& RPlane::planeRenderTool()
     return tool;
 }
 
-void RPlane::setPlaneShadersAsThread(const RShaderProgram &shaders, GLuint mLoc, GLuint eLoc)
+void RPlane::setPlaneShadersAsThread(const RShaderProg &shaders, GLuint mLoc, GLuint eLoc)
 {
     tPlaneShaders = shaders;
     MODEL_LOC = mLoc;
     EDGING_LOC = eLoc;
 }
 
-const RShaderProgram &RPlane::planeShader()
+const RShaderProg &RPlane::planeShader()
 {
     return planeRenderTool().shaders;
 }
@@ -365,21 +365,21 @@ void RPlane::render()
     const RenderTool& rt = planeRenderTool();
     glBindVertexArray(rt.vao);
 
-    RShaderProgram::Interface inter = rt.shaders.useInterface();
+    RInterface inter = rt.shaders.useInterface();
     inter.setUniform(rt.edgingLoc, .0f, .0f, .0f, .0f);
     renderControl(rt.shaders, rt.modelLoc);
 
     glBindVertexArray(0);
 }
 
-void RPlane::render(const RShaderProgram &shaders, GLuint mLoc)
+void RPlane::render(const RShaderProg &shaders, GLuint mLoc)
 {
     if(dirty()) update();
 
     const RenderTool& rt = planeRenderTool();
     glBindVertexArray(rt.vao);
 
-    RShaderProgram::Interface inter = shaders.useInterface();
+    RInterface inter = shaders.useInterface();
     renderControl(shaders, mLoc);
 
     glBindVertexArray(0);
@@ -396,7 +396,7 @@ void RPlane::edging(const RColor &color)
     mat = glm::translate(mat, { area().pos.x(), area().pos.y(), area().pos.z() });
     mat = glm::scale(mat, { width(), height(), 0 });
 
-    RShaderProgram::Interface inter = rt.shaders.useInterface();
+    RInterface inter = rt.shaders.useInterface();
     inter.setUniformMatrix(rt.modelLoc, mat);
     inter.setUniform(rt.edgingLoc, color.r()/255.f, color.g()/255.f, color.b()/255.f, 1.0f);
 
@@ -404,7 +404,7 @@ void RPlane::edging(const RColor &color)
     glBindVertexArray(0);
 }
 
-void RPlane::edging(const RShaderProgram &shaders, GLuint mLoc)
+void RPlane::edging(const RShaderProg &shaders, GLuint mLoc)
 {
     if(dirty()) update();
 
@@ -415,7 +415,7 @@ void RPlane::edging(const RShaderProgram &shaders, GLuint mLoc)
     mat = glm::translate(mat, { area().pos.x(), area().pos.y(), area().pos.z() });
     mat = glm::scale(mat, { width(), height(), 0 });
 
-    RShaderProgram::Interface inter = shaders.useInterface();
+    RInterface inter = shaders.useInterface();
     inter.setUniformMatrix(mLoc, mat);
 
     glDrawArrays(GL_LINE_LOOP, 0, 4);
@@ -438,7 +438,7 @@ void RPlane::edgingAll()
     mats[2] = glm::translate(mats[2], { outerPos().x(), outerPos().y(), area().pos.z() });
     mats[2] = glm::scale(mats[2], { outerWidth(), outerHeight() , 0 });
 
-    RShaderProgram::Interface inter = rt.shaders.useInterface();
+    RInterface inter = rt.shaders.useInterface();
     inter.setUniformMatrix(rt.modelLoc, mats, 3);
     inter.setUniform(rt.edgingLoc, .0f, .0f, .0f, 1.0f);
 
@@ -446,7 +446,7 @@ void RPlane::edgingAll()
     glBindVertexArray(0);
 }
 
-void RPlane::edgingAll(const RShaderProgram &shaders, GLuint mLoc)
+void RPlane::edgingAll(const RShaderProg &shaders, GLuint mLoc)
 {
     if(dirty()) update();
 
@@ -462,14 +462,14 @@ void RPlane::edgingAll(const RShaderProgram &shaders, GLuint mLoc)
     mats[2] = glm::translate(mats[2], { outerPos().x(), outerPos().y(), area().pos.z() });
     mats[2] = glm::scale(mats[2], { outerWidth(), outerHeight() , 0 });
 
-    RShaderProgram::Interface inter = shaders.useInterface();
+    RInterface inter = shaders.useInterface();
     inter.setUniformMatrix(mLoc, mats, 3);
 
     glDrawArraysInstanced(GL_LINE_LOOP, 0, 4, 3);
     glBindVertexArray(0);
 }
 
-void RPlane::renderControl(const RShaderProgram &shaders, GLuint mLoc)
+void RPlane::renderControl(const RShaderProg &shaders, GLuint mLoc)
 {
     auto inter = shaders.useInterface();
     inter.setUniformMatrix(mLoc, model_);

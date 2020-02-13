@@ -1,4 +1,4 @@
-#include <rsc/RShaderProgram.h>
+#include <rsc/RShaderProg.h>
 #include <RWindow.h>
 #include <RThread.h>
 #include <RPlane.h>
@@ -79,7 +79,7 @@ protected:
 private:
     std::future<RTexture> future;
     RPlane plane;
-    RShaderProgram shaders;
+    RShaderProg shaders;
     GLuint mLoc;
 };
 

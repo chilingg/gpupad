@@ -1,5 +1,5 @@
 #include <RContext.h>
-#include <rsc/RShaderProgram.h>
+#include <rsc/RShaderProg.h>
 #include <RDebug.h>
 
 using namespace Redopera;
@@ -29,14 +29,14 @@ int main()
         std::cout << "OpenGl Version " << GLVersion.major << '.' << GLVersion.minor << " created\n" << std::endl;
 
     RShader vertex(vCode, RShader::Type::Vertex);
-    RShaderProgram renderProg({vertex});
+    RShaderProg renderProg({vertex});
 
     const char * varyings[] = { "outValue" };
     glTransformFeedbackVaryings(renderProg.shaderProgramID(), 1, varyings, GL_INTERLEAVED_ATTRIBS);
 
     renderProg.reLinkProgram();
     // Interface实例存在期间，对应程序都处于using状态
-    RShaderProgram::Interface interface = renderProg.useInterface();
+    RInterface interface = renderProg.useInterface();
     GLuint program = renderProg.shaderProgramID();
     rDebug << "Number: 1\t2\t3\t4\t5";
 

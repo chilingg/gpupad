@@ -32,8 +32,8 @@ protected:
     void startEvent(RStartEvent &) override
     {
         // textbox的着色器设置（与plane并不共享，建议永远与窗口尺寸等同，避免字体渲染虚化）
-        const RShaderProgram &shaders = RTextsbxo::textboxShader();
-        RShaderProgram::Interface inter = shaders.useInterface();
+        const RShaderProg &shaders = RTextsbxo::textboxShader();
+        RInterface inter = shaders.useInterface();
         inter.setViewprot(shaders.getUniformLocation("projection"), 0, width(), 0, height());
 
         text->setTexts(texts);

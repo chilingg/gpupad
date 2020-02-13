@@ -105,7 +105,7 @@ void RSprite::stop()
     playing_ = false;
 }
 
-void RSprite::renderControl(const RShaderProgram &shaders, GLuint mLoc)
+void RSprite::renderControl(const RShaderProg &shaders, GLuint mLoc)
 {
     if(frames_.empty())
         RPlane::renderControl(shaders, mLoc);

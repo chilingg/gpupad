@@ -1,7 +1,7 @@
 #include <RWindow.h>
 #include <RKeeper.h>
 #include <RDebug.h>
-#include <rsc/RShaderProgram.h>
+#include <rsc/RShaderProg.h>
 
 using namespace Redopera;
 
@@ -75,7 +75,7 @@ protected:
         modelLoc = shaders.getUniformLocation("model");
 
         // Interface生存周期内对应的shader program都处于glUseProgram()调用中，析构时自动glUseProgram(0);
-        RShaderProgram::Interface intf = shaders.useInterface();
+        RInterface intf = shaders.useInterface();
         intf.setUniformMatrix(modelLoc, model);
         // intf.setViewprot(projection, -2.0f, 2.0f, -2.0f, 2.0f); // 正交视图
         intf.setPerspective(projection, -30.0f, 30.0f, 0.0f, 60.0f, 0.0f, 1500.0f);
@@ -96,7 +96,7 @@ protected:
 
 private:
     RKeeper<GLuint> VAO, VBO;
-    RShaderProgram shaders;
+    RShaderProg shaders;
     GLuint modelLoc;
     glm::mat4 model;
 };

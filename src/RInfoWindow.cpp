@@ -247,11 +247,11 @@ void RInfoWIndow::translation(const RController::TranslationInfo &info)
     trView_.setSize(trBack_.width(), trBack_.height() - TITLE_H);
 
     {
-    RShaderProgram::Interface interface = RPlane::planeShader().useInterface();
+    RInterface interface = RPlane::planeShader().useInterface();
     interface.setViewprot(pProLoc_, 0, width(), 0, height());
     }
 
-    RShaderProgram::Interface interface = RTextsbxo::textboxShader().useInterface();
+    RInterface interface = RTextsbxo::textboxShader().useInterface();
     interface.setViewprot(tProLoc_, 0, width(), 0, height());
 }
 

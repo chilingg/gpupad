@@ -33,7 +33,7 @@ public:
     void stop();
 
 protected:
-    void renderControl(const RShaderProgram &shaders, GLuint mLoc) override;
+    void renderControl(const RShaderProg &shaders, GLuint mLoc) override;
 
 private:
     std::vector<RTexture> frames_;

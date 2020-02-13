@@ -6,7 +6,7 @@
 #include "RMath.h"
 #include "rsc/RFont.h"
 #include "rsc/RTexture.h"
-#include "rsc/RShaderProgram.h"
+#include "rsc/RShaderProg.h"
 
 #include <codecvt>
 #include <locale>
@@ -37,7 +37,7 @@ public:
 
     struct RenderTool
     {
-        RShaderProgram &shaders;
+        RShaderProg &shaders;
         GLuint &modelLoc;
         GLuint &colorLoc;
         GLuint &textLoc;
@@ -45,8 +45,8 @@ public:
     };
 
     static const RenderTool& textboxRenderTool();
-    static void setTextBoxShadersAsThread(const RShaderProgram &shaders, GLuint modelLoc, GLuint edgingLoc = -1);
-    static const RShaderProgram& textboxShader();
+    static void setTextBoxShadersAsThread(const RShaderProg &shaders, GLuint modelLoc, GLuint edgingLoc = -1);
+    static const RShaderProg& textboxShader();
 
     static std::wstring_convert<std::codecvt_utf8<wchar_t>> strcnv;
 
@@ -116,14 +116,14 @@ public:
 
     void update();
     void render();
-    void render(const RShaderProgram &shaders, GLuint mLoc);
+    void render(const RShaderProg &shaders, GLuint mLoc);
     void edging(const RColor &color = RColor(0xff0000ff));
-    void edging(const RShaderProgram &shaders, GLuint mLoc);
+    void edging(const RShaderProg &shaders, GLuint mLoc);
     void edgingAll();
-    void edgingAll(const RShaderProgram &shaders, GLuint mLoc);
+    void edgingAll(const RShaderProg &shaders, GLuint mLoc);
 
 private:
-    thread_local static RShaderProgram tTextShaders;
+    thread_local static RShaderProg tTextShaders;
     thread_local static GLuint MODEL_LOC;
     thread_local static GLuint COLOR_LOC;
     thread_local static GLuint TEXT_LOC;

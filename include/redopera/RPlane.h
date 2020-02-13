@@ -3,7 +3,7 @@
 
 #include "RArea.h"
 #include "rsc/RTexture.h"
-#include "rsc/RShaderProgram.h"
+#include "rsc/RShaderProg.h"
 
 namespace Redopera {
 
@@ -12,7 +12,7 @@ class RPlane : public RArea
 public:
     struct RenderTool
     {
-        RShaderProgram &shaders;
+        RShaderProg &shaders;
         GLuint &vao;
         GLuint &modelLoc;
         GLuint &edgingVAO;
@@ -25,8 +25,8 @@ public:
     };
 
     static const RenderTool& planeRenderTool();
-    static void setPlaneShadersAsThread(const RShaderProgram &shaders, GLuint modelLoc, GLuint edgingLoc = -1);
-    static const RShaderProgram& planeShader();
+    static void setPlaneShadersAsThread(const RShaderProg &shaders, GLuint modelLoc, GLuint edgingLoc = -1);
+    static const RShaderProg& planeShader();
 
     RPlane();
     RPlane(int width, int height, int x, int y, int z = 0, const RTexture &tex = RTexture::whiteTex(), const std::string &name = "Plane");
@@ -54,17 +54,17 @@ public:
 
     void update();
     void render();
-    void render(const RShaderProgram &shaders, GLuint mLoc);
+    void render(const RShaderProg &shaders, GLuint mLoc);
     void edging(const RColor &color = RColor(0xff0000ff));
-    void edging(const RShaderProgram &shaders, GLuint mLoc);
+    void edging(const RShaderProg &shaders, GLuint mLoc);
     void edgingAll();
-    void edgingAll(const RShaderProgram &shaders, GLuint mLoc);
+    void edgingAll(const RShaderProg &shaders, GLuint mLoc);
 
 protected:
-    virtual void renderControl(const RShaderProgram &shaders, GLuint mLoc);
+    virtual void renderControl(const RShaderProg &shaders, GLuint mLoc);
 
 private:
-    thread_local static RShaderProgram tPlaneShaders;
+    thread_local static RShaderProg tPlaneShaders;
     thread_local static GLuint MODEL_LOC;
     thread_local static GLuint EDGING_LOC;
 

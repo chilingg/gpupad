@@ -5,7 +5,7 @@ using namespace Redopera;
 
 std::wstring_convert<std::codecvt_utf8<wchar_t>> RTextsbxo::strcnv;
 
-thread_local RShaderProgram RTextsbxo::tTextShaders;
+thread_local RShaderProg RTextsbxo::tTextShaders;
 thread_local GLuint RTextsbxo::MODEL_LOC;
 thread_local GLuint RTextsbxo::EDGING_LOC;
 thread_local GLuint RTextsbxo::COLOR_LOC;
@@ -95,14 +95,14 @@ const RTextsbxo::RenderTool &RTextsbxo::textboxRenderTool()
     return tool;
 }
 
-void RTextsbxo::setTextBoxShadersAsThread(const RShaderProgram &shaders, GLuint modelLoc, GLuint edgingLoc)
+void RTextsbxo::setTextBoxShadersAsThread(const RShaderProg &shaders, GLuint modelLoc, GLuint edgingLoc)
 {
     tTextShaders = shaders;
     MODEL_LOC = modelLoc;
     EDGING_LOC = edgingLoc;
 }
 
-const RShaderProgram &RTextsbxo::textboxShader()
+const RShaderProg &RTextsbxo::textboxShader()
 {
     return textboxRenderTool().shaders;
 }
@@ -516,7 +516,7 @@ void RTextsbxo::render()
     glBindVertexArray(rt.vao);
 
     const RenderTool &tbrt = textboxRenderTool();
-    RShaderProgram::Interface inter = tbrt.shaders.useInterface();
+    RInterface inter = tbrt.shaders.useInterface();
     inter.setUniform(tbrt.edgingLoc, .0f, .0f, .0f, .0f);
     inter.setUniformMatrix(tbrt.modelLoc, model_.data(), 2);
     inter.setUniform(tbrt.colorLoc, format_.color);
@@ -528,7 +528,7 @@ void RTextsbxo::render()
     glBindVertexArray(0);
 }
 
-void RTextsbxo::render(const RShaderProgram &shaders, GLuint mLoc)
+void RTextsbxo::render(const RShaderProg &shaders, GLuint mLoc)
 {
     if(dirty()) update();
     else if(isSeting())
@@ -537,7 +537,7 @@ void RTextsbxo::render(const RShaderProgram &shaders, GLuint mLoc)
     const RPlane::RenderTool &rt = RPlane::planeRenderTool();
     glBindVertexArray(rt.vao);
 
-    RShaderProgram::Interface inter = shaders.useInterface();
+    RInterface inter = shaders.useInterface();
     inter.setUniformMatrix(mLoc, model_.data(), 2);
     textTex_.bind(1);
     backTex_.bind(0);
@@ -558,7 +558,7 @@ void RTextsbxo::edging(const RColor &color)
     mat = glm::scale(mat, { width(), height(), 0 });
 
     const RenderTool &tbrt = textboxRenderTool();
-    RShaderProgram::Interface inter = tbrt.shaders.useInterface();
+    RInterface inter = tbrt.shaders.useInterface();
     inter.setUniformMatrix(tbrt.modelLoc, mat);
     inter.setUniform(tbrt.edgingLoc, color.r()/255.f, color.g()/255.f, color.b()/255.f, 1.0f);
 
@@ -566,7 +566,7 @@ void RTextsbxo::edging(const RColor &color)
     glBindVertexArray(0);
 }
 
-void RTextsbxo::edging(const RShaderProgram &shaders, GLuint mLoc)
+void RTextsbxo::edging(const RShaderProg &shaders, GLuint mLoc)
 {
     if(dirty()) update();
 
@@ -577,7 +577,7 @@ void RTextsbxo::edging(const RShaderProgram &shaders, GLuint mLoc)
     mat = glm::translate(mat, { area().pos.x(), area().pos.y(), area().pos.z() });
     mat = glm::scale(mat, { width(), height(), 0 });
 
-    RShaderProgram::Interface inter = shaders.useInterface();
+    RInterface inter = shaders.useInterface();
     inter.setUniformMatrix(mLoc, mat);
 
     glDrawArrays(GL_LINE_LOOP, 0, 4);
@@ -601,7 +601,7 @@ void RTextsbxo::edgingAll()
     mats[2] = glm::scale(mats[2], { outerWidth(), outerHeight() , 0 });
 
     const RenderTool &tbrt = textboxRenderTool();
-    RShaderProgram::Interface inter = tbrt.shaders.useInterface();
+    RInterface inter = tbrt.shaders.useInterface();
     inter.setUniformMatrix(tbrt.modelLoc, mats, 3);
     inter.setUniform(tbrt.edgingLoc, .0f, .0f, .0f, 1.0f);
 
@@ -609,7 +609,7 @@ void RTextsbxo::edgingAll()
     glBindVertexArray(0);
 }
 
-void RTextsbxo::edgingAll(const RShaderProgram &shaders, GLuint mLoc)
+void RTextsbxo::edgingAll(const RShaderProg &shaders, GLuint mLoc)
 {
     if(dirty()) update();
 
@@ -625,7 +625,7 @@ void RTextsbxo::edgingAll(const RShaderProgram &shaders, GLuint mLoc)
     mats[2] = glm::translate(mats[2], { outerPos().x(), outerPos().y(), area().pos.z() });
     mats[2] = glm::scale(mats[2], { outerWidth(), outerHeight() , 0 });
 
-    RShaderProgram::Interface inter = shaders.useInterface();
+    RInterface inter = shaders.useInterface();
     inter.setUniformMatrix(mLoc, mats, 3);
 
     glDrawArraysInstanced(GL_LINE_LOOP, 0, 4, 3);
