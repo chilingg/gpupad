@@ -1,5 +1,6 @@
 #include "RInfoWindow.h"
 #include "RDebug.h"
+#include "rsc/RPack.h"
 
 using namespace Redopera;
 
@@ -109,8 +110,8 @@ void RInfoWIndow::renderRscList()
         rcID_.render();
 
         rcIcon_.setTexture(rcIcons_[rc.second.type]);
-        //rcIcon_.render();
-        rcIcon_.edging(RColor(30, 30, 40));
+        rcIcon_.render();
+        //rcIcon_.edging(RColor(30, 30, 40));
         rcName_.setTexts(rc.second.name);
         rcName_.render();
 
@@ -157,15 +158,30 @@ void RInfoWIndow::startEvent(RStartEvent &)
         numbers_[i] = rcID_.textTexture();
         numbers_[i].rename("rcNum " + std::to_string(i));
     }
-    rcIcons_[RResource::Type::Cursor] = RTexture::whiteTex();
-    rcIcons_[RResource::Type::Font] = RTexture::whiteTex();
-    rcIcons_[RResource::Type::Image] = RTexture::whiteTex();
-    rcIcons_[RResource::Type::Script] = RTexture::whiteTex();
-    rcIcons_[RResource::Type::Mp3] = RTexture::whiteTex();
-    rcIcons_[RResource::Type::Pack] = RTexture::whiteTex();
-    rcIcons_[RResource::Type::Shader] = RTexture::whiteTex();
-    rcIcons_[RResource::Type::ShaderProg] = RTexture::whiteTex();
-    rcIcons_[RResource::Type::Texture] = RTexture::whiteTex();
+
+    RPack pack(":/info-icons");
+    const RPack::FInfo *info;
+
+    info = pack.getFileInfo(":/cursor-24.png");
+    rcIcons_[RResource::Type::Cursor] = RTexture(RImage(info->data.get(), info->size, "", true), "cursor-icon");
+    info = pack.getFileInfo(":/font-24.png");
+    rcIcons_[RResource::Type::Font] = RTexture(RImage(info->data.get(), info->size, "", true), "font-icon");
+    info = pack.getFileInfo(":/image-24.png");
+    rcIcons_[RResource::Type::Image] = RTexture(RImage(info->data.get(), info->size, "", true), "image-icon");
+    info = pack.getFileInfo(":/script-24.png");
+    rcIcons_[RResource::Type::Script] = RTexture(RImage(info->data.get(), info->size, "", true), "script-icon");
+    info = pack.getFileInfo(":/mp3-24.png");
+    rcIcons_[RResource::Type::Mp3] = RTexture(RImage(info->data.get(), info->size, "", true), "mp3-icon");
+    info = pack.getFileInfo(":/pack-24.png");
+    rcIcons_[RResource::Type::Pack] = RTexture(RImage(info->data.get(), info->size, "", true), "pack-icon");
+    info = pack.getFileInfo(":/shader-24.png");
+    rcIcons_[RResource::Type::Shader] = RTexture(RImage(info->data.get(), info->size, "", true), "shader-icon");
+    info = pack.getFileInfo(":/shaderProg-24.png");
+    rcIcons_[RResource::Type::ShaderProg] = RTexture(RImage(info->data.get(), info->size, "", true), "shaderProg-icon");
+    info = pack.getFileInfo(":/texture-24.png");
+    rcIcons_[RResource::Type::Texture] = RTexture(RImage(info->data.get(), info->size, "", true), "texture-icon");
+    pack.release();
+
     rcIcon_.rename("rcIcon");
     rcIcon_.setSize(TITLE_H, TITLE_H);
     rcIcon_.setPosX(LIST_LEFT_ALIGN + 30);
@@ -201,7 +217,7 @@ void RInfoWIndow::startEvent(RStartEvent &)
     trTitle_ = rcTitle_;
     trTitle_.setTextureName("trTile");
     trTitle_.setPosX(trBack_.x());
-    trTitle_.setTexts("Tree View");
+    trTitle_.setTexts(L"Tree View");
 
     trView_.setTextureName("trView");
     trView_.setFontSize(13);
